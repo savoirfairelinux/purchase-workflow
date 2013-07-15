@@ -18,9 +18,10 @@ msgstr ""
 #. module: purchase_crate_pallet
 #: field:purchase.order.line,nb_crates_per_pallet:0
 msgid "Crates per pallet"
-msgstr "Caisses par palette"
+msgstr ""
 
 #. module: purchase_crate_pallet
+#: model:ir.model,name:purchase_crate_pallet.model_purchase_order_line
 #: model:ir.model,name:purchase_crate_pallet.model_pallet_crate_purchase_order_line
 #: model:ir.model,name:purchase_crate_pallet.model_purchase_order_line
 msgid "Purchase Order Line"
@@ -29,5 +30,5 @@ msgstr ""
 #. module: purchase_crate_pallet
 #: field:purchase.order.line,nb_pallets:0
 msgid "Pallets"
-msgstr "Palettes"
+msgstr ""
 

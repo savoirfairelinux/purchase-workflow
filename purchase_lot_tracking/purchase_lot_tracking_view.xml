@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<openerp>
+  <data>
+    <record id="view_employee_cv_form" model="ir.ui.view">
+      <field name="model">res.employee_cv</field>
+      <field name="arch" type="xml">
+        <form string="Sommaire">
+          <field name="sommaire"/>
+          <field name="nom_cv"/>
+          <field name="formations" widget="one2many_list"/>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_hr_employee_cvs" model="ir.ui.view">
+      <field name="model">hr.employee</field>
+      <field name="inherit_id" ref="hr.view_employee_form"/>
+      <field name="arch" type="xml">
+        <field name="coach_id" position="after">
+          <field name="cvs"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="view_hr_employee_cvs_formation_form" model="ir.ui.view">
+      <field name="model">res.employee_cv_formation</field>
+      <field name="arch" type="xml">
+          <field name="date_debut"/>
+      </field>
+    </record>
+
+  </data>
+</openerp>
+-->
+<openerp>
+  <data>
+    <record id="purchase_lot_tracking_product" model="ir.ui.view">
+      <field name="name">purchase_lot_tracking.product.view</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="product.product_normal_form_view"/>
+      <field name="arch" type="xml">
+        <field name="taxes_id" position="after">
+          <field name="account_id"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="purchase_lot_tracking_product_category" model="ir.ui.view">
+      <field name="name">purchase_lot_tracking.product_category.view</field>
+      <field name="model">product.category</field>
+      <field name="inherit_id" ref="product.product_category_form_view"/>
+      <field name="arch" type="xml">
+        <field name="type" position="after">
+          <group name="analytic_account" string="Analytic Account" colspan="2">
+            <field name="account_id"/>
+          </group>
+        </field>
+      </field>
+    </record>
+ 
+    <!-- Sequence -->
+    <record id="seq_type_lot" model="ir.sequence.type">
+      <field name="name">ls.lot</field>
+      <field name="code">ls.lot</field>
+    </record>
+
+    <record id="seq_lot" model="ir.sequence">
+      <field name="name">ls.lot</field>
+      <field name="code">ls.lot</field>
+      <field name="prefix">LOT</field>
+      <field name="padding">6</field>
+    </record>
+
+        
+
+
+  </data>
+</openerp>
