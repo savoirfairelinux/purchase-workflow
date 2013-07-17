@@ -22,6 +22,8 @@
 from openerp.osv import orm, fields
 import openerp.addons.decimal_precision as dp
 
+from datetime import datetime
+
 class purchase_lot_tracking_product_category(orm.Model):
     """
     Adds an analytical account to a purchase category
@@ -61,6 +63,7 @@ class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
         """
         Generates a lot number for this purchase order line
         """
+
         for line_order in self.browse(cr, uid, ids):
             lot_number = self.pool.get('ir.sequence').get(cr, uid, 'ls.lot')
             line_order.write({'lot': lot_number})
@@ -79,39 +82,94 @@ class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
     }
 
 
+    def _create_analytic_entry_for_po_line(self, 
+                                           po_line,
+                                           analytic_account_id,
+                                           cr,
+                                           uid):
+        
+        account_line_values = {
+            'name': po_line.name,
+            'date': datetime.now(),
+            'amount': po_line.price_subtotal,
+            'account_id': analytic_account_id,
+            # FIXME: add proper values
+            'general_account_id': 113,
+            'journal_id': 3,
+        }
+
+        self.pool.get('account.analytic.line').create(cr, uid, account_line_values)
+        
+    def _create_analytic_entry_for_po_landed_costs(self,
+                                                   po_line,
+                                                   analytic_account_id,
+                                                   cr,
+                                                   uid):
+        
+        for landed_cost_line_id in po_line.order_id.landed_cost_line_ids:
+            if landed_cost_line_id.price_type == 'per_unit':
+                factor = po_line.product_qty / po_line.order_id.quantity_total
+                
+            elif landed_cost_line_id.price_type == 'value':
+                factor = po_line.price_subtotal / po_line.order_id.amount_total
+            amount = landed_cost_line_id.amount * factor
+            name = landed_cost_line_id.product_id.name
+                
+
+            account_line_values = {
+                'name': name,
+                'date': datetime.now(),
+                'amount': amount,
+                'account_id': analytic_account_id,
+                # FIXME: add proper values
+                'general_account_id': 113,
+                'journal_id': 3,
+            }
+
+            self.pool.get('account.analytic.line').create(cr, uid, account_line_values)
+        
+
     def _analytic_account_from_product(self, cr, uid, ids, context):
         """
         Generates an analytic account from a product's analytic accoutn
         """
-        product = context['product']
-        parent_account = product.account_id
-        lot_number = 'Lot #100'
-        account_values =  {
-            'name': parent_account.name + lot_number,
-            'complete_name': parent_account.name + lot_number,
-            'code': parent_account.code + lot_number,
-            'type': 'normal',
-            'parent_id': parent_account.id,
-            'balance': 0.0,
-            'debit': 0.0,
-            'credit': 0.0,
-            'quantity': 0.0,
-            'date_start': parent_account.date_start,
-            'date': parent_account.date,
-            'state': parent_account.state,
-            'currency_id': parent_account.currency_id.id,
+
+        for line_order in self.browse(cr, uid, ids):
             
-        }
-        return self.pool.get('account.analytic.account').create(cr, uid, account_values)
+            product = context['product']
+            parent_account = product.account_id
+            lot_number = line_order.lot
+            account_values =  {
+                'name': lot_number,
+                'complete_name': lot_number,
+                'code': lot_number,
+                'type': 'normal',
+                'parent_id': parent_account.id,
+                'balance': 0.0,
+                'debit': 0.0,
+                'credit': 0.0,
+                'quantity': 0.0,
+                'date_start': parent_account.date_start,
+                'date': parent_account.date,
+                'state': parent_account.state,
+                'currency_id': parent_account.currency_id.id,
+            }
+
+            analytic_account_id = self.pool.get('account.analytic.account').create(cr, uid, account_values)
+            
+            self._create_analytic_entry_for_po_line(line_order, analytic_account_id, cr, uid)
+            self._create_analytic_entry_for_po_landed_costs(line_order, analytic_account_id, cr, uid)
 
 class purchase_lot_tracking_purchase(orm.Model):
     """
+    
     """
     _inherit = "purchase.order"
 
     def wkf_confirm_order(self, cr, uid, ids, context=None):
         for po in self.browse(cr, uid, ids, context=context):
             for line in po.order_line:
+
                 if line.must_be_tracked():
                     line.assign_lot_number()
                     line.create_analytic_account()
