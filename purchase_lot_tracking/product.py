@@ -19,8 +19,26 @@
 #
 ##############################################################################
 
-import purchase_lot_tracking
-import product
-import purchase
-import stock
-import wizard
+from openerp.osv import orm, fields
+
+class product_category(orm.Model):
+    """
+    Adds an analytical account to a purchase category
+    """
+
+    _inherit = 'product.category'
+
+    _columns = {
+        'account_id': fields.many2one('account.analytic.account', 'Analytical Account', required=False)
+    }
+
+class product_product(orm.Model):
+    """
+    Adds an analytical account to a purchase category
+    """
+
+    _inherit = 'product.product'
+
+    _columns = {
+        'account_id': fields.many2one('account.analytic.account', 'Analytical Account', required=False)
+    }
