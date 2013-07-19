@@ -93,9 +93,9 @@ class stock_invoice_onshipping(osv.osv_memory):
             
             prodlot_id = matching_move_line.prodlot_id
 
-            matching_prodlot = self.pool.get('stock.production.lot').browse(cr, uid, [prodlot_id])[0]
+            matching_prodlot = self.pool.get('stock.production.lot')\
+                                        .browse(cr, uid, [prodlot_id])[0]
             
-            import ipdb; ipdb.set_trace()
             matching_account = matching_prodlot.id.account_analytic_id.id
 
             invoice_line.write({'account_analytic_id': matching_account})

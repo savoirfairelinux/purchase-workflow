@@ -153,7 +153,7 @@ class purchase_lot_tracking_purchase(orm.Model):
                             
 
         for po_line in order.order_line:
-            import ipdb; ipdb.set_trace()
+
             lot_number, account_id = po_line.assign_lot_number()
 
 
