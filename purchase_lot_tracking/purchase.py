@@ -96,8 +96,10 @@ class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
                 'date_start': parent_account.date_start,
                 'date': parent_account.date,
                 'state': parent_account.state,
-                'currency_id': parent_account.currency_id.id,
             }
+
+            if parent_account.currency_id:
+                account_values['currency_id'] = parent_account.currency_id.id
 
             analytic_account_id = self.pool.get('account.analytic.account')\
                                            .create(cr, uid, account_values)
@@ -150,21 +152,25 @@ class purchase_lot_tracking_purchase(orm.Model):
 
         stock_picking_id = self.pool.get('stock.picking.in').search(cr, uid, [('origin', 'like', order.name)])
         stock_picking = self.pool.get('stock.picking.in').browse(cr, uid, stock_picking_id)[0]
-                            
+        
+        
+        all_lines_tracked = True
 
         for po_line in order.order_line:
+            if not po_line.product_id.track_production:
+                all_lines_tracked = False
+            else:
+                lot_number, account_id = po_line.assign_lot_number()
 
-            lot_number, account_id = po_line.assign_lot_number()
 
+                matching_line = [line for line in stock_picking.move_lines if\
+                                 line.product_qty == po_line.product_qty and \
+                                 line.product_id.id == po_line.product_id.id][0]
 
-            matching_line = [line for line in stock_picking.move_lines if\
-                             line.product_qty == po_line.product_qty and \
-                             line.product_id.id == po_line.product_id.id][0]
+                matching_line.write({'prodlot_id': lot_number})            
 
-            matching_line.write({'prodlot_id': lot_number})            
-
-            po_line.write({ 'account_analytic_id' : account_id })
-            po_line.refresh()
+                po_line.write({ 'account_analytic_id' : account_id })
+                po_line.refresh()
 
         for order_cost in order.landed_cost_line_ids:
             vals_inv = { 
@@ -183,33 +189,48 @@ class purchase_lot_tracking_purchase(orm.Model):
             self._logger.debug('vals inv`%s`', vals_inv)
             inv_id = invoice_obj.create(cr, uid, vals_inv, context=None) 
 
-            for po_line in order.order_line:
-                
-                # Create an invoice for the landed costs
-                
-                if order_cost.price_type == 'per_unit':
-                    factor = po_line.product_qty / po_line.order_id.quantity_total
-                
-                elif order_cost.price_type == 'value':
-                    factor = po_line.price_subtotal / po_line.order_id.amount_total
-                amount = order_cost.amount * factor                
+            if all_lines_tracked:
 
-                vals_line = { 
-                    'product_id' : order_cost.product_id.id
-                    ,'name' : order_cost.product_id.name
-                    #,'amount' : order_cost.amount
-                    #,'amount_currency' : order_cost.amount_currency
-                    #,'picking_id' : pick_id
-                    ,'account_id' : self._get_product_account_expense_id(order_cost.product_id)
-                    ,'partner_id' : order_cost.partner_id.id
-                    ,'invoice_id' : inv_id
-                    ,'account_analytic_id': po_line.account_analytic_id.id
-                    ,'price_unit' : amount
-                    ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
+                for po_line in order.order_line:
+                
+                    # Create an invoice for the landed costs
+                    
+                    if order_cost.price_type == 'per_unit':
+                        factor = po_line.product_qty / po_line.order_id.quantity_total
+                        
+                    elif order_cost.price_type == 'value':
+                        factor = po_line.price_subtotal / po_line.order_id.amount_total
+                        amount = order_cost.amount * factor                
 
-                }   
-                self._logger.debug('vals line `%s`', vals_line)
-                inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
+                        vals_line = { 
+                            'product_id' : order_cost.product_id.id
+                            ,'name' : order_cost.product_id.name
+                            #,'amount' : order_cost.amount
+                            #,'amount_currency' : order_cost.amount_currency
+                            #,'picking_id' : pick_id
+                            ,'account_id' : self._get_product_account_expense_id(order_cost.product_id)
+                            ,'partner_id' : order_cost.partner_id.id
+                            ,'invoice_id' : inv_id
+                            ,'account_analytic_id': po_line.account_analytic_id.id
+                            ,'price_unit' : amount
+                            ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
+                        }   
+                        self._logger.debug('vals line `%s`', vals_line)
+                        inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
+            else:
+                        vals_line = { 
+                            'product_id' : order_cost.product_id.id
+                            ,'name' : order_cost.product_id.name
+                            #,'amount' : order_cost.amount
+                            #,'amount_currency' : order_cost.amount_currency
+                            #,'picking_id' : pick_id
+                            ,'account_id' : self._get_product_account_expense_id(order_cost.product_id)
+                            ,'partner_id' : order_cost.partner_id.id
+                            ,'invoice_id' : inv_id
+                            ,'price_unit' : order_cost.amount
+                            ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
+                        }
+                        inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
 
 
 
