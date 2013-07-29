@@ -24,3 +24,4 @@ import product
 import purchase
 import stock
 import wizard
+import account

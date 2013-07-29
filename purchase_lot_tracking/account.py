@@ -19,34 +19,13 @@
 #
 ##############################################################################
 
-# NOTE: The name of the supplied field was initially "display_name", but it seems that OpenERP,
-# whenever it seems "name" in the field, returns the value for "name". Well...
+from openerp.osv import orm, fields
+import openerp.addons.decimal_precision as dp
 
-{
-    'name': 'purchase_lot_tracking',
-    'version': '1.0',
-    'author': 'Savoir-faire Linux',
-    'website': 'http://www.savoirfairelinux.com',
-    'category': 'Generic Modules/Purchases',
-    'description': """
-Lets you track expenses using product's lots numbers
-====================================================
+class account_analytic_account(orm.Model):
 
-This module lets you track expenses using a product's lot
-number.
+    _inherit = 'account.analytic.account'
 
-If you create an analytic account for a product 
-
-
-""",
-    'depends': ['base', 'purchase', 'purchase_landed_costs', 'analytic'],
-    'data': [
-        'purchase_lot_tracking_view.xml',
-        'purchase_workflow.xml',
-        'account_view.xml'
-    ],
-    'demo': [],
-    'test': [],
-    'installable': True,
-    'active': False,
-}
+    _columns = {
+        'total_cost_unit': fields.float('Total Cost Per Unit', required=False, digits_compute= dp.get_precision('Product Price')),
+    }
