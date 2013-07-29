@@ -64,10 +64,7 @@ class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
 
             return serial_number_id, account_id
             
-
-
-            
-
+      
     def _analytic_account_from_product(self, cr, uid, ids, context):
         """
         Creates an analytic account for the lot number and places it
@@ -162,15 +159,18 @@ class purchase_lot_tracking_purchase(orm.Model):
             else:
                 lot_number, account_id = po_line.assign_lot_number()
 
+                import ipdb; ipdb.set_trace()
 
                 matching_line = [line for line in stock_picking.move_lines if\
                                  line.product_qty == po_line.product_qty and \
-                                 line.product_id.id == po_line.product_id.id][0]
+                                 line.product_id.id == po_line.product_id.id and \
+                                 not line.prodlot_id][0]
 
                 matching_line.write({'prodlot_id': lot_number})            
 
                 po_line.write({ 'account_analytic_id' : account_id })
                 po_line.refresh()
+                stock_picking.refresh()
 
         for order_cost in order.landed_cost_line_ids:
             vals_inv = { 
