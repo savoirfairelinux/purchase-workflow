@@ -21,7 +21,8 @@
 
 from openerp.osv import orm, fields
 import openerp.addons.decimal_precision as dp
-class pallet_crate_purchase_order_line(orm.Model):
+
+class purchase_order_line(orm.Model):
 
     _inherit = 'purchase.order.line'
 

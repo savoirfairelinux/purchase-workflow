@@ -34,6 +34,10 @@ Lets you track expenses using product's lots numbers
 
 This module lets you track expenses using a product's lot
 number.
+
+If you create an analytic account for a product 
+
+
 """,
     'depends': ['base', 'purchase', 'purchase_landed_costs', 'analytic'],
     'data': [
