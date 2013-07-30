@@ -20,85 +20,78 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
+import logging
 
 class sale(orm.Model):
 
     _inherit = 'sale.order.line'
+    _logger = logging.Logger(__name__)
 
     def _minimum(self, cr, uid, ids, name, arg, context=None):
         res = {}
-        account = self.pool.get('account.analytic.account')
 
-        import ipdb; ipdb.set_trace()
-
-        for id in ids:
-            record = account.browse(cr, uid, id, context)
+        for order_line in self.browse(cr, uid, ids, context):
+            self._logger.info('order_line: %r' % (order_line, ))
+            account = order_line.product_id.account_id
+            self._logger.info('account: %r' % (account, ))
             minimum = 0.0
             once = False
 
-            for value in record._data.values():
-                if value.get('code'):
-                    # Value points to a LOT
-                    if value['quantity'] != 0:
-                        tcu = value['total_cost_unit']
-                        if not once:
-                            minimum = tcu
-                            once = True
-                        elif tcu < minimum:
-                            minimum = tcu
+            for lot in account.child_ids:
+                self._logger.info('lot')
+                quantity = lot.total_in_qty
+                tcu = lot.total_cost_unit
 
-            res[id] = minimum
+                if quantity != 0:
+                    if not once:
+                        minimum = tcu
+                    elif tcu < minimum:
+                        minimum = tcu
+
+            res[order_line.id] = minimum
 
         return res
 
     def _average(self, cr, uid, ids, name, arg, context=None):
         res = {}
-        account = self.pool.get('account.analytic.account')
 
-        for id in ids:
-            record = account.browse(cr, uid, id, context)
+        for order_line in self.browse(cr, uid, ids, context):
+            account = order_line.product_id.account_id
+
             average = 0.0
             total_count = 0
 
-            for value in record._data.values():
-                if value.get('code'):
-                    # Value points to a LOT
+            for lot in account.child_ids:
+                quantity = lot.total_in_qty
+                tcu = lot.total_cost_unit
 
-                    quantity = value['quantity']
-                    if quantity != 0:
-                        average += quantity * value['total_cost_unit']
-                        total_count += quantity
+                if quantity != 0:
+                    average += quantity * tcu
+                    total_count += quantity
 
-            try:
-                res[id] = average / total_count
-            except ZeroDivisionError:
-                # Default to zero when nothing can be retrieved from account
-                # lots
-                res[id] = 0
+            res[order_line.id] = average / total_count
 
         return res
 
     def _maximum(self, cr, uid, ids, name, arg, context=None):
         res = {}
-        account = self.pool.get('account.analytic.account')
 
-        for id in ids:
-            record = account.browse(cr, uid, id, context)
+        for order_line in self.browse(cr, uid, ids, context):
+            account = order_line.product_id.account_id
             maximum = 0.0
             once = False
 
-            for value in record._data.values():
-                if value.get('code'):
-                    # Value points to a LOT
-                    if value['quantity'] != 0:
-                        tcu = value['total_cost_unit']
-                        if not once:
-                            maximum = tcu
-                            once = True
-                        elif tcu > maximum:
-                            maximum = tcu
+            for lot in account.child_ids:
+                quantity = lot.total_in_qty
+                tcu = lot.total_cost_unit
 
-            res[id] = maximum
+                if quantity != 0:
+                    if not once:
+                        maximum = tcu
+                    elif tcu > maximum:
+                        maximum = tcu
+
+            res[order_line.id] = maximum
 
         return res
 

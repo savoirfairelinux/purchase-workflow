@@ -22,7 +22,7 @@
 from openerp.osv import orm, fields
 from openerp import netsvc
 
-class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
+class purchase_order_line(orm.Model):
     """
     Adds an analytical account to a product
     """
@@ -110,11 +110,14 @@ class purchase_lot_tracking_purchase_purchase_order_line(orm.Model):
 
 
 
-class purchase_lot_tracking_purchase(orm.Model):
+class purchase_order(orm.Model):
     """
     
     """
     _inherit = "purchase.order"
+
+    def wkf_confirm_order(self,cr, uid, ids, context=None):
+        super(purchase_order, self).wkf_confirm_order(cr, uid, ids, context=context)
 
     def _create_pickings(self, cr, uid, order, order_lines, picking_id=False, context=None): 
         
@@ -158,8 +161,6 @@ class purchase_lot_tracking_purchase(orm.Model):
                 all_lines_tracked = False
             else:
                 lot_number, account_id = po_line.assign_lot_number()
-
-                import ipdb; ipdb.set_trace()
 
                 matching_line = [line for line in stock_picking.move_lines if\
                                  line.product_qty == po_line.product_qty and \
