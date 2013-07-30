@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+7# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -155,7 +155,8 @@ class purchase_order(orm.Model):
         
         
         all_lines_tracked = True
-
+        
+        import ipdb; ipdb.set_trace()
         for po_line in order.order_line:
             if not po_line.product_id.track_production:
                 all_lines_tracked = False
@@ -189,9 +190,9 @@ class purchase_order(orm.Model):
                 }   
             self._logger.debug('vals inv`%s`', vals_inv)
             inv_id = invoice_obj.create(cr, uid, vals_inv, context=None) 
-
+            import ipdb; ipdb.set_trace()
             if all_lines_tracked:
-
+                
                 for po_line in order.order_line:
                 
                     # Create an invoice for the landed costs
@@ -201,23 +202,26 @@ class purchase_order(orm.Model):
                         
                     elif order_cost.price_type == 'value':
                         factor = po_line.price_subtotal / po_line.order_id.amount_total
-                        amount = order_cost.amount * factor                
+                    
 
-                        vals_line = { 
-                            'product_id' : order_cost.product_id.id
-                            ,'name' : order_cost.product_id.name
-                            #,'amount' : order_cost.amount
-                            #,'amount_currency' : order_cost.amount_currency
-                            #,'picking_id' : pick_id
-                            ,'account_id' : self._get_product_account_expense_id(order_cost.product_id)
-                            ,'partner_id' : order_cost.partner_id.id
-                            ,'invoice_id' : inv_id
-                            ,'account_analytic_id': po_line.account_analytic_id.id
-                            ,'price_unit' : amount
-                            ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
-                        }   
-                        self._logger.debug('vals line `%s`', vals_line)
-                        inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
+                    amount = order_cost.amount * factor                
+                    vals_line = { 
+                        'product_id' : order_cost.product_id.id
+                        ,'name' : order_cost.product_id.name
+                        #,'amount' : order_cost.amount
+                        #,'amount_currency' : order_cost.amount_currency
+                        #,'picking_id' : pick_id
+                        ,'account_id' : self._get_product_account_expense_id(order_cost.product_id)
+                        ,'partner_id' : order_cost.partner_id.id
+                        ,'invoice_id' : inv_id
+                        ,'account_analytic_id': po_line.account_analytic_id.id
+                        ,'price_unit' : amount
+                        ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
+                    }   
+
+                    import ipdb; ipdb.set_trace()
+                    self._logger.debug('vals line `%s`', vals_line)
+                    inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
             else:
                         vals_line = { 
                             'product_id' : order_cost.product_id.id
