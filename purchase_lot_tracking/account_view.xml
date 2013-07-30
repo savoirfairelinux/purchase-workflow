@@ -41,6 +41,7 @@
       <field name="inherit_id" ref="account.view_account_analytic_account_tree"/>
       <field name="arch" type="xml">
         <field name="type" position="before">
+          <field name="total_in_qty" />
           <field name="total_cost_unit"/>
         </field>
       </field>
