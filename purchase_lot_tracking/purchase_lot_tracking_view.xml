@@ -58,6 +58,19 @@
         </field>
       </field>
     </record>
+
+    <record id="purchase_lot_tracking_sale_order" model="ir.ui.view">
+      <field name="name">purchase_lot_tracking.sale.order.view</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="/form/sheet/notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="before">
+          <field name="minimum" />
+          <field name="average" />
+          <field name="maximum" />
+        </xpath>
+      </field>
+    </record>
  
     <!-- Sequence -->
     <record id="seq_type_lot" model="ir.sequence.type">
@@ -71,9 +84,5 @@
       <field name="prefix">LOT</field>
       <field name="padding">6</field>
     </record>
-
-        
-
-
   </data>
 </openerp>

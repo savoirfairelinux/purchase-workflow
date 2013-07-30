@@ -39,7 +39,7 @@ If you create an analytic account for a product
 
 
 """,
-    'depends': ['base', 'purchase', 'purchase_landed_costs', 'analytic'],
+    'depends': ['base', 'purchase', 'purchase_landed_costs', 'analytic', 'sale'],
     'data': [
         'purchase_lot_tracking_view.xml',
         'purchase_workflow.xml',
