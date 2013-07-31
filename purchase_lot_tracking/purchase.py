@@ -156,7 +156,6 @@ class purchase_order(orm.Model):
         
         all_lines_tracked = True
         
-        import ipdb; ipdb.set_trace()
         for po_line in order.order_line:
             if not po_line.product_id.track_production:
                 all_lines_tracked = False
@@ -190,7 +189,6 @@ class purchase_order(orm.Model):
                 }   
             self._logger.debug('vals inv`%s`', vals_inv)
             inv_id = invoice_obj.create(cr, uid, vals_inv, context=None) 
-            import ipdb; ipdb.set_trace()
             if all_lines_tracked:
                 
                 for po_line in order.order_line:
@@ -219,7 +217,6 @@ class purchase_order(orm.Model):
                         ,'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
                     }   
 
-                    import ipdb; ipdb.set_trace()
                     self._logger.debug('vals line `%s`', vals_line)
                     inv_line_id = invoice_line_obj.create(cr, uid, vals_line, context=None)  
             else:
