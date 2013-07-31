@@ -31,22 +31,14 @@ class sale(orm.Model):
         res = {}
 
         for order_line in self.browse(cr, uid, ids, context):
-            self._logger.info('order_line: %r' % (order_line, ))
             account = order_line.product_id.account_id
-            self._logger.info('account: %r' % (account, ))
             minimum = 0.0
-            once = False
 
-            for lot in account.child_ids:
-                self._logger.info('lot')
-                quantity = lot.total_in_qty
-                tcu = lot.total_cost_unit
-
-                if quantity != 0:
-                    if not once:
-                        minimum = tcu
-                    elif tcu < minimum:
-                        minimum = tcu
+            values = [lot.total_cost_unit for lot in account.child_ids
+                      if lot.total_in_qty != 0]
+            
+            if values:
+                minimum = min(values)
 
             res[order_line.id] = minimum
 
@@ -79,17 +71,12 @@ class sale(orm.Model):
         for order_line in self.browse(cr, uid, ids, context):
             account = order_line.product_id.account_id
             maximum = 0.0
-            once = False
 
-            for lot in account.child_ids:
-                quantity = lot.total_in_qty
-                tcu = lot.total_cost_unit
+            values = [lot.total_cost_unit for lot in account.child_ids
+                      if lot.total_in_qty != 0]
 
-                if quantity != 0:
-                    if not once:
-                        maximum = tcu
-                    elif tcu > maximum:
-                        maximum = tcu
+            if values:
+                maximum = max(values)
 
             res[order_line.id] = maximum
 
