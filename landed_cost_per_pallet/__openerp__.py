@@ -23,8 +23,8 @@
 # whenever it seems "name" in the field, returns the value for "name". Well...
 
 {
-    'name': 'Purchase Crate Pallet',
-    'version': '1.0',
+    'name': 'Landed Cost per Pallet',
+    'version': '1.1',
     'author': 'Savoir-faire Linux',
     'maintainer': 'Savoir-faire Linux',
     'website': 'http://www.savoirfairelinux.com',
@@ -37,10 +37,13 @@ Lets you manage product quantities using crates and pallets
 This module modifies the purchase module to let you manage product
 quantities by specifying a number of pallets and a number of crates
 per pallet.
+
+This also adds a 'Per Pallet' option to landed costs, in order to compute the
+landed costs per pallet.
 """,
     'depends': ['base', 'purchase', 'purchase_landed_costs'],
     'data': [
-        'purchase_crate_pallet_view.xml',
+        'landed_cost_per_pallet_view.xml',
     ],
     'demo': [],
     'test': [],
