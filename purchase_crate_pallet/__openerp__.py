@@ -38,7 +38,7 @@ This module modifies the purchase module to let you manage product
 quantities by specifying a number of pallets and a number of crates
 per pallet.
 """,
-    'depends': ['base', 'purchase'],
+    'depends': ['base', 'purchase', 'purchase_landed_costs'],
     'data': [
         'purchase_crate_pallet_view.xml',
     ],

@@ -1,38 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-<openerp>
-  <data>
-    <record id="view_employee_cv_form" model="ir.ui.view">
-      <field name="model">res.employee_cv</field>
-      <field name="arch" type="xml">
-        <form string="Sommaire">
-          <field name="sommaire"/>
-          <field name="nom_cv"/>
-          <field name="formations" widget="one2many_list"/>
-        </form>
-      </field>
-    </record>
-
-    <record id="view_hr_employee_cvs" model="ir.ui.view">
-      <field name="model">hr.employee</field>
-      <field name="inherit_id" ref="hr.view_employee_form"/>
-      <field name="arch" type="xml">
-        <field name="coach_id" position="after">
-          <field name="cvs"/>
-        </field>
-      </field>
-    </record>
-
-    <record id="view_hr_employee_cvs_formation_form" model="ir.ui.view">
-      <field name="model">res.employee_cv_formation</field>
-      <field name="arch" type="xml">
-          <field name="date_debut"/>
-      </field>
-    </record>
-
-  </data>
-</openerp>
--->
 <openerp>
   <data>
     <record id="view_purchase_pallet_crate_order_line" model="ir.ui.view">
@@ -43,6 +9,17 @@
         <field name="product_qty" position="before">
           <field name="nb_pallets"/>
           <field name="nb_crates_per_pallet"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="view_purchase_pallet_crate_thing" model="ir.ui.view">
+      <field name="name">purchase.order.landing.form</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase_landed_costs.c2c_purchase_order_landed_cost_view" />
+      <field name="arch" type="xml">
+        <field name="landed_cost_base_value" position="after">
+          <field name="landed_cost_base_pallet" />
         </field>
       </field>
     </record>

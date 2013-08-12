@@ -22,6 +22,31 @@
 from openerp.osv import orm, fields
 import openerp.addons.decimal_precision as dp
 
+class purchase_order(orm.Model):
+
+    _inherit = 'purchase.order'
+
+    def _landed_cost_base_pallet(self, cr, uid, ids, name, args, context):
+        if not ids:
+            return {}
+
+        result = {}
+        landed_costs_base_pallet = 0.0
+
+        for line in self.browse(cr, uid, ids):
+            if line.landed_cost_line_ids:
+                for costs in line.landed_cost_line_ids:
+                    if costs.price_type == 'per_pallet':
+                        landed_costs_base_pallet += costs.amount
+            result[line.id] = landed_costs_base_pallet
+
+        return result
+
+    _columns = {
+        'landed_cost_base_pallet': fields.function(_landed_cost_base_pallet, digits_compute=dp.get_precision('Account'), string='Landed Costs Base Pallet'),
+    }
+
+
 class purchase_order_line(orm.Model):
 
     _inherit = 'purchase.order.line'
@@ -35,9 +60,49 @@ class purchase_order_line(orm.Model):
                 res[line.id] = line.nb_crates_per_pallet * line.nb_pallets
         return res
 
+    def _landing_cost_order(self, cr, uid, ids, name, args, context):
+        if not ids:
+            return {}
+
+        result = {}
+
+        lines = self.browse(cr, uid, ids)
+
+        # Pre-compute total number of pallets
+        pallets_total = 0.0
+        for line in lines:
+            if line.order_id.landed_cost_line_ids:
+                pallets_total += line.nb_pallets
+
+        # Landed costs line by line
+        for line in lines:
+            landed_costs = 0.0
+            # distribution of landed costs of PO
+            if line.order_id.landed_cost_line_ids:
+                # Base value (Absolute Value)
+                landed_costs += line.order_id.landed_cost_base_value / line.order_id.amount_total * line.price_subtotal
+
+                # Base quantity (Per Quantity)
+                landed_costs += line.order_id.landed_cost_base_quantity / line.order_id.quantity_total * line.product_qty
+
+                # Base pallet (Per Pallet)
+                landed_costs += line.order_id.landed_cost_base_pallet / pallets_total * line.nb_pallets
+            result[line.id] = landed_costs
+
+        return result
 
     _columns = {
         'nb_pallets': fields.integer('Pallets'),
         'nb_crates_per_pallet': fields.integer('Crates per pallet'),
         'product_qty': fields.function(_product_quantity, string="Quantity", type='float'),
+        'landing_costs_order' : fields.function(_landing_cost_order, digits_compute=dp.get_precision('Account'), string='Landing Costs from Order'),
+    }
+
+
+class landed_cost_position(orm.Model):
+
+    _inherit = 'landed.cost.position'
+
+    _columns = {
+        'price_type': fields.selection([('per_unit','Per Quantity'), ('value','Absolute Value'), ('per_pallet', 'Per Pallet')], 'Amount Type', required=True, help="Defines if the amount is to be calculated for each quantity or an absolute value"),
     }
