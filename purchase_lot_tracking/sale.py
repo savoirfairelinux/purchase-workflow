@@ -34,7 +34,7 @@ class sale(orm.Model):
             account = order_line.product_id.account_id
             minimum = 0.0
 
-            values = [lot.total_cost_unit for lot in account.child_ids
+            values = [lot.estimated_tcu for lot in account.child_ids
                       if lot.total_in_qty != 0]
             
             if values:
@@ -55,7 +55,7 @@ class sale(orm.Model):
 
             for lot in account.child_ids:
                 quantity = lot.total_in_qty
-                tcu = lot.total_cost_unit
+                tcu = lot.estimated_tcu
 
                 if quantity != 0:
                     average += quantity * tcu
@@ -72,7 +72,7 @@ class sale(orm.Model):
             account = order_line.product_id.account_id
             maximum = 0.0
 
-            values = [lot.total_cost_unit for lot in account.child_ids
+            values = [lot.estimated_tcu for lot in account.child_ids
                       if lot.total_in_qty != 0]
 
             if values:

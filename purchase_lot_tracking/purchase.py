@@ -194,12 +194,21 @@ class purchase_order(orm.Model):
                 for po_line in order.order_line:
                 
                     # Create an invoice for the landed costs
-                    
+
+                    factor = 0.0
+
                     if order_cost.price_type == 'per_unit':
                         factor = po_line.product_qty / po_line.order_id.quantity_total
                         
                     elif order_cost.price_type == 'value':
                         factor = po_line.price_subtotal / po_line.order_id.amount_total
+
+                    elif order_cost.price_type == 'per_pallet':
+                        # FIXME TRUE EQUATION FOR PER PALLET!
+                        factor = po_line.nb_pallets / po_line.order_id.amount_total
+
+                    else:
+                        raise ValueError('Unknown price type (neither "per_unit", "value" nor "per_pallet")')
                     
 
                     amount = order_cost.amount * factor                

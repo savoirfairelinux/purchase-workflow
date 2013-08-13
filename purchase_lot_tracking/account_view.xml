@@ -1,38 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-<openerp>
-  <data>
-    <record id="view_employee_cv_form" model="ir.ui.view">
-      <field name="model">res.employee_cv</field>
-      <field name="arch" type="xml">
-        <form string="Sommaire">
-          <field name="sommaire"/>
-          <field name="nom_cv"/>
-          <field name="formations" widget="one2many_list"/>
-        </form>
-      </field>
-    </record>
-
-    <record id="view_hr_employee_cvs" model="ir.ui.view">
-      <field name="model">hr.employee</field>
-      <field name="inherit_id" ref="hr.view_employee_form"/>
-      <field name="arch" type="xml">
-        <field name="coach_id" position="after">
-          <field name="cvs"/>
-        </field>
-      </field>
-    </record>
-
-    <record id="view_hr_employee_cvs_formation_form" model="ir.ui.view">
-      <field name="model">res.employee_cv_formation</field>
-      <field name="arch" type="xml">
-          <field name="date_debut"/>
-      </field>
-    </record>
-
-  </data>
-</openerp>
--->
 <openerp>
   <data>
     <record id="purchase_lot_tracking_account_view" model="ir.ui.view">
@@ -42,6 +8,7 @@
       <field name="arch" type="xml">
         <field name="type" position="before">
           <field name="total_in_qty" />
+          <field name="estimated_tcu" />
           <field name="total_cost_unit"/>
         </field>
       </field>

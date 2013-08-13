@@ -50,9 +50,24 @@ class account_analytic_account(orm.Model):
                 res[account.id] = account.credit / account.total_in_qty
         return res
 
+    def _estimated_tcu(self, cr, uid, ids, name, arg, context=None):
+        res = {}
+
+        for line in self.browse(cr, uid, ids):
+            if line.code.startswith('LOT'):
+                po_line_pool = self.pool.get('purchase.order.line')
+                po_line_id = po_line_pool.search(cr, uid, [('account_analytic_id', '=', line.id)])[0]
+                po_line = po_line_pool.browse(cr, uid, po_line_id, context)
+
+                res[line.id] = po_line.landed_costs / po_line.product_qty
+            else:
+                res[line.id] = 0.0
+
+        return res
 
     _columns = {
         'total_cost_unit': fields.function(_calculate_tcu, string='Total Cost Unit', type='float'),
+        'estimated_tcu': fields.function(_estimated_tcu, string='Estimated Total Cost per Unit', type='float'),
         'total_in_qty': fields.function(_calculate_total_in, string='Total Received Quantity', type='float'),
     }
 
