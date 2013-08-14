@@ -41,7 +41,7 @@ Also lets you give more specific information like the temperature
 at various points.
 
 """,
-    'depends': ['base', 'purchase', 'landed_cost_per_pallet'],
+    'depends': ['base', 'purchase', 'landed_cost_per_pallet', 'stock'],
     'data': [
         'pallet_delivery.xml',
     ],
