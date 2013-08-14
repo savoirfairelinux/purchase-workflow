@@ -19,4 +19,36 @@
 #
 ##############################################################################
 
-import stock
+from openerp.osv import orm, fields
+
+class purchase_order_line(orm.Model):
+
+    _name = 'purchase.order.line'
+
+    _columns = {
+        'truck_line_id': fields.many2one('stock.truck.line', 'Truck line'),
+    }
+
+
+class stock_truck_line(orm.Model):
+
+    _name = 'stock.truck.line'
+
+    _columns = {
+        'truck_id': fields.many2one('stock.truck', 'Truck'),
+        'left_pallet': fields.one2many('purchase.order.line', 'truck_line_id', 'Pallet'),
+        'right_pallet': fields.one2many('purchase.order.line', 'truck_line_id', 'Pallet'),
+    }
+
+
+class stock_truck(orm.Model):
+
+    _name = 'stock.truck'
+
+    _columns = {
+        'front_temperature': fields.float('Front Temperature'),
+        'back_temperature': fields.float('Back Temperature'),
+        'truck_sn': fields.char('Truck S/N', size=64),
+        'arrival': fields.date('Date of Arrival'),
+        'pallet_ids': fields.one2many('stock.truck.line', 'truck_id', 'Pallets'),
+    }
