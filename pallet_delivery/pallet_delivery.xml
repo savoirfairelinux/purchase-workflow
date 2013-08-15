@@ -1,26 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-    <menuitem name="Truck"
-              id="menu_truck_root"
-              sequence="80" />
+    <record id="truck_tree" model="ir.ui.view">
+      <field name="name">stock.truck.tree</field>
+      <field name="model">stock.truck</field>
+      <field name="arch" type="xml">
+        <form string="Truck">
+          <group name="pedigree" string="Details" colspan="4" col="4">
+            <group>
+              <field name="truck_sn" />
+              <field name="supplier" />
+              <field name="arrival" />
+            </group>
 
-    <menuitem id="menu_truck"
-              parent="menu_truck_root"
-              name="Receive truck delivery"
-              sequence="0" />
+            <group>
+              <field name="front_temperature" />
+              <field name="back_temperature" />
+            </group>
+          </group>
 
-    <record model="ir.actions.act_window" id="menu_truck_receive_delivery">
-      <field name="name">Truck delivery</field>
-      <field name="view_type">form</field>
-      <field name="res_model">stock.truck</field>
-      <field name="view_mode">form</field>
+          <group name="pallets" string="Pallets" colspan="4">
+            <field name="pallet_ids" nolabel="1" />
+          </group>
+        </form>
+      </field>
     </record>
 
-    <menuitem id="menu_truck_receive_delivery"
-              name="Receive delivery"
-              action="menu_truck_receive_delivery" />
+    <record id="truck_form" model="ir.ui.view">
+      <field name="name">stock.truck.form</field>
+      <field name="model">stock.truck</field>
+      <field name="arch" type="xml">
+        <tree string="Truck">
+          <field name="truck_sn" />
+          <field name="supplier" />
+          <field name="arrival" />
+        </tree>
+      </field>
+    </record>
 
+    <record id="view_truck_filter" model="ir.ui.view">
+      <field name="name">stock.truck.select</field>
+      <field name="model">stock.truck</field>
+      <field name="arch" type="xml">
+        <search string="Search Truck">
+          <field name="truck_sn" string="Serial Number" filter_domain="[('truck_sn', '=', self)]" />
+        </search>
+      </field>
+    </record>
 
+    <record id="action_truck_pending" model="ir.actions.act_window">
+      <field name="name">On Draft Truck</field>
+      <field name="res_model">stock.truck</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+      <field eval="False" name="view_id" />
+      <!--<field name="domain">[('type', '=', 'in_truck')]</field>
+      <field name="context">{'default_type': 'in_truck', 'type': 'in_truck'}</field>-->
+      <field name="search_view_id" ref="pallet_delivery.view_truck_filter" />
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_create">Click to create a draft truck</p>
+        <p>FIXME Lorem ipsum dolor sit amet FIXME FIXME FIXME</p>
+      </field>
+    </record>
+
+    <menuitem
+      name="Incoming Truck"
+      id="menu_truck"
+      action="action_truck_pending"
+      parent="purchase.menu_procurement_management_inventory"
+      sequence="8" /> <!-- FIXME move to warehouse -->
   </data>
 </openerp>

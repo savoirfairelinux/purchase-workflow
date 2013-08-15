@@ -49,6 +49,7 @@ class stock_truck(orm.Model):
         'front_temperature': fields.float('Front Temperature'),
         'back_temperature': fields.float('Back Temperature'),
         'truck_sn': fields.char('Truck S/N', size=64),
+        'supplier': fields.many2one('res.partner', 'Supplier'),
         'arrival': fields.date('Date of Arrival'),
         'pallet_ids': fields.one2many('stock.truck.line', 'truck_id', 'Pallets'),
     }
