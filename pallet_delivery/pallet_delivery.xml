@@ -1,8 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+    <!-- Truck lines -->
+    <record id="truck_line_tree" model="ir.ui.view">
+      <field name="name">stock.truck.line.tree</field>
+      <field name="model">stock.truck.line</field>
+      <field name="arch" type="xml">
+        <tree string="Truck Line" editable="bottom">
+          <field name="left_pallet" />
+          <field name="right_pallet" />
+        </tree>
+      </field>
+    </record>
+
+    <!-- Truck -->
     <record id="truck_tree" model="ir.ui.view">
       <field name="name">stock.truck.tree</field>
+      <field name="model">stock.truck</field>
+      <field name="arch" type="xml">
+        <tree string="Truck">
+          <field name="name" />
+          <field name="truck_sn" />
+          <field name="supplier" />
+          <field name="arrival" />
+        </tree>
+      </field>
+    </record>
+
+    <record id="truck_form" model="ir.ui.view">
+      <field name="name">stock.truck.form</field>
       <field name="model">stock.truck</field>
       <field name="arch" type="xml">
         <form string="Truck">
@@ -19,22 +45,18 @@
             </group>
           </group>
 
-          <group name="pallets" string="Pallets" colspan="4">
+          <group name="product_orders" string="Product Orders" colspan="4">
+            <field name="product_order_ids" nolabel="1">
+              <tree>
+                <field name="name" />
+              </tree>
+            </field>
+          </group>
+
+          <group name="pallets" string="Truck Composition" colspan="4">
             <field name="pallet_ids" nolabel="1" />
           </group>
         </form>
-      </field>
-    </record>
-
-    <record id="truck_form" model="ir.ui.view">
-      <field name="name">stock.truck.form</field>
-      <field name="model">stock.truck</field>
-      <field name="arch" type="xml">
-        <tree string="Truck">
-          <field name="truck_sn" />
-          <field name="supplier" />
-          <field name="arrival" />
-        </tree>
       </field>
     </record>
 
@@ -48,14 +70,13 @@
       </field>
     </record>
 
+    <!-- Menu -->
     <record id="action_truck_pending" model="ir.actions.act_window">
       <field name="name">On Draft Truck</field>
       <field name="res_model">stock.truck</field>
       <field name="view_type">form</field>
       <field name="view_mode">tree,form</field>
       <field eval="False" name="view_id" />
-      <!--<field name="domain">[('type', '=', 'in_truck')]</field>
-      <field name="context">{'default_type': 'in_truck', 'type': 'in_truck'}</field>-->
       <field name="search_view_id" ref="pallet_delivery.view_truck_filter" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to create a draft truck</p>

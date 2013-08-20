@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="1">
+    <record id="seq_type_stock_truck" model="ir.sequence.type">
+      <field name="name">Truck</field>
+      <field name="code">stock.truck</field>
+    </record>
+
+    <record id="seq_stock_truck" model="ir.sequence">
+      <field name="name">Truck</field>
+      <field name="code">stock.truck</field>
+      <field name="prefix">TRK</field>
+      <field name="padding">5</field>
+    </record>
+  </data>
+</openerp>
