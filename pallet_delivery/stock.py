@@ -30,6 +30,27 @@ class purchase_order_line(orm.Model):
     }
 
 
+def group(lst):
+    if not lst:
+        return []
+
+    res = []
+    current = lst[0]
+
+    grp = []
+    for x in lst:
+        if x != current:
+            res.append(grp)
+            grp = []
+        grp.append(x)
+        current = x
+
+    if grp:
+        res.append(grp)
+
+    return res
+
+
 class purchase_order_middleman(orm.Model):
 
     '''Acts as a broker between a 'stock.truck.line' and a 'product.order.line'.
@@ -51,12 +72,29 @@ class purchase_order_middleman(orm.Model):
 
         res = []
 
+        pallet_ids = {}
+
+
         try:
             # Usual case where we select from a list
 
             # Extract PO IDs from context:
             # {..., 'po_ids': [[6, False, [1, 2, 3]]]} becomes [1, 2, 3]
             po_ids = context['po_ids'][0][2]
+
+            # Extract pallet IDs from context:
+            pallet_ids = []
+
+            print('')
+            print(context['parent']['pallet_ids'])
+
+            for pallet_struct in context['parent']['pallet_ids']:
+                if pallet_struct[2] is not False:
+                    pallet_ids.extend(list(pallet_struct[2].values()))
+
+            print(list(group(sorted(pallet_ids))))
+            pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
+            print(pallet_ids)
 
         except KeyError:
             # Display case after selection (or e.g. when the save button gets clicked)
@@ -68,8 +106,14 @@ class purchase_order_middleman(orm.Model):
         po_lines = po_pool.browse(cr, uid, po_line_ids, context=context)
 
         for line in po_lines:
-            nice = '%s / %s' % (line.name, line.account_analytic_id.code)
-            res.append((line.id, nice))
+            try:
+                this_count = pallet_ids[line.id]
+            except KeyError:
+                this_count = 0
+
+            if this_count < line.nb_pallets:
+                nice = '%s / %s' % (line.name, line.account_analytic_id.code)
+                res.append((line.id, nice))
 
         return res
 
@@ -94,6 +138,9 @@ class purchase_order(orm.Model):
 class stock_truck_line(orm.Model):
 
     _name = 'stock.truck.line'
+
+    def on_change_count_lots(self, cr, uid, ids, po_line_id, context=None):
+        return {}
 
     _columns = {
         'name': fields.char('Name', size=64),

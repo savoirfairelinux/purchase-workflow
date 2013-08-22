@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-    <!-- Truck lines -->
-    <record id="truck_line_tree" model="ir.ui.view">
-      <field name="name">stock.truck.line.tree</field>
-      <field name="model">stock.truck.line</field>
-      <field name="arch" type="xml">
-        <tree string="Truck Line" editable="bottom">
-          <field name="left_pallet" />
-          <field name="right_pallet" />
-        </tree>
-      </field>
-    </record>
-
     <!-- Truck -->
     <record id="truck_tree" model="ir.ui.view">
       <field name="name">stock.truck.tree</field>
@@ -56,8 +44,8 @@
           <group name="pallets" string="Truck Composition" colspan="4">
             <field name="pallet_ids" mode="tree" nolabel="1">
               <tree editable="bottom">
-                <field name="left_pallet" context="{'po_ids':parent.purchase_order_ids}" />
-                <field name="right_pallet" context="{'po_ids':parent.purchase_order_ids}" />
+                <field name="left_pallet" context="{'po_ids':parent.purchase_order_ids,'parent':parent}" on_change="on_change_count_lots(left_pallet)" />
+                <field name="right_pallet" context="{'po_ids':parent.purchase_order_ids,'parent':parent}" on_change="on_change_count_lots(right_pallet)" />
               </tree>
             </field>
           </group>
