@@ -45,8 +45,8 @@
             </group>
           </group>
 
-          <group name="product_orders" string="Product Orders" colspan="4">
-            <field name="product_order_ids" nolabel="1">
+          <group name="purchase_orders" string="Purchase Orders" colspan="4">
+            <field name="purchase_order_ids" nolabel="1" domain="[('state', 'not in', ['draft', 'done'])]">
               <tree>
                 <field name="name" />
               </tree>
@@ -54,7 +54,12 @@
           </group>
 
           <group name="pallets" string="Truck Composition" colspan="4">
-            <field name="pallet_ids" nolabel="1" />
+            <field name="pallet_ids" mode="tree" nolabel="1">
+              <tree editable="bottom">
+                <field name="left_pallet" context="{'po_ids':parent.purchase_order_ids}" />
+                <field name="right_pallet" context="{'po_ids':parent.purchase_order_ids}" />
+              </tree>
+            </field>
           </group>
         </form>
       </field>

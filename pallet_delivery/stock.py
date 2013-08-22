@@ -21,6 +21,15 @@
 
 from openerp.osv import orm, fields
 
+class purchase_order_line(orm.Model):
+
+    _inherit = 'purchase.order.line'
+
+    _columns = {
+        'middleman': fields.many2one('purchase.order.middleman', 'Middleman'),
+    }
+
+
 class purchase_order_middleman(orm.Model):
 
     '''Acts as a broker between a 'stock.truck.line' and a 'product.order.line'.
@@ -34,14 +43,28 @@ class purchase_order_middleman(orm.Model):
     '''
 
     _name = 'purchase.order.middleman'
+    _description = 'Purchase Order Middleman'
 
-    def name_get(self, cr, uid, ids, context=None):
+    def name_get(self, cr, uid, ids, context={}):
         if isinstance(ids, (int, long)):
             ids = [ids]
 
         res = []
+
+        try:
+            # Usual case where we select from a list
+
+            # Extract PO IDs from context:
+            # {..., 'po_ids': [[6, False, [1, 2, 3]]]} becomes [1, 2, 3]
+            po_ids = context['po_ids'][0][2]
+
+        except KeyError:
+            # Display case after selection (or e.g. when the save button gets clicked)
+
+            po_ids = ids
+
         po_pool = self.pool.get('purchase.order.line')
-        po_line_ids = po_pool.search(cr, uid, [], context=context)
+        po_line_ids = po_pool.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
         po_lines = po_pool.browse(cr, uid, po_line_ids, context=context)
 
         for line in po_lines:
@@ -51,8 +74,10 @@ class purchase_order_middleman(orm.Model):
         return res
 
     _columns = {
-        'name': fields.char('Name', size=64),
-        'purchase_order_line_ids': fields.many2one('purchase.order.line', 'Line'),
+        'name': fields.char('Name', size=64, required=True, translate=True, select=True),
+        'purchase_order_line_id': fields.one2many('purchase.order.line', 'middleman', 'Middleman'),
+        'left_pallet': fields.one2many('stock.truck.line', 'left_pallet', 'Stock Truck Line'),
+        'right_pallet': fields.one2many('stock.truck.line', 'right_pallet', 'Stock Truck Line'),
     }
 
 
@@ -70,32 +95,26 @@ class stock_truck_line(orm.Model):
 
     _name = 'stock.truck.line'
 
-    def _get_lot_and_product(self, cr, uid, ids, name, arg, context=None):
-        res = {}
-
-        print('AAAAAAURGH!')
-
-        for line in self.browse(cr, uid, ids, context=context):
-            res[line.id] = {'lot_and_product': 'poulet'}
-
-        return res
-
-    def _set_lot_and_product(self, cr, uid, ids, name, value, arg, context=None):
-        # TODO
-
-        return True
-
     _columns = {
         'name': fields.char('Name', size=64),
         'truck_id': fields.many2one('stock.truck', 'Truck'),
-        'left_pallet': fields.many2one('purchase.order.middleman', 'Middleman'),
-        'right_pallet': fields.function(_get_lot_and_product, fnct_inv=_set_lot_and_product, type='many2one', obj='purchase.order.line', store=True, string='Right Pallet'),
+        'left_pallet': fields.many2one('purchase.order.middleman', 'Left Pallet'),
+        'right_pallet': fields.many2one('purchase.order.middleman', 'Right Pallet'),
     }
 
 
 class stock_truck(orm.Model):
 
     _name = 'stock.truck'
+
+    def on_change_po(cr, uid, ids, name, po_ids, context=None):
+        if context is None:
+            context = {}
+
+        munged = [x[2][0] for x in po_ids]
+        context['po_ids'] = munged
+
+        return {'context': context}
 
     _columns = {
         'name': fields.char('Name', size=64),
@@ -104,7 +123,7 @@ class stock_truck(orm.Model):
         'truck_sn': fields.char('Truck S/N', size=64),
         'supplier': fields.many2one('res.partner', 'Supplier'),
         'arrival': fields.date('Date of Arrival'),
-        'product_order_ids': fields.many2many(
+        'purchase_order_ids': fields.many2many(
             'purchase.order', 'truck_order_rel', 'truck_id', 'order_id', 'Purchase Orders'),
         'pallet_ids': fields.one2many('stock.truck.line', 'truck_id', 'Pallets'),
     }
