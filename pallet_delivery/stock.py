@@ -21,15 +21,6 @@
 
 from openerp.osv import orm, fields
 
-class purchase_order_line(orm.Model):
-
-    _inherit = 'purchase.order.line'
-
-    _columns = {
-        'middleman': fields.many2one('purchase.order.middleman', 'Middleman'),
-    }
-
-
 def group(lst):
     if not lst:
         return []
@@ -51,57 +42,60 @@ def group(lst):
     return res
 
 
-class purchase_order_middleman(orm.Model):
+def dbg(thing):
+    print('\033[1;31m%r\033[0m' % (thing, ))  # ]]
 
-    '''Acts as a broker between a 'stock.truck.line' and a 'product.order.line'.
 
-    The middleman bridges a many2one between a truck and a PO. The field could
-    be a simple `fields.many2one()`, but we need to customise the way the PO
-    line is displayed by having it record not only the product name, but also
-    the tracking lot number.
+class purchase_order_line(orm.Model):
 
-    Thus, this model's existence is centered around a `name_get()` override.
-    '''
+    _inherit = 'purchase.order.line'
 
-    _name = 'purchase.order.middleman'
-    _description = 'Purchase Order Middleman'
+    def name_get(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
 
-    def name_get(self, cr, uid, ids, context={}):
         if isinstance(ids, (int, long)):
             ids = [ids]
 
+        dbg('context: %r' % (context, ))
+
+        if not context.has_key('nice'):
+            res = []
+
+            for line in self.browse(cr, uid, ids, context=context):
+                nice = '%s / %s' % (line.name, line.account_analytic_id.code)
+                res.append((line.id, nice))
+
+            return res
+
         res = []
 
-        pallet_ids = {}
-
-
-        try:
-            # Usual case where we select from a list
-
-            # Extract PO IDs from context:
-            # {..., 'po_ids': [[6, False, [1, 2, 3]]]} becomes [1, 2, 3]
-            po_ids = context['po_ids'][0][2]
-
-            # Extract pallet IDs from context:
-            pallet_ids = []
-
-            print('')
-            print(context['parent']['pallet_ids'])
-
-            for pallet_struct in context['parent']['pallet_ids']:
-                if pallet_struct[2] is not False:
-                    pallet_ids.extend(list(pallet_struct[2].values()))
-
-            print(list(group(sorted(pallet_ids))))
-            pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
-            print(pallet_ids)
-
-        except KeyError:
-            # Display case after selection (or e.g. when the save button gets clicked)
-
-            po_ids = ids
+        parent = context['parent']
+        all_pallets = parent['left_pallet_ids'] + parent['right_pallet_ids']
+        po_ids = parent['purchase_order_ids'][0][2]
 
         po_pool = self.pool.get('purchase.order.line')
+        pallet_ids = []
+
+        for pallet_struct in all_pallets:
+            if pallet_struct[0] == 4:
+                # Already there values
+
+                thing = po_pool.browse(cr, uid, pallet_struct[1], context=context)
+                if thing.left_pallet:
+                    pallet_ids.append(left_pallet)
+                else:
+                    pallet_ids.append(right_pallet)
+
+            else:
+                # New values
+
+                pallet_ids.extend(list(pallet_struct[2].values()))
+
+        pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
+
+        dbg('pallet_ids: %r' % (pallet_ids, ))
+
         po_line_ids = po_pool.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
         po_lines = po_pool.browse(cr, uid, po_line_ids, context=context)
 
@@ -117,13 +111,6 @@ class purchase_order_middleman(orm.Model):
 
         return res
 
-    _columns = {
-        'name': fields.char('Name', size=64, required=True, translate=True, select=True),
-        'purchase_order_line_id': fields.one2many('purchase.order.line', 'middleman', 'Middleman'),
-        'left_pallet': fields.one2many('stock.truck.line', 'left_pallet', 'Stock Truck Line'),
-        'right_pallet': fields.one2many('stock.truck.line', 'right_pallet', 'Stock Truck Line'),
-    }
-
 
 class purchase_order(orm.Model):
 
@@ -138,33 +125,30 @@ class purchase_order(orm.Model):
 class stock_truck_line(orm.Model):
 
     _name = 'stock.truck.line'
-
-    def on_change_count_lots(self, cr, uid, ids, po_line_id, context=None):
-        return {}
+    _description = 'A single pallet shipped in an incoming truck'
 
     _columns = {
         'name': fields.char('Name', size=64),
-        'truck_id': fields.many2one('stock.truck', 'Truck'),
-        'left_pallet': fields.many2one('purchase.order.middleman', 'Left Pallet'),
-        'right_pallet': fields.many2one('purchase.order.middleman', 'Right Pallet'),
+        'left_id': fields.many2one('stock.truck', 'Truck'),
+        'right_id': fields.many2one('stock.truck', 'Truck'),
+        'pallet': fields.many2one('purchase.order.line', 'Pallet'),
     }
 
 
 class stock_truck(orm.Model):
 
     _name = 'stock.truck'
-
-    def on_change_po(cr, uid, ids, name, po_ids, context=None):
-        if context is None:
-            context = {}
-
-        munged = [x[2][0] for x in po_ids]
-        context['po_ids'] = munged
-
-        return {'context': context}
+    _description = 'Incoming truck'
+    
+    def action_done(self, cr, uid, ids, context=None):
+        pass
 
     _columns = {
         'name': fields.char('Name', size=64),
+        'state': fields.selection([
+            ('draft', 'Draft'),
+            ('done', 'Done'),
+            ], 'State', readonly=True, select=True, track_visibility='onchange'),
         'front_temperature': fields.float('Front Temperature'),
         'back_temperature': fields.float('Back Temperature'),
         'truck_sn': fields.char('Truck S/N', size=64),
@@ -172,7 +156,8 @@ class stock_truck(orm.Model):
         'arrival': fields.date('Date of Arrival'),
         'purchase_order_ids': fields.many2many(
             'purchase.order', 'truck_order_rel', 'truck_id', 'order_id', 'Purchase Orders'),
-        'pallet_ids': fields.one2many('stock.truck.line', 'truck_id', 'Pallets'),
+        'left_pallet_ids': fields.one2many('stock.truck.line', 'left_id', 'Pallets'),
+        'right_pallet_ids': fields.one2many('stock.truck.line', 'right_id', 'Pallets'),
     }
 
     _defaults = {

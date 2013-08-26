@@ -18,37 +18,56 @@
     <record id="truck_form" model="ir.ui.view">
       <field name="name">stock.truck.form</field>
       <field name="model">stock.truck</field>
+      <field eval="1" name="priority" />
       <field name="arch" type="xml">
-        <form string="Truck">
-          <group name="pedigree" string="Details" colspan="4" col="4">
+        <form string="Truck" version="7.0">
+          <header>
+            <button name="action_done" states="draft" string="Confirm" type="object" class="oe_highlight" />
+            <field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors='{"draft":"blue","done":"blue"}' />
+          </header>
+
+          <sheet>
             <group>
-              <field name="truck_sn" />
-              <field name="supplier" />
-              <field name="arrival" />
+              <group name="pedigree" string="Details" colspan="4" col="4">
+                <group>
+                  <field name="truck_sn" />
+                  <field name="supplier" />
+                  <field name="arrival" />
+                </group>
+
+                <group>
+                  <field name="front_temperature" />
+                  <field name="back_temperature" />
+                </group>
+              </group>
+
+              <group name="purchase_orders" string="Purchase Orders" colspan="4">
+                <field name="purchase_order_ids" nolabel="1" domain="[('state', 'not in', ['draft', 'done'])]">
+                  <tree>
+                    <field name="name" />
+                  </tree>
+                </field>
+              </group>
+
+              <group name="pallets" string="Truck Composition" colspan="4">
+                <group>
+                  <field name="left_pallet_ids" nolabel="1">
+                    <tree editable="bottom">
+                      <field name="pallet" string="Left Pallets" context="{'nice':'nice','parent':parent}" />
+                    </tree>
+                  </field>
+                </group>
+
+                <group>
+                  <field name="right_pallet_ids" nolabel="1">
+                    <tree editable="bottom">
+                      <field name="pallet" string="Right Pallets" context="{'nice':'nice','parent':parent}" />
+                    </tree>
+                  </field>
+                </group>
+              </group>
             </group>
-
-            <group>
-              <field name="front_temperature" />
-              <field name="back_temperature" />
-            </group>
-          </group>
-
-          <group name="purchase_orders" string="Purchase Orders" colspan="4">
-            <field name="purchase_order_ids" nolabel="1" domain="[('state', 'not in', ['draft', 'done'])]">
-              <tree>
-                <field name="name" />
-              </tree>
-            </field>
-          </group>
-
-          <group name="pallets" string="Truck Composition" colspan="4">
-            <field name="pallet_ids" mode="tree" nolabel="1">
-              <tree editable="bottom">
-                <field name="left_pallet" context="{'po_ids':parent.purchase_order_ids,'parent':parent}" on_change="on_change_count_lots(left_pallet)" />
-                <field name="right_pallet" context="{'po_ids':parent.purchase_order_ids,'parent':parent}" on_change="on_change_count_lots(right_pallet)" />
-              </tree>
-            </field>
-          </group>
+          </sheet>
         </form>
       </field>
     </record>
