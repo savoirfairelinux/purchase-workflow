@@ -167,8 +167,6 @@ class stock_truck(orm.Model):
         _process_pallets(truck.left_pallet_ids)
         _process_pallets(truck.right_pallet_ids)
 
-        import ipdb; ipdb.set_trace()
-
         for po in truck.purchase_order_ids:
             partial_data = {'delivery_date': truck.arrival}
 
