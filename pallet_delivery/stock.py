@@ -19,6 +19,8 @@
 #
 ##############################################################################
 
+from collections import defaultdict
+
 from openerp.osv import orm, fields
 
 def group(lst):
@@ -57,8 +59,6 @@ class purchase_order_line(orm.Model):
         if isinstance(ids, (int, long)):
             ids = [ids]
 
-        dbg('context: %r' % (context, ))
-
         if not context.has_key('nice'):
             res = []
 
@@ -93,8 +93,6 @@ class purchase_order_line(orm.Model):
                 pallet_ids.extend(list(pallet_struct[2].values()))
 
         pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
-
-        dbg('pallet_ids: %r' % (pallet_ids, ))
 
         po_line_ids = po_pool.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
         po_lines = po_pool.browse(cr, uid, po_line_ids, context=context)
@@ -141,14 +139,83 @@ class stock_truck(orm.Model):
     _description = 'Incoming truck'
     
     def action_done(self, cr, uid, ids, context=None):
-        pass
+        if context is None:
+            context = {}
+
+
+        truck = self.browse(cr, uid, ids, context=context)[0]
+        picking = self.pool.get('stock.picking')
+        picking_in = self.pool.get('stock.picking.in')
+        move = self.pool.get('stock.move')
+        
+        products = {}
+
+        def _process_pallets(column):
+            for line in column:
+                po = line.pallet.order_id
+                lot = line.pallet.account_analytic_id.code
+
+                if not products.has_key(po.id):
+                    products[po.id] = {}
+
+                if not products[po.id].has_key(lot):
+                    products[po.id][lot] = (line.pallet, 0)
+
+                count = products[po.id][lot][1]
+                products[po.id][lot] = (products[po.id][lot][0], count + 1)
+
+        _process_pallets(truck.left_pallet_ids)
+        _process_pallets(truck.right_pallet_ids)
+
+        import ipdb; ipdb.set_trace()
+
+        for po in truck.purchase_order_ids:
+            partial_data = {'delivery_date': truck.arrival}
+
+            for po_line, count in products[po.id].itervalues():
+                lot = po_line.account_analytic_id.code
+                prodlot_id = int(lot[3:])
+
+                picking_in_id = picking_in.search(
+                        cr, uid, [('purchase_id', '=', po.id)], context=context)[0]
+                existing_picking = picking.browse(cr, uid, picking_in_id, context=context)
+
+                seq = existing_picking.name
+                picking_id = existing_picking.id
+                
+                move_id = move.create(cr, uid, {
+                    'name': seq,
+                    'product_id': po_line.product_id.id,
+                    'product_qty': count * po_line.nb_crates_per_pallet,
+                    'product_uom': 1,
+                    'prodlot_id': prodlot_id,
+                    'location_id': 8,
+                    'location_dest_id': 12,
+                    'picking_id': picking_id,
+                }, context=context)
+                
+                move.action_confirm(cr, uid, [move_id], context)
+                partial_data['move%s' % (move_id, )] = {
+                    'product_id': po_line.product_id.id,
+                    'product_qty': count * po_line.nb_crates_per_pallet,
+                    'product_uom': 1,
+                    'prodlot_id': prodlot_id,
+                }
+
+            picking.do_partial(cr, uid, [picking_id], partial_data, context=context)
+        #self.write(cr, uid, ids, {'state': 'done'})
+
+        return True
 
     _columns = {
+        # Overhead
         'name': fields.char('Name', size=64),
         'state': fields.selection([
             ('draft', 'Draft'),
             ('done', 'Done'),
             ], 'State', readonly=True, select=True, track_visibility='onchange'),
+
+        # Display
         'front_temperature': fields.float('Front Temperature'),
         'back_temperature': fields.float('Back Temperature'),
         'truck_sn': fields.char('Truck S/N', size=64),
@@ -162,4 +229,5 @@ class stock_truck(orm.Model):
 
     _defaults = {
         'name': lambda self, cr, uid, ctx={}: self.pool.get('ir.sequence').get(cr, uid, 'stock.truck'),
+        'state': 'draft',
     }

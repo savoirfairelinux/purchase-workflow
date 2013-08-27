@@ -22,7 +22,7 @@
       <field name="arch" type="xml">
         <form string="Truck" version="7.0">
           <header>
-            <button name="action_done" states="draft" string="Confirm" type="object" class="oe_highlight" />
+            <button name="action_done" type="object" states="draft" string="Confirm" class="oe_highlight" />
             <field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors='{"draft":"blue","done":"blue"}' />
           </header>
 

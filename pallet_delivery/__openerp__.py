@@ -43,6 +43,7 @@ at various points.
 """,
     'depends': ['base', 'purchase', 'landed_cost_per_pallet', 'stock'],
     'data': [
+        'stock_workflow.xml',
         'pallet_delivery_data.xml',
         'pallet_delivery.xml',
     ],
