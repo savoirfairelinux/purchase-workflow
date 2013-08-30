@@ -54,6 +54,7 @@
                   <field name="left_pallet_ids" nolabel="1">
                     <tree editable="bottom">
                       <field name="pallet" string="Left Pallets" context="{'nice':'nice','parent':parent}" />
+                      <field name="crates" string="Crates" />
                     </tree>
                   </field>
                 </group>
@@ -62,6 +63,7 @@
                   <field name="right_pallet_ids" nolabel="1">
                     <tree editable="bottom">
                       <field name="pallet" string="Right Pallets" context="{'nice':'nice','parent':parent}" />
+                      <field name="crates" string="Crates" />
                     </tree>
                   </field>
                 </group>
@@ -92,7 +94,7 @@
       <field name="search_view_id" ref="pallet_delivery.view_truck_filter" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to create a draft truck</p>
-        <p>FIXME Lorem ipsum dolor sit amet FIXME FIXME FIXME</p>
+        <p>Mon aéroglisseur est plein d'anguilles, et toute cette sorte de chose.</p>
       </field>
     </record>
 

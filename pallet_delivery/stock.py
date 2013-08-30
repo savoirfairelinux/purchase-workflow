@@ -130,6 +130,7 @@ class stock_truck_line(orm.Model):
         'left_id': fields.many2one('stock.truck', 'Truck'),
         'right_id': fields.many2one('stock.truck', 'Truck'),
         'pallet': fields.many2one('purchase.order.line', 'Pallet'),
+        'crates': fields.integer('Crates'),
     }
 
 
@@ -142,12 +143,18 @@ class stock_truck(orm.Model):
         if context is None:
             context = {}
 
-
         truck = self.browse(cr, uid, ids, context=context)[0]
         picking = self.pool.get('stock.picking')
         picking_in = self.pool.get('stock.picking.in')
         move = self.pool.get('stock.move')
         
+        # Build a dictionary of:
+        #   - key: Purchase Order
+        #   - value: a dictionary of:
+        #       - key: Lot Number
+        #       - value: tuple of
+        #         - Purchase Order Line
+        #         - Crate count
         products = {}
 
         def _process_pallets(column):
@@ -162,7 +169,7 @@ class stock_truck(orm.Model):
                     products[po.id][lot] = (line.pallet, 0)
 
                 count = products[po.id][lot][1]
-                products[po.id][lot] = (products[po.id][lot][0], count + 1)
+                products[po.id][lot] = (products[po.id][lot][0], count + line.crates)
 
         _process_pallets(truck.left_pallet_ids)
         _process_pallets(truck.right_pallet_ids)
@@ -184,7 +191,7 @@ class stock_truck(orm.Model):
                 move_id = move.create(cr, uid, {
                     'name': seq,
                     'product_id': po_line.product_id.id,
-                    'product_qty': count * po_line.nb_crates_per_pallet,
+                    'product_qty': count,
                     'product_uom': 1,
                     'prodlot_id': prodlot_id,
                     'location_id': 8,
@@ -195,13 +202,14 @@ class stock_truck(orm.Model):
                 move.action_confirm(cr, uid, [move_id], context)
                 partial_data['move%s' % (move_id, )] = {
                     'product_id': po_line.product_id.id,
-                    'product_qty': count * po_line.nb_crates_per_pallet,
+                    'product_qty': count,
                     'product_uom': 1,
                     'prodlot_id': prodlot_id,
                 }
 
             picking.do_partial(cr, uid, [picking_id], partial_data, context=context)
-        #self.write(cr, uid, ids, {'state': 'done'})
+
+        self.write(cr, uid, ids, {'state': 'done'})
 
         return True
 
