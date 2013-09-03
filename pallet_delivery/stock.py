@@ -92,6 +92,7 @@ class purchase_order_line(orm.Model):
 
                 pallet_ids.extend(list(pallet_struct[2].values()))
 
+        # FIXME not by count, but by crate count
         pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
 
         po_line_ids = po_pool.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
@@ -174,6 +175,12 @@ class stock_truck(orm.Model):
         _process_pallets(truck.left_pallet_ids)
         _process_pallets(truck.right_pallet_ids)
 
+        # Make the calls to the Pickings stock moves
+
+        locations = self.pool.get('stock.location')
+        suppliers_location = locations.search(cr, uid, [('name', '=', 'Suppliers')])[0].id
+        stock_location = locations.search(cr, uid, [('name', '=', 'Stock')])[0].id
+
         for po in truck.purchase_order_ids:
             partial_data = {'delivery_date': truck.arrival}
 
@@ -194,8 +201,8 @@ class stock_truck(orm.Model):
                     'product_qty': count,
                     'product_uom': 1,
                     'prodlot_id': prodlot_id,
-                    'location_id': 8,
-                    'location_dest_id': 12,
+                    'location_id': suppliers_location,
+                    'location_dest_id': stock_location,
                     'picking_id': picking_id,
                 }, context=context)
                 

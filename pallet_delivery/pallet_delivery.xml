@@ -94,7 +94,15 @@
       <field name="search_view_id" ref="pallet_delivery.view_truck_filter" />
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Click to create a draft truck</p>
-        <p>Mon aéroglisseur est plein d'anguilles, et toute cette sorte de chose.</p>
+
+        <p>The truck contains an incoming, physical shipment. With it you can
+          register the truck's details, such as its serial number, sampled
+          temperatures, and other information. Also, the truck serves you as a
+          map of what your company received.</p>
+
+        <p>When you confirm the truck, it will act as an “Incoming Shipment”
+          confirmation, and the products will be moved from your Suppliers (as
+          listed in Purchase Orders) to your Stock.</p>
       </field>
     </record>
 
