@@ -74,37 +74,25 @@ class purchase_order_line(orm.Model):
         all_pallets = parent['left_pallet_ids'] + parent['right_pallet_ids']
         po_ids = parent['purchase_order_ids'][0][2]
 
-        po_pool = self.pool.get('purchase.order.line')
+        stl_pool = self.pool.get('stock.truck.line')
         pallet_ids = []
 
+        crates = defaultdict(lambda: 0)
         for pallet_struct in all_pallets:
             if pallet_struct[0] == 4:
-                # Already there values
-
-                thing = po_pool.browse(cr, uid, pallet_struct[1], context=context)
-                if thing.left_pallet:
-                    pallet_ids.append(left_pallet)
-                else:
-                    pallet_ids.append(right_pallet)
-
+                st_line = stl_pool.browse(cr, uid, pallet_struct[1], context=context)
+                crates[st_line.pallet.id] += st_line.crates
             else:
-                # New values
+                fields = pallet_struct[2]
+                crates[fields['pallet']] += fields['crates']
 
-                pallet_ids.extend(list(pallet_struct[2].values()))
-
-        # FIXME not by count, but by crate count
-        pallet_ids = dict((x[0], len(x)) for x in group(sorted(pallet_ids)))
-
-        po_line_ids = po_pool.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
-        po_lines = po_pool.browse(cr, uid, po_line_ids, context=context)
+        po_line_ids = self.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
+        po_lines = self.browse(cr, uid, po_line_ids, context=context)
 
         for line in po_lines:
-            try:
-                this_count = pallet_ids[line.id]
-            except KeyError:
-                this_count = 0
+            total_crates = line.nb_pallets * line.nb_crates_per_pallet
 
-            if this_count < line.nb_pallets:
+            if crates[line.id] < total_crates:
                 nice = '%s / %s' % (line.name, line.account_analytic_id.code)
                 res.append((line.id, nice))
 
