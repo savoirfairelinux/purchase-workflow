@@ -166,8 +166,8 @@ class stock_truck(orm.Model):
         # Make the calls to the Pickings stock moves
 
         locations = self.pool.get('stock.location')
-        suppliers_location = locations.search(cr, uid, [('name', '=', 'Suppliers')])[0].id
-        stock_location = locations.search(cr, uid, [('name', '=', 'Stock')])[0].id
+        suppliers_location = locations.search(cr, uid, [('name', '=', 'Suppliers')])[0]
+        stock_location = locations.search(cr, uid, [('name', '=', 'Stock')])[0]
 
         for po in truck.purchase_order_ids:
             partial_data = {'delivery_date': truck.arrival}
