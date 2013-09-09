@@ -91,10 +91,10 @@ class purchase_order_line(orm.Model):
 
         for line in po_lines:
             total_crates = line.nb_pallets * line.nb_crates_per_pallet
+            available = max(0, total_crates - crates[line.id])
 
-            if crates[line.id] < total_crates:
-                nice = '%s / %s' % (line.name, line.account_analytic_id.code)
-                res.append((line.id, nice))
+            nice = '%s / %s (%d)' % (line.name, line.account_analytic_id.code, available)
+            res.append((line.id, nice))
 
         return res
 

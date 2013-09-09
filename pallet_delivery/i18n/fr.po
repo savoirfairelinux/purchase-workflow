@@ -1,0 +1,178 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* pallet_delivery
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-05 14:56+0000\n"
+"PO-Revision-Date: 2013-09-05 14:56+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pallet_delivery
+#: model:ir.actions.act_window,help:pallet_delivery.action_truck_pending
+msgid "<p class=\"oe_view_nocontent_create\">Click to create a draft truck</p>\n"
+"\n"
+"        <p>The truck contains an incoming, physical shipment. With it you can\n"
+"          register the truck's details, such as its serial number, sampled\n"
+"          temperatures, and other information. Also, the truck serves you as a\n"
+"          map of what your company received.</p>\n"
+"\n"
+"        <p>When you confirm the truck, it will act as an “Incoming Shipment”\n"
+"          confirmation, and the products will be moved from your Suppliers (as\n"
+"          listed in Purchase Orders) to your Stock.</p>\n"
+"      "
+msgstr "FIXME mon aéroglisseur est plein d'anguilles."
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Ligne de bon d'achat"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Confirm"
+msgstr "Confirmer"
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_stock_truck_line
+msgid "A single pallet shipped in an incoming truck"
+msgstr "Une seule palette livrée dans un camion entrant"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+#: field:stock.truck.line,crates:0
+msgid "Crates"
+msgstr "Caisses"
+
+#. module: pallet_delivery
+#: field:stock.truck.line,pallet:0
+msgid "Pallet"
+msgstr "Palette"
+
+#. module: pallet_delivery
+#: field:stock.truck,state:0
+msgid "State"
+msgstr "État"
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_stock_truck
+msgid "Incoming truck"
+msgstr "Camion entrant"
+
+#. module: pallet_delivery
+#: selection:stock.truck,state:0
+msgid "Draft"
+msgstr "Ébauche"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Details"
+msgstr "Détails"
+
+#. module: pallet_delivery
+#: field:stock.truck,front_temperature:0
+msgid "Front Temperature"
+msgstr "Température avant"
+
+#. module: pallet_delivery
+#: field:stock.truck,supplier:0
+msgid "Supplier"
+msgstr "Fournisseur"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Truck Composition"
+msgstr "Composition du camion"
+
+#. module: pallet_delivery
+#: field:stock.truck,back_temperature:0
+msgid "Back Temperature"
+msgstr "Température arrière"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Serial Number"
+msgstr "Numéro de série"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Left Pallets"
+msgstr "Palettes gauche"
+
+#. module: pallet_delivery
+#: field:stock.truck,left_pallet_ids:0
+#: field:stock.truck,right_pallet_ids:0
+msgid "Pallets"
+msgstr "Palettes"
+
+#. module: pallet_delivery
+#: field:stock.truck,truck_sn:0
+msgid "Truck S/N"
+msgstr "Numéro de série"
+
+#. module: pallet_delivery
+#: field:stock.truck,name:0
+#: field:stock.truck.line,name:0
+msgid "Name"
+msgstr "Nom"
+
+#. module: pallet_delivery
+#: field:purchase.order,stock_truck_ids:0
+msgid "Trucks"
+msgstr "Camions"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Search Truck"
+msgstr "Rechercher un camion"
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_purchase_order
+msgid "Purchase Order"
+msgstr "Bon d'achat"
+
+#. module: pallet_delivery
+#: field:stock.truck,arrival:0
+msgid "Date of Arrival"
+msgstr "Date d'arrivée"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+#: field:stock.truck.line,left_id:0
+#: field:stock.truck.line,right_id:0
+msgid "Truck"
+msgstr "Camion"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Right Pallets"
+msgstr "Palettes droite"
+
+#. module: pallet_delivery
+#: model:ir.actions.act_window,name:pallet_delivery.action_truck_pending
+msgid "On Draft Truck"
+msgstr "Camion en ébauche"
+
+#. module: pallet_delivery
+#: model:ir.ui.menu,name:pallet_delivery.menu_truck
+msgid "Incoming Truck"
+msgstr "Camion entrant"
+
+#. module: pallet_delivery
+#: selection:stock.truck,state:0
+msgid "Done"
+msgstr "Complété"
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+#: field:stock.truck,purchase_order_ids:0
+msgid "Purchase Orders"
+msgstr "Bons d'achats"
+
