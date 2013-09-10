@@ -44,10 +44,6 @@ def group(lst):
     return res
 
 
-def dbg(thing):
-    print('\033[1;31m%r\033[0m' % (thing, ))  # ]]
-
-
 class purchase_order_line(orm.Model):
 
     _inherit = 'purchase.order.line'
