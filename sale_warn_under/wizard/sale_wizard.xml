@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+  <data>
+    <record id="view_sale_warn_under" model="ir.ui.view">
+      <field name="name">sale.order.warn.wizard</field>
+      <field name="model">sale.order.warn</field>
+      <field name="arch" type="xml">
+        <form string="Details" version="7.0">
+          <p class="oe_gray">Please explain why the following lines are being sold at a unit
+            price lower than the minimum current stock price.</p>
+
+          <group>
+            <field name="sale_order_id" invisible="1" />
+
+            <field name="order_line_id" nolabel="1">
+              <tree editable="top" remove="0">
+                <field name="state" invisible="1" />
+                <field name="name" readonly="1" />
+                <field name="minimum" readonly="1" />
+                <field name="price_unit" readonly="1" />
+                <field name="under_minimum_reason" required="1" />
+              </tree>
+            </field>
+          </group>
+
+          <footer>
+            <button name="really_confirm" string="Confirm" type="object" class="or_highlight" />
+            <button string="Cancel" class="oe_link" special="cancel" />
+          </footer>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_view_sale_warn_under" model="ir.actions.act_window">
+      <field name="name">action view name</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">sale.order.warn</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="view_sale_warn_under" />
+      <field name="target">new</field>
+    </record>
+  </data>
+</openerp>
