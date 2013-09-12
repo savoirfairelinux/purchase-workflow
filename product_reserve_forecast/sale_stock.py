@@ -12,7 +12,11 @@ class sale_order_line(orm.Model):
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False,
             fiscal_position=False, flag=False, context=None):
-        '''Slightly tweaked copy from sale_stock'''
+        '''Slightly tweaked copy from sale_stock
+
+        The only difference resides in the way the compare_qty is computed: in
+        this implementation, take into account the product's reserved quantity.
+        '''
 
         context = context or {}
         product_uom_obj = self.pool.get('product.uom')

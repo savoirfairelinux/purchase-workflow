@@ -34,6 +34,7 @@ This reduces the forecasted quantity by a given amount.
 """,
     'depends': ['base', 'product', 'sale', 'sale_stock', 'stock'],
     'data': [
+        'security/product_reserve_forecast_security.xml',
         'product_reserve_forecast_view.xml',
     ],
     'demo': [],
