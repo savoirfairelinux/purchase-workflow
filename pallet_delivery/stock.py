@@ -129,11 +129,7 @@ class stock_truck(orm.Model):
             context = {}
 
         truck = self.browse(cr, uid, ids, context=context)[0]
-        picking = self.pool.get('stock.picking')
-        picking_in = self.pool.get('stock.picking.in')
-        move = self.pool.get('stock.move')
-        prodlot_pool = self.pool.get('stock.production.lot')
-        
+
         # Build a dictionary of:
         #   - key: Purchase Order
         #   - value: a dictionary of:
@@ -162,36 +158,25 @@ class stock_truck(orm.Model):
 
         # Make the calls to the Pickings stock moves
 
-        locations = self.pool.get('stock.location')
-        suppliers_location = locations.search(cr, uid, [('name', '=', 'Suppliers')])[0]
-        stock_location = locations.search(cr, uid, [('name', '=', 'Stock')])[0]
+        picking_pool = self.pool.get('stock.picking')
+        move_pool = self.pool.get('stock.move')
 
         for po in truck.purchase_order_ids:
             partial_data = {'delivery_date': truck.arrival}
 
+            picking_id = picking_pool.search(
+                    cr, uid,
+                    ['&', ('purchase_id', '=', po.id), ('state', '=', 'assigned')],
+                    context=context)[0]
+
             for po_line, count in products[po.id].itervalues():
-                lot = po_line.account_analytic_id.code
-                prodlot_id = prodlot_pool.search(cr, uid, [('name', '=', lot)])[0]
+                move_id = move_pool.search(
+                        cr, uid,
+                        ['&', ('picking_id', '=', picking_id), ('purchase_line_id', '=', po_line.id)],
+                        context=context)[0]
 
-                picking_in_id = picking_in.search(
-                        cr, uid, [('purchase_id', '=', po.id)], context=context)[0]
-                existing_picking = picking.browse(cr, uid, picking_in_id, context=context)
+                prodlot_id = move_pool.browse(cr, uid, move_id, context=context).prodlot_id.id
 
-                seq = existing_picking.name
-                picking_id = existing_picking.id
-                
-                move_id = move.create(cr, uid, {
-                    'name': seq,
-                    'product_id': po_line.product_id.id,
-                    'product_qty': count,
-                    'product_uom': 1,
-                    'prodlot_id': prodlot_id,
-                    'location_id': suppliers_location,
-                    'location_dest_id': stock_location,
-                    'picking_id': picking_id,
-                }, context=context)
-                
-                move.action_confirm(cr, uid, [move_id], context)
                 partial_data['move%s' % (move_id, )] = {
                     'product_id': po_line.product_id.id,
                     'product_qty': count,
@@ -199,7 +184,7 @@ class stock_truck(orm.Model):
                     'prodlot_id': prodlot_id,
                 }
 
-            picking.do_partial(cr, uid, [picking_id], partial_data, context=context)
+            picking_pool.do_partial(cr, uid, [picking_id], partial_data, context=context)
 
         self.write(cr, uid, ids, {'state': 'done'})
 
