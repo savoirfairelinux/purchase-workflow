@@ -108,9 +108,16 @@
 
     <menuitem
       name="Incoming Truck"
-      id="menu_truck"
+      id="menu_truck_purchase"
       action="action_truck_pending"
       parent="purchase.menu_procurement_management_inventory"
-      sequence="8" /> <!-- FIXME move to warehouse -->
+      sequence="8" />
+
+    <menuitem
+      name="Incoming Truck"
+      id="menu_truck_stock"
+      action="action_truck_pending"
+      parent="stock.menu_stock_warehouse_mgmt"
+      sequence="0" />
   </data>
 </openerp>

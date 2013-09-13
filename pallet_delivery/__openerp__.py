@@ -45,7 +45,7 @@ at various points.
     'data': [
         'stock_workflow.xml',
         'pallet_delivery_data.xml',
-        'pallet_delivery.xml',
+        'pallet_delivery_view.xml',
     ],
     'demo': [],
     'test': [],
