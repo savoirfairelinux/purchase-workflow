@@ -7,7 +7,7 @@
       <field name="inherit_id" ref="base.view_partner_form" />
       <field name="arch" type="xml">
         <field name="website" position="before">
-          <field name="rin" attrs="{'invisible':[('is_company','=',False)]}" placeholder="e.g. R-123456-7" />
+          <field name="rin" attrs="{'invisible':['|',('is_company','=',False),('supplier','=',False)]}" placeholder="e.g. R-123456-7" />
         </field>
       </field>
     </record>
