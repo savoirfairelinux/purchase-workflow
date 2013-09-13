@@ -42,7 +42,7 @@
               </group>
 
               <group name="purchase_orders" string="Purchase Orders" colspan="4">
-                <field name="purchase_order_ids" nolabel="1" domain="[('state', 'not in', ['draft', 'done'])]">
+                <field name="purchase_order_ids" nolabel="1" domain="[('state', 'not in', ['draft', 'done']), ('assigned', '=', True)]">
                   <tree>
                     <field name="name" />
                   </tree>

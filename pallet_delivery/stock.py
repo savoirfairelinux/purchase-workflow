@@ -24,6 +24,12 @@ from collections import defaultdict
 from openerp.osv import orm, fields
 
 def group(lst):
+    '''Saner group function than the one found in itertools
+
+    This one mimics Haskell's group from Data.List:
+        group :: Eq a => [a] -> [[a]]
+    '''
+
     if not lst:
         return []
 
@@ -99,9 +105,24 @@ class purchase_order(orm.Model):
 
     _inherit = 'purchase.order'
 
+    def _assigned(self, cr, uid, obj, name, args, context=None):
+        '''Domain filter on corresponding entries in stock.picking where state is assigned'''
+
+        if context is None:
+            context = {}
+
+        import ipdb; ipdb.set_trace()
+
+        picking_pool = self.pool.get('stock.picking')
+        ids = picking_pool.search(cr, uid, [('state', '=', 'assigned')], context=context)
+        po_ids = [po.purchase_id.id for po in picking_pool.browse(cr, uid, ids, context=context)]
+
+        return [('id', 'in', po_ids)]
+
     _columns = {
         'stock_truck_ids': fields.many2many(
             'stock.truck', 'truck_order_rel', 'order_id', 'truck_id', 'Trucks'),
+        'assigned': fields.function(lambda **x: True, fnct_search=_assigned, type='boolean', method=True),
     }
 
 
