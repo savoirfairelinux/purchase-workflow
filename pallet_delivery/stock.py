@@ -132,6 +132,7 @@ class stock_truck(orm.Model):
         picking = self.pool.get('stock.picking')
         picking_in = self.pool.get('stock.picking.in')
         move = self.pool.get('stock.move')
+        prodlot_pool = self.pool.get('stock.production.lot')
         
         # Build a dictionary of:
         #   - key: Purchase Order
@@ -170,7 +171,7 @@ class stock_truck(orm.Model):
 
             for po_line, count in products[po.id].itervalues():
                 lot = po_line.account_analytic_id.code
-                prodlot_id = int(lot[3:])
+                prodlot_id = prodlot_pool.search(cr, uid, [('name', '=', lot)])[0]
 
                 picking_in_id = picking_in.search(
                         cr, uid, [('purchase_id', '=', po.id)], context=context)[0]
