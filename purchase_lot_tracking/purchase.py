@@ -182,7 +182,7 @@ class purchase_order(orm.Model):
            ,'account_id' : order_cost.partner_id.property_account_payable.id
            ,'type' : 'in_invoice'
            ,'origin' : order.name
-           ,'fiscal_position':  order.partner_id.property_account_position and order.partner_id.property_account_positi
+           ,'fiscal_position':  order.partner_id.property_account_position and order.partner_id.property_account_position
            ,'company_id': order.company_id.id
            ,'journal_id': len(journal_ids) and journal_ids[0] or False
 
