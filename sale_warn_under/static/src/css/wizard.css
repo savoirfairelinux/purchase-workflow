@@ -1,0 +1,11 @@
+[role="dialog"] [data-id="name"] {
+    width: 10em;
+}
+
+[data-id="minimum"] {
+    width: 5em;
+}
+
+[data-id="price_unit"] {
+    width: 5em;
+}

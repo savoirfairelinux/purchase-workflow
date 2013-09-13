@@ -33,6 +33,9 @@
         'wizard/sale_wizard.xml',
         'sale_warn_under_view.xml',
     ],
+    'css': [
+        'static/src/css/wizard.css'
+    ],
     'demo': [],
     'test': [],
     'installable': True,
