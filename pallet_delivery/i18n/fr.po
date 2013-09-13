@@ -28,7 +28,15 @@ msgid "<p class=\"oe_view_nocontent_create\">Click to create a draft truck</p>\n
 "          confirmation, and the products will be moved from your Suppliers (as\n"
 "          listed in Purchase Orders) to your Stock.</p>\n"
 "      "
-msgstr "FIXME mon aéroglisseur est plein d'anguilles."
+msgstr "<p class=\"oe_view_nocontent_create\">Cliquez pour créer un camion brouillon</p>\n
+<p>Le camion contient une livraison physique entrante. Avec celui-ci, vous
+pouvez enregistrer les détails du camion, comme son numéro de série, les
+températures échantillonnées, et d'autre informations. De même, le camion est
+utile comme carte des produits reçus.</p>
+<p>Lorsque vous confirmez la réception du camion, ce dernier agira comme une
+«Livraison entrante» confirmée, et le produits seront déplacés de vos
+fournisseurs (tels que listés dans vos bons de commandes) vers votre
+entrepôt.</p>"
 
 #. module: pallet_delivery
 #: model:ir.model,name:pallet_delivery.model_purchase_order_line
