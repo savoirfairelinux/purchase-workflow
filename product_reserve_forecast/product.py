@@ -35,8 +35,22 @@ class product_product(orm.Model):
 
         return orig
 
+    def _virtual_clone(self, cr, uid, ids, names, arg, context=None):
+        '''Small hack to get priority over the Stock module's virtual_available'''
+
+        res = {}
+
+        for line in self.browse(cr, uid, ids, context=context):
+            res[line.id] = line.virtual_available
+
+        return res
+
     _columns = {
         'reserved': fields.integer('Reserved Quantity'),
+
+        'virtual_clone':
+            fields.function(_virtual_clone, type='float',
+                digits_compute=dp.get_precision('Product Unit of Measure'), string='Forecasted Quantity'),
 
         'virtual_available': fields.function(_virtual_available, multi='qty_available',
             type='float',  digits_compute=dp.get_precision('Product Unit of Measure'),
