@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+    <!-- Purchase Order -->
+    <record id="purchase_order_without_confirm_form" model="ir.ui.view">
+      <field name="name">purchase.order.without.confirm.form</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+        <button name="purchase_confirm" position="replace">
+          <button name="purchase_confirm" attrs="{'invisible': True}" />
+        </button>
+      </field>
+    </record>
+
     <!-- Truck -->
     <record id="truck_tree" model="ir.ui.view">
       <field name="name">stock.truck.tree</field>
