@@ -1,0 +1,87 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* sale_warn_under
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-18 14:24+0000\n"
+"PO-Revision-Date: 2013-09-18 14:24+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_warn_under
+#: view:sale.order.warn:0
+msgid "Confirm"
+msgstr ""
+
+#. module: sale_warn_under
+#: model:ir.model,name:sale_warn_under.model_sale_order_warn
+msgid "Sale Order Warn"
+msgstr ""
+
+#. module: sale_warn_under
+#: code:addons/sale_warn_under/sale.py:62
+#, python-format
+msgid "Sale Under Minimum Warning"
+msgstr ""
+
+#. module: sale_warn_under
+#: model:ir.actions.act_window,name:sale_warn_under.action_view_sale_warn_under
+msgid "action view name"
+msgstr ""
+
+#. module: sale_warn_under
+#: field:sale.order.warn,sale_order_id:0
+msgid "unknown"
+msgstr ""
+
+#. module: sale_warn_under
+#: view:sale.order.warn:0
+msgid "Please explain why the following lines are being sold at a unit\n"
+"            price lower than the minimum current stock price."
+msgstr ""
+
+#. module: sale_warn_under
+#: field:sale.order.line,under_minimum_reason:0
+msgid "Reason"
+msgstr ""
+
+#. module: sale_warn_under
+#: view:sale.order.warn:0
+msgid "Details"
+msgstr ""
+
+#. module: sale_warn_under
+#: field:sale.order.line,under_id:0
+#: field:sale.order.warn,order_line_id:0
+msgid "Justifications"
+msgstr ""
+
+#. module: sale_warn_under
+#: view:sale.order.warn:0
+msgid "Cancel"
+msgstr ""
+
+#. module: sale_warn_under
+#: code:addons/sale_warn_under/sale.py:82
+#: model:ir.model,name:sale_warn_under.model_sale_order
+#, python-format
+msgid "Sales Order"
+msgstr ""
+
+#. module: sale_warn_under
+#: model:ir.model,name:sale_warn_under.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: sale_warn_under
+#: view:sale.order:0
+msgid "Confirm Order"
+msgstr ""
+

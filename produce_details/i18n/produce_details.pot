@@ -1,0 +1,42 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* produce_details
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-18 14:22+0000\n"
+"PO-Revision-Date: 2013-09-18 14:22+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: produce_details
+#: field:product.product,origin:0
+msgid "Origin"
+msgstr ""
+
+#. module: produce_details
+#: model:ir.model,name:produce_details.model_product_product
+msgid "Product"
+msgstr ""
+
+#. module: produce_details
+#: field:product.product,variety:0
+msgid "Variety"
+msgstr ""
+
+#. module: produce_details
+#: field:product.product,cond_weight:0
+msgid "Conditioning weight"
+msgstr ""
+
+#. module: produce_details
+#: field:product.product,size_category:0
+msgid "Size"
+msgstr ""
+
