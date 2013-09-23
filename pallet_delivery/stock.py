@@ -111,8 +111,6 @@ class purchase_order(orm.Model):
         if context is None:
             context = {}
 
-        import ipdb; ipdb.set_trace()
-
         picking_pool = self.pool.get('stock.picking')
         ids = picking_pool.search(cr, uid, [('state', '=', 'assigned')], context=context)
         po_ids = [po.purchase_id.id for po in picking_pool.browse(cr, uid, ids, context=context)]
