@@ -72,6 +72,9 @@ class purchase_order_line(orm.Model):
 
         res = []
 
+        # FIXME find a way to put that in data
+        res.append((0, 'Not ours'))
+
         parent = context['parent']
         all_pallets = parent['left_pallet_ids'] + parent['right_pallet_ids']
         po_ids = parent['purchase_order_ids'][0][2]

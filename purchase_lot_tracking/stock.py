@@ -20,6 +20,7 @@
 ##############################################################################
 
 from openerp.osv import orm, fields, osv
+from openerp.tools.translate import _
 
 class stock_production_lot(orm.Model):
 
@@ -95,9 +96,28 @@ class stock_invoice_onshipping(osv.osv_memory):
 
             matching_prodlot = self.pool.get('stock.production.lot')\
                                         .browse(cr, uid, [prodlot_id])[0]
-            
+
             matching_account = matching_prodlot.id.account_analytic_id.id
 
             invoice_line.write({'account_analytic_id': matching_account})
         
         return res
+
+
+class stock_picking_out(orm.Model):
+
+    _inherit = 'stock.picking.out'
+
+    def action_process(self, cr, uid, ids, context={}):
+        '''Check if tracked products have their lot number specified'''
+
+        picking = self.browse(cr, uid, ids, context=context)[0]
+
+        for line in picking.move_lines:
+            if line.product_id.track_production and not line.prodlot_id.id:
+                message = ' '.join([
+                        _('Please specify a lot number for all products of type:'),
+                        line.product_id.name_template])
+                raise orm.except_orm(_('Missing lot number'), message)
+                        
+        return super(stock_picking_out, self).action_process(cr, uid, ids, context)
