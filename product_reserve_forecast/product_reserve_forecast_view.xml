@@ -2,13 +2,25 @@
 <openerp>
   <data>
     <record id="product_reserve_forecast_form" model="ir.ui.view">
-      <field name="name">product.product.reserve</field>
+      <field name="name">product.product.reserve.form</field>
       <field name="model">product.product</field>
       <field name="inherit_id" ref="stock.view_normal_procurement_locations_form" />
       <field name="arch" type="xml">
         <field name="virtual_available" position="replace">
           <field name="virtual_clone" />
           <field name="reserved" groups="product_reserve_forecast.group_product_reserve" />
+        </field>
+      </field>
+    </record>
+
+    <record id="product_reserve_forecast_tree" model="ir.ui.view">
+      <field name="name">product.product.reserve.tree</field>
+      <field name="model">product.product</field>
+      <field name="inherit_id" ref="product.product_product_tree_view" />
+      <field name="arch" type="xml">
+        <field name="virtual_available" position="replace">
+          <field name="virtual_available" invisible="1" />
+          <field name="virtual_clone" />
         </field>
       </field>
     </record>
