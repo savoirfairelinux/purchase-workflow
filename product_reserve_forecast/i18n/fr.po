@@ -36,7 +36,7 @@ msgstr "Pas assez de stock: "
 #, python-format
 msgid "You plan to sell %.2f %s but you only have %.2f %s available !\n"
 "The real stock is %.2f %s. (without reservations)"
-msgstr "Vous planifierz vendre %.2f %s, mais seulement %.2f %s sont disponibles.
+msgstr "Vous planifiez vendre %.2f %s, mais seulement %.2f %s sont disponibles.
 La vraie quantité en stock est %.2f %s (sans réservations)."
 
 #. module: product_reserve_forecast
