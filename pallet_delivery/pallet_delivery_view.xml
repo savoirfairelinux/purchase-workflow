@@ -23,7 +23,7 @@
     </record>
 
     <menuitem
-      id="menu_purchase_form_action"
+      id="purchase.menu_purchase_form_action"
       action="purchase_order_hidden"
       parent="purchase.menu_procurement_management"
       sequence="6" />
