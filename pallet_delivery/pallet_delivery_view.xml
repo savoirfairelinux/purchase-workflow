@@ -3,7 +3,7 @@
   <data>
     <!-- Purchase Order -->
     <record id="purchase_order_hidden" model="ir.actions.act_window">
-            <field name="name">Poulet</field>
+            <field name="name">Purchase Orders</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree,form,graph,calendar</field>
