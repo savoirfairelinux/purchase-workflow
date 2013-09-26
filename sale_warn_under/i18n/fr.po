@@ -29,7 +29,7 @@ msgstr "Avertissement sur devis"
 #: code:addons/sale_warn_under/sale.py:62
 #, python-format
 msgid "Sale Under Minimum Warning"
-msgstr "Avertiseement sur vente à perte"
+msgstr "Avertissement sur vente à perte"
 
 #. module: sale_warn_under
 #: model:ir.actions.act_window,name:sale_warn_under.action_view_sale_warn_under
