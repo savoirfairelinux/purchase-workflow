@@ -29,6 +29,7 @@
 """,
     'depends': ['base', 'stock'],
     'data': [
+        'report/stock_forecast_view.xml'
     ],
     'demo': [],
     'test': [],

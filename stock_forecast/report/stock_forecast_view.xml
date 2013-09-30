@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="action_stock_forecast_report_po" model="ir.actions.act_window">
+      <field name="name">Stock Forecast</field>
+      <field name="res_model">stock.forecast</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,graph</field>
+    </record>
+    <menuitem action="action_stock_forecast_report_po" id="menu_action_stock_forecast_report_po" parent="stock.next_id_61" />
+  </data>
+</openerp>
