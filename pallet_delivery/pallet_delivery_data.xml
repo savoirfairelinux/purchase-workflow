@@ -16,6 +16,8 @@
       <field name="name">Not ours</field>
       <field name="date_planned">2013-01-01</field>
       <field name="state">confirmed</field>
+      <field name="nb_pallets">1</field>
+      <field name="nb_crates_per_pallet">1</field>
     </record>
 
     <record id="seq_type_stock_truck" model="ir.sequence.type">
