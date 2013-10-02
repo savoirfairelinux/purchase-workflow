@@ -7,7 +7,7 @@
       <field name="inherit_id" ref="sale.view_order_form" />
       <field name="arch" type="xml">
         <field name="date_order" position="replace">
-          <field name="date_order" attrs="{'readonly':False}" />
+          <field name="date_order" attrs="{'readonly': False}" />
         </field>
       </field>
     </record>
@@ -18,7 +18,18 @@
       <field name="inherit_id" ref="stock.view_picking_out_form" />
       <field name="arch" type="xml">
         <field name="min_date" position="replace">
-          <field name="min_date" attrs="{'readonly':False}" />
+          <field name="min_date" attrs="{'readonly': False, 'invisible': [('min_date', '=', False)]}" />
+        </field>
+      </field>
+    </record>
+
+    <record id="editable_in_form" model="ir.ui.view">
+      <field name="name">stock.picking.in.editable.form</field>
+      <field name="model">stock.picking.in</field>
+      <field name="inherit_id" ref="stock.view_picking_in_form" />
+      <field name="arch" type="xml">
+        <field name="min_date" position="replace">
+          <field name="min_date" attrs="{'readonly': False, 'invisible': [('min_date', '=', False)]}" />
         </field>
       </field>
     </record>
