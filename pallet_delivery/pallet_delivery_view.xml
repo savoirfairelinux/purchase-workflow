@@ -49,8 +49,18 @@
       <field name="arch" type="xml">
         <form string="Truck" version="7.0">
           <header>
-            <button name="action_done" type="object" states="draft" string="Confirm" class="oe_highlight" />
-            <field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors='{"draft":"blue","done":"blue"}' />
+            <button
+              name="action_done"
+              type="object"
+              states="draft"
+              string="Confirm"
+              class="oe_highlight" />
+
+            <field
+              name="state"
+              widget="statusbar"
+              statusbar_visible="draft,done"
+              statusbar_colors='{"draft":"blue","done":"blue"}' />
           </header>
 
           <sheet>
@@ -59,7 +69,7 @@
                 <group>
                   <field name="truck_sn" />
                   <field name="supplier" />
-                  <field name="arrival" />
+                  <field name="arrival" on_change="onchange_arrival(arrival)" />
                 </group>
 
                 <group>

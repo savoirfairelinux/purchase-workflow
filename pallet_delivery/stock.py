@@ -166,6 +166,13 @@ class stock_truck(orm.Model):
 
     _name = 'stock.truck'
     _description = 'Incoming truck'
+
+    def onchange_arrival(self, cr, uid, ids, arrival, context=None):
+        '''Force seconds to zero'''
+
+        arrival = arrival[:-2] + '00'
+
+        return {'value': {'arrival': arrival}}
     
     def action_done(self, cr, uid, ids, context=None):
         if context is None:
@@ -176,10 +183,10 @@ class stock_truck(orm.Model):
         # Build a dictionary of:
         #   - key: Purchase Order
         #   - value: a dictionary of:
-        #       - key: Lot Number
-        #       - value: tuple of
-        #         - Purchase Order Line
-        #         - Crate count
+        #     - key: Lot Number
+        #     - value: tuple of
+        #       - Purchase Order Line
+        #       - Crate count
         products = {}
 
         def _process_pallets(column):
@@ -250,11 +257,11 @@ class stock_truck(orm.Model):
             ], 'State', readonly=True, select=True, track_visibility='onchange'),
 
         # Display
-        'front_temperature': fields.float('Front Temperature'),
-        'back_temperature': fields.float('Back Temperature'),
+        'front_temperature': fields.float('Front Temperature', required=True),
+        'back_temperature': fields.float('Back Temperature', required=True),
         'truck_sn': fields.char('Truck S/N', size=64),
-        'supplier': fields.many2one('res.partner', 'Supplier'),
-        'arrival': fields.date('Date of Arrival'),
+        'supplier': fields.many2one('res.partner', 'Supplier', required=True),
+        'arrival': fields.datetime('Date of Arrival', required=True),
         'purchase_order_ids': fields.many2many(
             'purchase.order', 'truck_order_rel', 'truck_id', 'order_id', 'Purchase Orders'),
         'left_pallet_ids': fields.one2many('stock.truck.line', 'left_id', 'Pallets'),
