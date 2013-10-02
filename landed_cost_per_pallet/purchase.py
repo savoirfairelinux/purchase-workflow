@@ -104,5 +104,13 @@ class landed_cost_position(orm.Model):
     _inherit = 'landed.cost.position'
 
     _columns = {
-        'price_type': fields.selection([('per_unit','Per Quantity'), ('value','Absolute Value'), ('per_pallet', 'Per Pallet')], 'Amount Type', required=True, help="Defines if the amount is to be calculated for each quantity or an absolute value"),
+        'price_type': fields.selection(
+            [('per_pallet', 'Per Pallet'), ('per_unit','Per Quantity'), ('value','Absolute Value')],
+            'Amount Type',
+            required=True,
+            help="Defines if the amount is to be calculated for each quantity or an absolute value"),
+    }
+
+    _defaults = {
+        'price_type': 'per_pallet',
     }

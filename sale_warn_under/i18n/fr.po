@@ -45,8 +45,7 @@ msgstr "inconnu"
 #: view:sale.order.warn:0
 msgid "Please explain why the following lines are being sold at a unit\n"
 "            price lower than the minimum current stock price."
-msgstr "Veuillez expliquer pourquoi les lignes suivantes sont vendues à un prix
-unitaire plus bas que le minimum enregistré dans l'entrepôt."
+msgstr "Veuillez expliquer pourquoi les lignes suivantes sont vendues à un prix unitaire plus bas que le minimum enregistré dans l'entrepôt."
 
 #. module: sale_warn_under
 #: field:sale.order.line,under_minimum_reason:0
