@@ -43,7 +43,10 @@ class purchase_order(orm.Model):
         return result
 
     _columns = {
-        'landed_cost_base_pallet': fields.function(_landed_cost_base_pallet, digits_compute=dp.get_precision('Account'), string='Landed Costs Base Pallet'),
+        'landed_cost_base_pallet': fields.function(
+            _landed_cost_base_pallet,
+            digits_compute=dp.get_precision('Account'),
+            string='Landed Costs Base Pallet'),
     }
 
 
@@ -92,8 +95,8 @@ class purchase_order_line(orm.Model):
         return result
 
     _columns = {
-        'nb_pallets': fields.integer('Pallets'),
-        'nb_crates_per_pallet': fields.integer('Crates per pallet'),
+        'nb_pallets': fields.integer('Pallets', required=True),
+        'nb_crates_per_pallet': fields.integer('Crates per pallet', required=True),
         'product_qty': fields.function(_product_quantity, string="Quantity", type='float'),
         'landing_costs_order' : fields.function(_landing_cost_order, digits_compute=dp.get_precision('Account'), string='Landing Costs from Order'),
     }
