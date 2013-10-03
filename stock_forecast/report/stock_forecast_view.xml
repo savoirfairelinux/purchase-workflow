@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="stock_forecast_tree" model="ir.ui.view">
+      <field eval="1" name="priority"/>
+      <field name="name">stock.forecast.tree</field>
+      <field name="model">stock.forecast</field>
+      <field name="arch" type="xml">
+        <tree string="Stock Forecast" create="false">
+          <field name="test" invisible="0"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="stock_forecast_form" model="ir.ui.view">
+      <field eval="1" name="priority" />
+      <field name="name">stock.forecast.form</field>
+      <field name="model">stock.forecast</field>
+      <field name="arch" type="xml">
+        <form string="Model" version="7.0">
+          <table>
+            <tr>
+              <td>Yo</td>
+            </tr>
+          </table>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_stock_forecast_report_po" model="ir.actions.act_window">
+      <field name="name">Stock Forecast</field>
+      <field name="res_model">stock.forecast</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form,tree</field>
+    </record>
+
+    <record id="search_stock_forecast_filter" model="ir.ui.view">
+      <field name="name">stock.forecast.select</field>
+      <field name="model">stock.forecast</field>
+      <field name="arch" type="xml">
+        <search string="Search Stock Forecast">
+          <field name="test" string="test"></field>
+        </search>
+      </field>
+    </record>
+
+    <menuitem action="action_stock_forecast_report_po" id="menu_action_stock_forecast_report_po" parent="stock.next_id_61" />
+  </data>
+</openerp>
