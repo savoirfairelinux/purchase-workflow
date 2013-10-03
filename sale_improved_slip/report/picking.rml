@@ -216,7 +216,7 @@
             <para style="terp_tblheader_General_Centre">Schedule Date</para>
           </td>
           <td>
-            <para style="terp_tblheader_General_Centre">Total quantity</para>
+            <para style="terp_tblheader_General_Centre">Total Quantity</para>
           </td>
           <td>
             <para style="terp_tblheader_General_Centre">Weight</para>
@@ -238,7 +238,7 @@
             <para style="terp_default_Centre_8">[[ total_crates(picking) ]]</para>
           </td>
           <td>
-            <para style="terp_default_Centre_8">[[ 'weight' in picking._columns.keys() and picking.weight or '']]</para>
+            <para style="terp_default_Centre_8">[[ total_weight(picking) ]]</para>
           </td>
         </tr>
       </blockTable>

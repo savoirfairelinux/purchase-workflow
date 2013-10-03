@@ -20,21 +20,21 @@
 ##############################################################################
 
 {
-    'name': 'Improved Sale Slip',
+    'name': 'Improved Delivery Slip',
     'version': '0.1',
     'author': 'Savoir-faire Linux',
     'maintainer': 'Savoir-faire Linux',
     'website': 'http://www.savoirfairelinux.com',
     'category': 'sale',
     'description': """
-Improved Sale Slip
-==================
+Improved Delivery Slip
+======================
 
-This module adds some information on transfer slips.
+This module adds new information on delivery slips.
 """,
     'depends': [
-        'base', 'sale', 'stock',
-        'purchase_lot_tracking', 'supplier_register_identification_number'
+        'base', 'account_accountant', 'sale', 'stock',
+        'produce_details', 'purchase_lot_tracking', 'supplier_register_identification_number'
     ],
     'data': [
         'sale_improved_slip_report.xml',

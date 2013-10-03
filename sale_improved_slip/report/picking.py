@@ -32,11 +32,18 @@ class picking(report_sxw.rml_parse):
         self.localcontext.update({
             'time': time,
             'total_crates': self.total_crates,
+            'total_weight': self.total_weight,
             'get_product_desc': self.get_product_desc,
         })
 
     def total_crates(self, picking):
         return sum(line.product_qty for line in picking.move_lines)
+
+    def total_weight(self, picking):
+        return sum(
+            line.product_qty * line.product_id.cond_weight
+            for line in picking.move_lines
+        )
 
     def get_product_desc(self, move_line):
         desc = move_line.product_id.name

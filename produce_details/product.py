@@ -19,6 +19,7 @@
 #
 ##############################################################################
 
+import openerp.addons.decimal_precision as dp
 from openerp.osv import orm, fields
 
 class product_product(orm.Model):
@@ -28,6 +29,6 @@ class product_product(orm.Model):
     _columns = {
         'variety': fields.char('Variety', size=64),
         'origin': fields.many2one('res.country', 'Origin'),
-        'cond_weight': fields.char('Conditioning weight', size=32),
+        'cond_weight': fields.float('Conditioning weight', digits_compute=dp.get_precision('Stock Weight'), help='Conditioning weight in kg.'),
         'size_category': fields.char('Size', size=16),
     }
