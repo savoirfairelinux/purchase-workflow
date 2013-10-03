@@ -26,9 +26,15 @@
     'website': 'http://www.savoirfairelinux.com',
     'category': 'sale',
     'description': """
+Show available quantities per lot on outbound pickings
+======================================================
+
+This changes the way lot selection is displayed to add available quantities
+when splitting an outbound picking.
 """,
     'depends': ['base', 'analytic', 'sale', 'stock', 'purchase_lot_tracking'],
     'data': [
+        'wizard/stock_move_view.xml',
     ],
     'demo': [],
     'test': [],

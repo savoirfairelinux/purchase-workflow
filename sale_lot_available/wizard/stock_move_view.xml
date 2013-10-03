@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+  <data>
+    <record id="lot_available_move_wizard" model="ir.ui.view">
+      <field name="name">stock.move.split.available</field>
+      <field name="model">stock.move.split</field>
+      <field name="inherit_id" ref="stock.view_split_in_lots" />
+      <field name="arch" type="xml">
+        <field name="prodlot_id" position="replace">
+          <field name="prodlot_id" string="Serial Number" quick_create="false" domain="[('product_id','=',parent.product_id)]" on_change="onchange_lot_id(prodlot_id, quantity, parent.location_id, parent.product_id, parent.product_uom, context)" context="{'lines': parent.line_exist_ids, 'product_id': parent.product_id, 'available': 1}"/>
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>
