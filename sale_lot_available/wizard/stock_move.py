@@ -19,26 +19,28 @@
 #
 ##############################################################################
 
-{
-    'name': 'Purchase Order Pick Up Date',
-    'version': '0.1',
-    'author': 'Savoir-faire Linux',
-    'maintainer': 'Savoir-faire Linux',
-    'website': 'http://www.savoirfairelinux.com',
-    'category': 'purchase',
-    'description': """
-Add a field for a purchase pick up date
-=======================================
+from openerp.osv import fields, orm
 
-This module lets you specify a scheduled pick up date for a purchase order.
-""",
-    'depends': ['base', 'purchase'],
-    'data': [
-        'purchase_order_pick_up_date_report.xml',
-        'purchase_order_pick_up_date_view.xml',
-    ],
-    'demo': [],
-    'test': [],
-    'installable': True,
-    'active': False,
-}
+class stock_production_lot(orm.Model):
+
+    _inherit = 'stock.production.lot'
+
+    def name_get(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+
+        # Only override regular behaviour if on stock split wizard
+        view_id = self.fields_view_get(cr, uid, context=context)['view_id']
+        view = self.pool.get('ir.ui.view').browse(cr, uid, view_id, context=context)
+        if view.model != 'stock.production.lot':
+            return super(stock_production_lot, self).name_get(cr, uid, ids, context=context)
+
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+
+        res = []
+
+        for lot in self.browse(cr, uid, ids, context=context):
+            res.append((lot.id, '%s / %.2f' % (lot.name, lot.stock_available)))
+
+        return res

@@ -54,12 +54,18 @@ class purchase_order_line(orm.Model):
 
     _inherit = 'purchase.order.line'
 
+    def _find_hidden(self, cr, uid, ids, context=None):
+        hidden_id = self.search(cr, uid, [('order_id.hidden', '=', True)], context=context)[0]
+        return self.browse(cr, uid, hidden_id, context)
+
     def name_get(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
 
         if isinstance(ids, (int, long)):
             ids = [ids]
+
+        # Out from selection; display name
 
         if not context.has_key('nice'):
             res = []
@@ -68,10 +74,20 @@ class purchase_order_line(orm.Model):
                 nice = '%s / %s' % (line.name, line.account_analytic_id.code)
                 res.append((line.id, nice))
 
+            hidden = self._find_hidden(cr, uid, ids, context=context)
+            res.append((hidden.id, hidden.name))
+
             return res
+
+        # Doing a selection
 
         res = []
 
+        # Add special 'not ours' line
+        hidden = self._find_hidden(cr, uid, ids, context=context)
+        res.append((hidden.id, hidden.name))
+
+        # Retrieve entered form data
         parent = context['parent']
         all_pallets = parent['left_pallet_ids'] + parent['right_pallet_ids']
         po_ids = parent['purchase_order_ids'][0][2]
@@ -79,6 +95,7 @@ class purchase_order_line(orm.Model):
         stl_pool = self.pool.get('stock.truck.line')
         pallet_ids = []
 
+        # Build crate structure
         crates = defaultdict(lambda: 0)
         for pallet_struct in all_pallets:
             if pallet_struct[0] == 4:
@@ -91,11 +108,17 @@ class purchase_order_line(orm.Model):
         po_line_ids = self.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
         po_lines = self.browse(cr, uid, po_line_ids, context=context)
 
+        # Prettify data to be displayed
         for line in po_lines:
-            total_crates = line.nb_pallets * line.nb_crates_per_pallet
-            available = max(0, total_crates - crates[line.id])
+            nice = ''
 
-            nice = '%s / %s (%d)' % (line.name, line.account_analytic_id.code, available)
+            if line.order_id.hidden:
+                nice = line.name + ' / None'
+            else:
+                total_crates = line.nb_pallets * line.nb_crates_per_pallet
+                available = max(0, total_crates - crates[line.id])
+                nice = '%s / %s (%d)' % (line.name, line.account_analytic_id.code, available)
+
             res.append((line.id, nice))
 
         return res
@@ -118,6 +141,7 @@ class purchase_order(orm.Model):
         return [('id', 'in', po_ids)]
 
     _columns = {
+        'hidden': fields.boolean('Hidden'),
         'stock_truck_ids': fields.many2many(
             'stock.truck', 'truck_order_rel', 'order_id', 'truck_id', 'Trucks'),
         'assigned': fields.function(lambda **x: True, fnct_search=_assigned, type='boolean', method=True),
@@ -142,6 +166,13 @@ class stock_truck(orm.Model):
 
     _name = 'stock.truck'
     _description = 'Incoming truck'
+
+    def onchange_arrival(self, cr, uid, ids, arrival, context=None):
+        '''Force seconds to zero'''
+
+        arrival = arrival[:-2] + '00'
+
+        return {'value': {'arrival': arrival}}
     
     def action_done(self, cr, uid, ids, context=None):
         if context is None:
@@ -152,14 +183,18 @@ class stock_truck(orm.Model):
         # Build a dictionary of:
         #   - key: Purchase Order
         #   - value: a dictionary of:
-        #       - key: Lot Number
-        #       - value: tuple of
-        #         - Purchase Order Line
-        #         - Crate count
+        #     - key: Lot Number
+        #     - value: tuple of
+        #       - Purchase Order Line
+        #       - Crate count
         products = {}
 
         def _process_pallets(column):
             for line in column:
+                # Skip over fake 'not ours' line
+                if line.pallet.order_id.hidden:
+                    continue
+
                 po = line.pallet.order_id
                 lot = line.pallet.account_analytic_id.code
 
@@ -189,6 +224,10 @@ class stock_truck(orm.Model):
                     context=context)[0]
 
             for po_line, count in products[po.id].itervalues():
+                # Skip over the fake 'not ours' line
+                if po_line.order_id.hidden:
+                    continue
+
                 move_id = move_pool.search(
                         cr, uid,
                         ['&', ('picking_id', '=', picking_id), ('purchase_line_id', '=', po_line.id)],
@@ -218,11 +257,11 @@ class stock_truck(orm.Model):
             ], 'State', readonly=True, select=True, track_visibility='onchange'),
 
         # Display
-        'front_temperature': fields.float('Front Temperature'),
-        'back_temperature': fields.float('Back Temperature'),
+        'front_temperature': fields.float('Front Temperature', required=True),
+        'back_temperature': fields.float('Back Temperature', required=True),
         'truck_sn': fields.char('Truck S/N', size=64),
-        'supplier': fields.many2one('res.partner', 'Supplier'),
-        'arrival': fields.date('Date of Arrival'),
+        'supplier': fields.many2one('res.partner', 'Supplier', required=True),
+        'arrival': fields.datetime('Date of Arrival', required=True),
         'purchase_order_ids': fields.many2many(
             'purchase.order', 'truck_order_rel', 'truck_id', 'order_id', 'Purchase Orders'),
         'left_pallet_ids': fields.one2many('stock.truck.line', 'left_id', 'Pallets'),

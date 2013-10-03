@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+  <data>
+    <report
+      auto="False"
+      id="purchase.report_purchase_quotation"
+      model="purchase.order"
+      name="purchase.quotation"
+      rml="purchase_order_pick_up_date/report/request_quotation.rml"
+      usage="default"
+      string="Request for Quotation" />
+
+    <report
+      auto="False"
+      id="purchase.report_purchase_order"
+      model="purchase.order"
+      name="purchase.order"
+      rml="purchase_order_pick_up_date/report/order.rml"
+      string="Purchase Order" />
+  </data>
+</openerp>

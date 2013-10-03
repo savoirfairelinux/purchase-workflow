@@ -19,26 +19,35 @@
 #
 ##############################################################################
 
-{
-    'name': 'Purchase Order Pick Up Date',
-    'version': '0.1',
-    'author': 'Savoir-faire Linux',
-    'maintainer': 'Savoir-faire Linux',
-    'website': 'http://www.savoirfairelinux.com',
-    'category': 'purchase',
-    'description': """
-Add a field for a purchase pick up date
-=======================================
+import time
 
-This module lets you specify a scheduled pick up date for a purchase order.
-""",
-    'depends': ['base', 'purchase'],
-    'data': [
-        'purchase_order_pick_up_date_report.xml',
-        'purchase_order_pick_up_date_view.xml',
-    ],
-    'demo': [],
-    'test': [],
-    'installable': True,
-    'active': False,
-}
+from netsvc import Service
+from openerp.report import report_sxw
+
+class picking(report_sxw.rml_parse):
+
+    def __init__(self, cr, uid, name, context):
+        super(picking, self).__init__(cr, uid, name, context=context)
+
+        self.localcontext.update({
+            'time': time,
+            'total_crates': self.total_crates,
+            'get_product_desc': self.get_product_desc,
+        })
+
+    def total_crates(self, picking):
+        return sum(line.product_qty for line in picking.move_lines)
+
+    def get_product_desc(self, move_line):
+        desc = move_line.product_id.name
+        if move_line.product_id.default_code:
+            desc = '[' + move_line.product_id.default_code + ']' + ' ' + desc
+        return desc
+
+del Service._services['report.stock.picking.list']
+
+report_sxw.report_sxw(
+    'report.stock.picking.list',
+    'stock.picking',
+    'addons/sale_improved_slip/report/picking.rml',
+    parser=picking)

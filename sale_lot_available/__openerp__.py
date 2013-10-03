@@ -19,36 +19,16 @@
 #
 ##############################################################################
 
-# NOTE: The name of the supplied field was initially "display_name", but it seems that OpenERP,
-# whenever it seems "name" in the field, returns the value for "name". Well...
-
 {
-    'name': 'Pallet delivery',
-    'version': '1.1',
+    'name': 'sale_lot_available',
+    'version': '0.1',
     'author': 'Savoir-faire Linux',
-    'maintainer': 'Savoir-faire Linux',
     'website': 'http://www.savoirfairelinux.com',
-    'category': 'warehouse',
+    'category': 'sale',
     'description': """
-
-Lets you manage truck deliveries 
-===========================================================
-
-This module lets you specify where exactly in the delivery truck
-was the merchandise.
-
-Also lets you give more specific information like the temperature
-at various points.
-
 """,
-    'depends': [
-        'base', 'purchase', 'stock',
-        'landed_cost_per_pallet', 'purchase_lot_tracking',
-    ],
+    'depends': ['base', 'analytic', 'sale', 'stock', 'purchase_lot_tracking'],
     'data': [
-        'stock_workflow.xml',
-        'pallet_delivery_data.xml',
-        'pallet_delivery_view.xml',
     ],
     'demo': [],
     'test': [],

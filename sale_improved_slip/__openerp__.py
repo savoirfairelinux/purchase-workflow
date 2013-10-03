@@ -19,36 +19,26 @@
 #
 ##############################################################################
 
-# NOTE: The name of the supplied field was initially "display_name", but it seems that OpenERP,
-# whenever it seems "name" in the field, returns the value for "name". Well...
-
 {
-    'name': 'Pallet delivery',
-    'version': '1.1',
+    'name': 'Improved Sale Slip',
+    'version': '0.1',
     'author': 'Savoir-faire Linux',
     'maintainer': 'Savoir-faire Linux',
     'website': 'http://www.savoirfairelinux.com',
-    'category': 'warehouse',
+    'category': 'sale',
     'description': """
+Improved Sale Slip
+==================
 
-Lets you manage truck deliveries 
-===========================================================
-
-This module lets you specify where exactly in the delivery truck
-was the merchandise.
-
-Also lets you give more specific information like the temperature
-at various points.
-
+This module adds some information on transfer slips.
 """,
     'depends': [
-        'base', 'purchase', 'stock',
-        'landed_cost_per_pallet', 'purchase_lot_tracking',
+        'base', 'sale', 'stock',
+        'purchase_lot_tracking', 'supplier_register_identification_number'
     ],
     'data': [
-        'stock_workflow.xml',
-        'pallet_delivery_data.xml',
-        'pallet_delivery_view.xml',
+        'sale_improved_slip_report.xml',
+        'sale_improved_slip_view.xml',
     ],
     'demo': [],
     'test': [],

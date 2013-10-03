@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data noupdate="1">
+    <record id="pallet_delivery_external_po" model="purchase.order">
+      <field name="partner_id">1</field>
+      <field name="location_id">8</field>
+      <field name="state">cancel</field>
+      <field name="pricelist_id">2</field>
+      <field name="hidden">1</field>
+    </record>
+
+    <record id="pallet_delivery_external_line" model="purchase.order.line">
+      <field name="product_uom">1</field>
+      <field name="order_id" ref="pallet_delivery_external_po" />
+      <field name="price_unit">1</field>
+      <field name="name">Not ours</field>
+      <field name="date_planned">2013-01-01</field>
+      <field name="state">confirmed</field>
+      <field name="nb_pallets">1</field>
+      <field name="nb_crates_per_pallet">1</field>
+    </record>
+
     <record id="seq_type_stock_truck" model="ir.sequence.type">
       <field name="name">Truck</field>
       <field name="code">stock.truck</field>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+  <data>
+    <record id="improved_sale_order" model="ir.ui.view">
+      <field name="name">Improved Sale Order</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form" />
+      <field name="arch" type="xml">
+        <field name="client_order_ref" position="after">
+          <field name="client_purchase_order" />
+        </field>
+      </field>
+    </record>
+  </data>
+</openerp>
