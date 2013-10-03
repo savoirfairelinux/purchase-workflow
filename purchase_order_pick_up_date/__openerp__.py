@@ -34,6 +34,7 @@ This module lets you specify a scheduled pick up date for a purchase order.
 """,
     'depends': ['base', 'purchase'],
     'data': [
+        'purchase_order_pick_up_date_report.xml',
         'purchase_order_pick_up_date_view.xml',
     ],
     'demo': [],
