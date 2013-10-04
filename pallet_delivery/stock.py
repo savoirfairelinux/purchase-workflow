@@ -105,6 +105,7 @@ class purchase_order_line(orm.Model):
                 fields = pallet_struct[2]
                 crates[fields['pallet']] += fields['crates']
 
+        move_pool = self.pool.get('stock.move')
         po_line_ids = self.search(cr, uid, [('order_id', 'in', po_ids)], context=context)
         po_lines = self.browse(cr, uid, po_line_ids, context=context)
 
@@ -115,8 +116,16 @@ class purchase_order_line(orm.Model):
             if line.order_id.hidden:
                 nice = line.name + ' / None'
             else:
-                total_crates = line.nb_pallets * line.nb_crates_per_pallet
-                available = max(0, total_crates - crates[line.id])
+                # Incoming crates
+                move_ids = [move.id for move in line.move_ids]
+                incoming_id = move_pool.search(
+                        cr, uid,
+                        ['&', ('state', '=', 'assigned'), ('id', 'in', move_ids)],
+                        context=context)[0]
+                incoming = move_pool.browse(cr, uid, incoming_id, context=context)
+                incoming_crates = incoming.product_qty
+
+                available = max(0, incoming_crates - crates[line.id])
                 nice = '%s / %s (%d)' % (line.name, line.account_analytic_id.code, available)
 
             res.append((line.id, nice))
@@ -157,8 +166,8 @@ class stock_truck_line(orm.Model):
         'name': fields.char('Name', size=64),
         'left_id': fields.many2one('stock.truck', 'Truck'),
         'right_id': fields.many2one('stock.truck', 'Truck'),
-        'pallet': fields.many2one('purchase.order.line', 'Pallet'),
-        'crates': fields.integer('Crates'),
+        'pallet': fields.many2one('purchase.order.line', 'Pallet', required=True),
+        'crates': fields.integer('Crates', required=True),
     }
 
 
@@ -216,6 +225,11 @@ class stock_truck(orm.Model):
         move_pool = self.pool.get('stock.move')
 
         for po in truck.purchase_order_ids:
+            if not products.has_key(po.id):
+                # Purchase Order was added to the list, but there are not
+                # pallets pertaining to that PO.
+                continue
+
             partial_data = {'delivery_date': truck.arrival}
 
             picking_id = picking_pool.search(
