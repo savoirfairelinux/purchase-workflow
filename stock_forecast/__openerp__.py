@@ -27,7 +27,7 @@
     'category': 'stock',
     'description': """
 """,
-    'depends': ['base', 'stock'],
+    'depends': ['base', 'stock', 'sale', 'purchase'],
     'data': [
         'report/stock_forecast_view.xml'
     ],
