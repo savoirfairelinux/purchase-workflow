@@ -3,6 +3,51 @@ from openerp.osv import osv, fields
 from datetime import datetime, timedelta
 from mako.template import Template
 
+
+REPORT_TEMPLATE = """
+<form string="Model" version="7.0">
+  <table>
+    <tr>
+      <td></td>
+      % for product in products:
+      <td colspan="2">${product.name}</td>
+      % endfor
+    </tr>
+    % for day in days:
+    <tr>
+      <td>
+        ${day['date']}
+      </td>
+      % for product in products:
+      <td>
+        ${day[product.id]['outgoing']}
+      </td>
+      <td>
+        ${day[product.id]['forecasted']}
+      </td>
+      % endfor
+    </tr>
+    
+    % for order in day['orders']:
+    <tr>
+      <td>
+        ${order['label']}
+      </td>
+      % for product in products:
+      <td colspan="2">
+        ${order[product.id]}
+      </td>
+      % endfor
+    </tr>
+    % endfor
+
+    % endfor
+  </table>
+</form>
+"""
+
+
+
 class stock_forecast(osv.osv):
     _name = "stock.forecast"
     _description = "Stock forecast"
@@ -151,101 +196,61 @@ class stock_forecast(osv.osv):
         product_ids = self.pool.get('product.product').search(cr, uid, [('categ_id', '=', 1)])
         products = self.pool.get('product.product').browse(cr, uid, product_ids)
 
-        product_names = ["<td colspan='2'>%s</td>" % p.name_template for p in products ]
+        products = [p for p in products ]
         
 
-
+        days = []
         for day in range(14):
-
-            day_template = """
-            <tr style="border: 1px solid black; padding: 5px">
-                <td style="border: 1px solid black; padding: 5px">%(date_string)s</td>%(product_string)s
-            </tr>
-            """
-
-            product_string_template = """
-            <td style="color: %(color)s;">%(outgoing_for_day)s</td>
-            <td style="color: %(color)s; border-right: 1px solid black">%(forecast_for_day)s</td>
-            """
-
-            order_line_template = """
-            <tr>
-                <td>%s</td>%s
-            </tr>
-            """
-
-            order_line_product_template = """
-            <td colspan="2">%s</td>
-            """
 
             product_strings = []
             exp_day = today + timedelta(days=day)
 
             day_has_moves = False
 
+            day_values = {}
+            day_values['date'] = exp_day.strftime('%Y-%m-%d')
+            day_values['orders'] = []
+
             for product_id in product_ids:
 
+                day_product = {}
                 forecast_context = {'product_id': product_id,
                                     'datetime': exp_day }
 
                 product = self.pool.get('product.product').browse(cr, uid, [product_id], context=None)[0]
 
-                forecast_for_day = self.get_stock_forecast(cr, uid, context=forecast_context)
-                outgoing_for_day = self.get_stock_outgoing(cr, uid, context=forecast_context)
-
-                if outgoing_for_day > 0:
+                day_product['forecasted'] = self.get_stock_forecast(cr, uid, context=forecast_context)
+                day_product['outgoing'] = self.get_stock_outgoing(cr, uid, context=forecast_context)
+                
+                if day_product['outgoing'] > 0:
                     day_has_moves = True
 
                 color = 'black'
                 
-                if forecast_for_day < outgoing_for_day and outgoing_for_day > 0:
-                    color = 'red'
-                
-
-                product_strings.append(product_string_template % {'forecast_for_day': forecast_for_day,
-                                                                  'outgoing_for_day': outgoing_for_day,
-                                                                  'color': color})
-
-
+                day_values[product_id] = day_product
 
             day_strings.append(day_template % {'date_string': exp_day.strftime('%Y-%m-%d'),
                                                'product_string': ''.join(product_strings) })
                 
             if day_has_moves:
                 order_lines, quantities = self.get_soumissions_ids(cr, uid, {'date': exp_day, 'product_ids': product_ids })
-                
-
                 for order in order_lines:
+
                     cells = []
+                    order_values = {}
                     for product_id in product_ids:
                         qty = quantities[order.id].get(product_id, 0)
-                        cells.append(order_line_product_template % qty)
+                        order_values[product_id] = qty
 
                     customer_name = order.partner_id.name
                     order_label = "%s (%s)" % (order.name, customer_name)
-                    day_strings.append(order_line_template % (order_label, ''.join(cells)))
-                
-
-            header = """
-            <tr>
-                <td></td>%(product_names)s
-            </tr>
-            """ % {'product_names': ''.join(product_names) }
-
-
-
-            report_template = '''
-            <form string="Model" version="7.0">
-                <table style="border: 1px solid black">
-                    %(header)s
-                    %(days)s
-                </table>
-            </form>
-            '''
+                    order_values['label'] = order_label
+                    day_values['orders'].append(order_values)
+            days.append(day_values)
+        report = Template(REPORT_TEMPLATE).render_unicode(products=products, days=days)
 
         if view_type == 'form':
-            result['arch'] = report_template % {'days': ''.join(day_strings),
-                                                'header': header}
+            result['arch'] = report
         return result
 
 
