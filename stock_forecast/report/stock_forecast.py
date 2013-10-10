@@ -10,19 +10,19 @@ REPORT_TEMPLATE = """
     <tr>
       <td></td>
       % for product in products:
-      <td colspan="2">${product.name}</td>
+      <td colspan="2" style="border-bottom: 1px black solid; font-size: 14pt; padding: 5px;">${product.name}</td>
       % endfor
     </tr>
     % for day in days:
     <tr>
-      <td>
+      <td style="font-size: 12pt; padding: 5px;">
         ${day['date']}
       </td>
       % for product in products:
-      <td>
+      <td style="border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
         ${day[product.id]['outgoing']}
       </td>
-      <td>
+      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
         ${day[product.id]['forecasted']}
       </td>
       % endfor
@@ -30,13 +30,14 @@ REPORT_TEMPLATE = """
     
     % for order in day['orders']:
     <tr>
-      <td>
+      <td style="text-align: right; padding: 5px;">
         ${order['label']}
       </td>
       % for product in products:
-      <td colspan="2">
+      <td style="border-bottom: 1px black solid; border-left: 1px black solid; text-align: center; vertical-align: middle; ">
         ${order[product.id]}
       </td>
+      <td style="border-bottom: 1px black solid; border-right: 1px black solid; vertical-align: middle; "></td>
       % endfor
     </tr>
     % endfor
@@ -229,8 +230,6 @@ class stock_forecast(osv.osv):
                 
                 day_values[product_id] = day_product
 
-            day_strings.append(day_template % {'date_string': exp_day.strftime('%Y-%m-%d'),
-                                               'product_string': ''.join(product_strings) })
                 
             if day_has_moves:
                 order_lines, quantities = self.get_soumissions_ids(cr, uid, {'date': exp_day, 'product_ids': product_ids })
