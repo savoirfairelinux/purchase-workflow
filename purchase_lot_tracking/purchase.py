@@ -55,9 +55,11 @@ class purchase_order_line(orm.Model):
                                                  'lot_number': lot_number  })
 
             # Creates the stock.production.line
-            serial_number_data = {'name': lot_number,
-                                  'product_id': line_order.product_id.id,
-                                  'account_analytic_id': account_id }
+            serial_number_data = {
+                'name': lot_number,
+                'product_id': line_order.product_id.id,
+                'account_analytic_id': account_id,
+            }
 
             serial_number_id = self.pool.get('stock.production.lot')\
                                             .create(cr, uid, serial_number_data)
@@ -83,6 +85,7 @@ class purchase_order_line(orm.Model):
             account_values =  {
                 'name': context['lot_number'],
                 'complete_name': context['lot_number'],
+                'purchase_order': line_order.order_id.id,
                 'code': context['lot_number'],
                 'type': 'normal',
                 'parent_id': parent_account.id,

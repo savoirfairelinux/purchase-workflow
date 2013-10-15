@@ -66,10 +66,12 @@ class account_analytic_account(orm.Model):
         return res
 
     _columns = {
+        'purchase_order': fields.many2one('purchase.order', 'Purchase Order', help='Issuing Purchase Order'),
         'total_cost_unit': fields.function(_calculate_tcu, string='Total Cost Unit', type='float'),
         'estimated_tcu': fields.function(_estimated_tcu, string='Estimated Total Cost per Unit', type='float'),
         'total_in_qty': fields.function(_calculate_total_in, string='Total Received Quantity', type='float'),
     }
+
 
 class account_invoice(orm.Model):
 
@@ -77,6 +79,3 @@ class account_invoice(orm.Model):
 
     def invoice_validate(self, cr, uid, ids, context=None):
         return super(account_invoice, self).invoice_validate(cr, uid, ids, context=context)
-        
-
-    
