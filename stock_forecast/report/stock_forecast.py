@@ -1,8 +1,11 @@
-from openerp import tools
-from openerp.osv import osv, fields
+import pytz
 from datetime import datetime, timedelta
-from mako.template import Template
+from dateutil.relativedelta import relativedelta
 
+from openerp import tools, SUPERUSER_ID
+from openerp.osv import osv, fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT 
+from mako.template import Template
 
 REPORT_TEMPLATE = """
 <form string="Model" version="7.0">
@@ -16,9 +19,9 @@ REPORT_TEMPLATE = """
     <tr>
       <td></td>
       % for product in products:
-      <td>A livrer</td>
+      <td style="border-left: 1px black solid; border-bottom: 1px black solid;">A livrer</td>
       <td>Stock previsionnel</td>
-      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
+      <td style="border-right, border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">Reception</td>
       % endfor
     </tr>
     % for day in days:
@@ -27,14 +30,14 @@ REPORT_TEMPLATE = """
         ${day['date']}
       </td>
       % for product in products:
-      <td style="border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
-        ${day[product.id]['outgoing']}
+      <td style="color: ${day[product.id]['color']}; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+          ${day[product.id]['outgoing']}
       </td>
-      <td style="border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
-        ${day[product.id]['forecasted']}
+      <td style="color: ${day[product.id]['color']}; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+          ${day[product.id]['forecasted']}
       </td>
-      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
-        ${day[product.id]['incoming']}
+      <td style="color: ${day[product.id]['color']}; border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+          ${day[product.id]['incoming']}
       </td>
       % endfor
     </tr>
@@ -59,14 +62,37 @@ REPORT_TEMPLATE = """
 </form>
 """
 
+class stock_forecast_config(osv.osv_memory):
+    _name = "stock.forecast.config"
+    _description = "Stock Forecast"
 
+    _columns = {
+        'product_category': fields.many2one('product.category', 'Product Category', required=False)
+    }
+
+    def analytic_account_chart_open_window(self, cr, uid, ids, context=None):                                          
+        mod_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        result_context = {}
+        if context is None:
+            context = {}
+        result = mod_obj.get_object_reference(cr, uid, 'stock_forecast', 'action_stock_forecast_form2')
+        id = result and result[1] or False
+        result = act_obj.read(cr, uid, [id], context=context)[0]
+        data = self.read(cr, uid, ids, [])[0]
+        result_context.update({'product_category': data['product_category'][0]})
+        result['context'] = result_context
+        return result
+
+
+stock_forecast_config()
 
 class stock_forecast(osv.osv):
     _name = "stock.forecast"
     _description = "Stock forecast"
     _auto = False
     _columns = {
-        'test': fields.char('Date', size=4, readonly=True)
+        'product_category': fields.many2one('product.category', 'Product Category', required=False)
     }
 
     def init(self, cr):
@@ -79,9 +105,24 @@ class stock_forecast(osv.osv):
         );
         """)
 
+    def get_timestamp(self, cr, uid, user_date, context=None):
+        if context and context.get('tz'):
+            tz_name = context['tz']
+        else:
+            tz_name = self.pool.get('res.users').read(cr, SUPERUSER_ID, uid, ['tz'])['tz']
+        if tz_name:
+            utc = pytz.timezone('UTC')
+            context_tz = pytz.timezone(tz_name)
+            user_datetime = user_date + relativedelta(hours=12.0)
+            local_timestamp = context_tz.localize(user_datetime, is_dst=False)
+            user_datetime = local_timestamp.astimezone(utc)
+            return user_datetime.strftime('%Y-%m-%d')
+        return user_date.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+
     def get_soumissions_ids(self, cr, uid, context=None):
 
-        date_string = context['date'].strftime('%Y-%m-%d')
+        date_string = context['datetime'].strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, context['datetime'], context)
         product_ids = tuple(context['product_ids'])
 
 
@@ -95,8 +136,6 @@ class stock_forecast(osv.osv):
 
         cr.execute(stock_moves)
         stock_moves_ids = list(sum(cr.fetchall(), ()))
-
-        
 
         sale_order_lines = """SELECT id FROM sale_order_line
                                  WHERE id in (
@@ -142,9 +181,9 @@ class stock_forecast(osv.osv):
         return sale_orders, quantities
 
 
-    def get_stock_outgoing(self, cr, uid, context=None):
+    def get_stock_outgoing(self, cr, uid, exp_day, context=None):
 
-        date_string = context['datetime'].strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, exp_day, context)
         product_id = context['product_id']
 
         # todo check sales as well
@@ -158,9 +197,9 @@ class stock_forecast(osv.osv):
         result = cr.fetchone()[0] or 0 
         return result
 
-    def get_stock_incoming(self, cr, uid, context=None):
-       
-        date_string = context['datetime'].strftime('%Y-%m-%d')
+    def get_stock_incoming(self, cr, uid, exp_day, context=None):
+      
+        date_string = self.get_timestamp(cr, uid, exp_day, context)
         product_id = context['product_id']
 
         query = """SELECT SUM(sm.product_qty)
@@ -173,19 +212,19 @@ class stock_forecast(osv.osv):
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0 
-        print date_string, result
         return result
 
-
-    def get_stock_forecast(self, cr, uid, context=None):
+    def get_stock_forecast(self, cr, uid, exp_day, context=None):
 
         product_id = context['product_id']
-        date_string = context['datetime'].strftime('%Y-%m-%d')
-        today_string = datetime.now().strftime('%Y-%m-%d')
+        product = self.pool.get('product.product').browse(cr, uid, [product_id], context=context)[0] 
 
-        product = self.pool.get('product.product').browse(cr, uid, [product_id])[0]
+        day_before = exp_day + timedelta(days=-1)
+        date_string = self.get_timestamp(cr, uid, day_before)
+
+        today_string = self.get_timestamp(cr, uid, datetime.now(), context)
+
         on_hand = product.qty_available
-
         # purchase
         incoming_ids = self.pool.get('stock.move').search(cr, uid, [('product_id', '=', product_id), '!',
                                                                     ('purchase_line_id', '=', None),
@@ -193,8 +232,9 @@ class stock_forecast(osv.osv):
                                                                     ('date_expected', '<', date_string) ])
 
         incoming = self.pool.get('stock.move').browse(cr, uid, incoming_ids)
-
+      
         incoming_total = sum(i.product_qty for i in incoming)
+
                                                       
         outgoing_ids = self.pool.get('stock.move').search(cr, uid, [('product_id', '=', product_id), '!',
                                                                     ('sale_line_id', '=', None),
@@ -206,26 +246,45 @@ class stock_forecast(osv.osv):
         outgoing_total = sum(o.product_qty for o in outgoing)
 
         return on_hand + incoming_total - outgoing_total
+        
+    
+
+
+
+
+        incoming_qty = self.get_stock_incoming(cr, uid, day_before, context=context)
+        outgoing_qty = self.get_stock_outgoing(cr, uid, day_before, context=context)
+
+        product = self.pool.get('product.product').browse(cr, uid, [product_id])[0]
+        on_hand = product.qty_available
+        print on_hand + incoming_qty - outgoing_qty
+        return on_hand + incoming_qty - outgoing_qty
 
 
         
-    
+    def get_color(self, day_product):
+      if day_product['outgoing'] > (day_product['forecasted'] + day_product['incoming']):
+          return "#FF0000"
+
+      if day_product['outgoing'] > day_product['forecasted']:
+          return "#FF8000"
+
+      return "#000000"
     
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='tree', context=None, toolbar=False, submenu=False):
         result = super(stock_forecast, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context, toolbar=toolbar, submenu=submenu)
-        from datetime import datetime
 
         forecast_context = {'product_id':5,
                             'datetime': datetime.now()}
-        
-        
+
         today = datetime.now()
 
         day_strings = []
 
 
-        product_ids = self.pool.get('product.product').search(cr, uid, [('categ_id', '=', 1)])
+        categ_id = context.get('product_category', 1)
+        product_ids = self.pool.get('product.product').search(cr, uid, [('categ_id', '=', categ_id)])
         products = self.pool.get('product.product').browse(cr, uid, product_ids)
 
         products = [p for p in products ]
@@ -251,20 +310,20 @@ class stock_forecast(osv.osv):
 
                 product = self.pool.get('product.product').browse(cr, uid, [product_id], context=None)[0]
 
-                day_product['forecasted'] = self.get_stock_forecast(cr, uid, context=forecast_context)
-                day_product['outgoing'] = self.get_stock_outgoing(cr, uid, context=forecast_context)
-                day_product['incoming'] = self.get_stock_incoming(cr, uid, context=forecast_context)
-                
+                day_product['forecasted'] = self.get_stock_forecast(cr, uid, exp_day, context=forecast_context)
+                day_product['outgoing'] = self.get_stock_outgoing(cr, uid, exp_day, context=forecast_context)
+                day_product['incoming'] = self.get_stock_incoming(cr, uid, exp_day, context=forecast_context)
+                day_product['color'] = self.get_color(day_product)
+    
+
                 if day_product['outgoing'] > 0:
                     day_has_moves = True
 
-                color = 'black'
-                
                 day_values[product_id] = day_product
 
                 
             if day_has_moves:
-                order_lines, quantities = self.get_soumissions_ids(cr, uid, {'date': exp_day, 'product_ids': product_ids })
+                order_lines, quantities = self.get_soumissions_ids(cr, uid, {'datetime': exp_day, 'product_ids': product_ids })
                 for order in order_lines:
 
                     cells = []
