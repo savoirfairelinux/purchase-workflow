@@ -8,9 +8,17 @@ REPORT_TEMPLATE = """
 <form string="Model" version="7.0">
   <table>
     <tr>
+      <td style="border-left: 1px black solid; text-align: center; vertical-align: middle; "></td>
+      % for product in products:
+      <td colspan="3" style="border-bottom: 1px black solid; font-size: 14pt; padding: 5px;">${product.name}</td>
+      % endfor
+    </tr>
+    <tr>
       <td></td>
       % for product in products:
-      <td colspan="2" style="border-bottom: 1px black solid; font-size: 14pt; padding: 5px;">${product.name}</td>
+      <td>A livrer</td>
+      <td>Stock previsionnel</td>
+      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
       % endfor
     </tr>
     % for day in days:
@@ -22,8 +30,11 @@ REPORT_TEMPLATE = """
       <td style="border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
         ${day[product.id]['outgoing']}
       </td>
-      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td style="border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
         ${day[product.id]['forecasted']}
+      </td>
+      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+        ${day[product.id]['incoming']}
       </td>
       % endfor
     </tr>
@@ -37,7 +48,8 @@ REPORT_TEMPLATE = """
       <td style="border-bottom: 1px black solid; border-left: 1px black solid; text-align: center; vertical-align: middle; ">
         ${order[product.id]}
       </td>
-      <td style="border-bottom: 1px black solid; border-right: 1px black solid; vertical-align: middle; "></td>
+      <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
+      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
       % endfor
     </tr>
     % endfor
@@ -146,6 +158,25 @@ class stock_forecast(osv.osv):
         result = cr.fetchone()[0] or 0 
         return result
 
+    def get_stock_incoming(self, cr, uid, context=None):
+       
+        date_string = context['datetime'].strftime('%Y-%m-%d')
+        product_id = context['product_id']
+
+        query = """SELECT SUM(sm.product_qty)
+                          FROM stock_move sm,
+                          stock_picking sp
+                          WHERE sm.product_id = %s
+                          AND sm.purchase_line_id IS NOT NULL
+                          AND sm.picking_id = sp.id
+                          AND sp.min_date = '%s';"""
+
+        cr.execute(query % (product_id, date_string))
+        result = cr.fetchone()[0] or 0 
+        print date_string, result
+        return result
+
+
     def get_stock_forecast(self, cr, uid, context=None):
 
         product_id = context['product_id']
@@ -222,6 +253,7 @@ class stock_forecast(osv.osv):
 
                 day_product['forecasted'] = self.get_stock_forecast(cr, uid, context=forecast_context)
                 day_product['outgoing'] = self.get_stock_outgoing(cr, uid, context=forecast_context)
+                day_product['incoming'] = self.get_stock_incoming(cr, uid, context=forecast_context)
                 
                 if day_product['outgoing'] > 0:
                     day_has_moves = True
