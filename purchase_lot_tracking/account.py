@@ -28,18 +28,29 @@ class account_analytic_account(orm.Model):
 
     def _calculate_total_in(self, cr, uid, ids, name, arg, context=None):
         res = {}
+
+        move_pool = self.pool.get('stock.move')
+
         for account in self.browse(cr, uid, ids):
             res[account.id] = 0.0
             total_moves = 0
             production_pool = self.pool.get('stock.production.lot')
             lot_ids = production_pool.search(cr, uid, [('name', '=', account.name)])
+
             for lot in production_pool.browse(cr, uid, lot_ids):
-                move_pool = self.pool.get('stock.move')
-                move_ids = move_pool.search(cr, uid, [('prodlot_id', '=', lot.id),
-                                                      ('location_id.name', '=', 'Suppliers')])
+                move_ids = move_pool.search(
+                    cr, uid, [('prodlot_id', '=', lot.id)])
                 for move in move_pool.browse(cr, uid, move_ids):
-                    total_moves += move.product_qty
+
+                    # Add in purchases, remove sales
+                    if move.type == 'in':
+                        total_moves += move.product_qty
+                    else:
+                        total_moves -= move.product_qty
+
+            total_moves = max(total_moves, 0)
             res[account.id] = total_moves
+
         return res
 
     def _calculate_tcu(self, cr, uid, ids, name, arg, context=None):
@@ -71,11 +82,3 @@ class account_analytic_account(orm.Model):
         'estimated_tcu': fields.function(_estimated_tcu, string='Estimated Total Cost per Unit', type='float'),
         'total_in_qty': fields.function(_calculate_total_in, string='Total Received Quantity', type='float'),
     }
-
-
-class account_invoice(orm.Model):
-
-    _inherit = 'account.invoice'
-
-    def invoice_validate(self, cr, uid, ids, context=None):
-        return super(account_invoice, self).invoice_validate(cr, uid, ids, context=context)
