@@ -28,6 +28,7 @@
         <form string="Model" version="7.0">
           <group string="Stock Forecast">
               <field name="product_category" />
+              <field name="show_no_activity" />
           </group>
            <footer>                                                                                           
               <button name="analytic_account_chart_open_window" string="Open Charts" type="object" class="oe_highlight"/>

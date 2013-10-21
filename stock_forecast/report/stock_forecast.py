@@ -1,6 +1,8 @@
 import pytz
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from collections import defaultdict
+
 
 from openerp import tools, SUPERUSER_ID
 from openerp.osv import osv, fields
@@ -9,19 +11,26 @@ from mako.template import Template
 
 REPORT_TEMPLATE = u"""
 <form string="Model" version="7.0">
+  % if not display_table:
+  <div>No activity for this period</div>
+  % else:
   <table>
     <tr>
       <td style="text-align: center; vertical-align: middle; "></td>
       % for product in products:
+      % if product_activity[product.id]:
       <td colspan="3" style="font-weight: bold; border-bottom: 1px black solid; font-size: 12pt; padding: 5px;">${product.name}</td>
+      % endif
       % endfor
     </tr>
     <tr>
       <td></td>
       % for product in products:
+        % if product_activity[product.id]: 
       <td style="font-weight: bold; border-left: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Livrer</td>
       <td style="font-weight: bold; border-left: 1px black solid; border-right: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Prevu</td>
       <td style="font-weight: bold; border-right: 1px black solid; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; padding: 2px; ">Recevoir</td>
+        % endif
       % endfor
     </tr>
     % for day in days:
@@ -30,6 +39,7 @@ REPORT_TEMPLATE = u"""
         ${day['date']}
       </td>
       % for product in products:
+        % if product_activity[product.id]:
       <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
           ${day[product.id]['outgoing']}
       </td>
@@ -39,6 +49,7 @@ REPORT_TEMPLATE = u"""
       <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
           ${day[product.id]['incoming']}
       </td>
+        %endif
       % endfor
     </tr>
 
@@ -48,17 +59,20 @@ REPORT_TEMPLATE = u"""
         ${order['label']}
       </td>
       % for product in products:
+        % if product_activity[product.id]:
       <td style="border-bottom: 1px black solid; border-left: 1px black solid; text-align: center; vertical-align: middle; ">
         ${order[product.id]}
       </td>
       <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
       <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
+        % endif
       % endfor
     </tr>
     % endfor
 
     % endfor
   </table>
+  % endif
 </form>
 """
 
@@ -67,7 +81,8 @@ class stock_forecast_config(osv.osv_memory):
     _description = "Stock Forecast"
 
     _columns = {
-        'product_category': fields.many2one('product.category', 'Product Category', required=False)
+        'product_category': fields.many2one('product.category', 'Product Category', required=False),
+        'show_no_activity': fields.boolean('Show products without activity', default=True)
     }
 
     def analytic_account_chart_open_window(self, cr, uid, ids, context=None):                                          
@@ -80,7 +95,9 @@ class stock_forecast_config(osv.osv_memory):
         id = result and result[1] or False
         result = act_obj.read(cr, uid, [id], context=context)[0]
         data = self.read(cr, uid, ids, [])[0]
+
         result_context.update({'product_category': data['product_category'][0]})
+        result_context.update({'show_no_activity': data['show_no_activity']})
         result['context'] = result_context
         return result
 
@@ -92,7 +109,8 @@ class stock_forecast(osv.osv):
     _description = "Stock forecast"
     _auto = False
     _columns = {
-        'product_category': fields.many2one('product.category', 'Product Category', required=False)
+        'product_category': fields.many2one('product.category', 'Product Category', required=False),
+        'show_no_activity': fields.boolean('Hide products without activity')
     }
 
     def init(self, cr):
@@ -282,13 +300,14 @@ class stock_forecast(osv.osv):
 
         day_strings = []
 
-
         categ_id = context.get('product_category', 1)
         product_ids = self.pool.get('product.product').search(cr, uid, [('categ_id', '=', categ_id)])
         products = self.pool.get('product.product').browse(cr, uid, product_ids)
 
-        products = [p for p in products ]
-        
+
+        show_products = context.get('show_no_activity', False)
+        product_activity = dict([(p.id, show_products) for p in products])
+
 
         days = []
         for day in range(14):
@@ -315,6 +334,9 @@ class stock_forecast(osv.osv):
                 day_product['incoming'] = self.get_stock_incoming(cr, uid, exp_day, context=forecast_context)
                 day_product['color'] = self.get_color(day_product)
     
+                if day_product['outgoing'] or day_product['incoming']:
+                    product_activity[product_id] = True
+
 
                 if day_product['outgoing'] > 0:
                     day_has_moves = True
@@ -337,7 +359,16 @@ class stock_forecast(osv.osv):
                     order_values['label'] = order_label
                     day_values['orders'].append(order_values)
             days.append(day_values)
-        report = Template(REPORT_TEMPLATE).render_unicode(products=products, days=days)
+
+        display_table = True
+
+        if not any(product_activity.values()):
+            display_table = False
+
+        report = Template(REPORT_TEMPLATE).render_unicode(products=products, 
+                                                          days=days,
+                                                          product_activity=product_activity,
+                                                          display_table=display_table)
 
         if view_type == 'form':
             result['arch'] = report
