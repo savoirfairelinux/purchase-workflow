@@ -7,21 +7,21 @@ from openerp.osv import osv, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT 
 from mako.template import Template
 
-REPORT_TEMPLATE = """
+REPORT_TEMPLATE = u"""
 <form string="Model" version="7.0">
   <table>
     <tr>
-      <td style="border-left: 1px black solid; text-align: center; vertical-align: middle; "></td>
+      <td style="text-align: center; vertical-align: middle; "></td>
       % for product in products:
-      <td colspan="3" style="border-bottom: 1px black solid; font-size: 14pt; padding: 5px;">${product.name}</td>
+      <td colspan="3" style="font-weight: bold; border-bottom: 1px black solid; font-size: 12pt; padding: 5px;">${product.name}</td>
       % endfor
     </tr>
     <tr>
       <td></td>
       % for product in products:
-      <td style="border-left: 1px black solid; border-bottom: 1px black solid;">A livrer</td>
-      <td>Stock previsionnel</td>
-      <td style="border-right, border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">Reception</td>
+      <td style="font-weight: bold; border-left: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Livrer</td>
+      <td style="font-weight: bold; border-left: 1px black solid; border-right: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Prevu</td>
+      <td style="font-weight: bold; border-right: 1px black solid; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; padding: 2px; ">Recevoir</td>
       % endfor
     </tr>
     % for day in days:
@@ -30,18 +30,18 @@ REPORT_TEMPLATE = """
         ${day['date']}
       </td>
       % for product in products:
-      <td style="color: ${day[product.id]['color']}; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
           ${day[product.id]['outgoing']}
       </td>
-      <td style="color: ${day[product.id]['color']}; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
           ${day[product.id]['forecasted']}
       </td>
-      <td style="color: ${day[product.id]['color']}; border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
           ${day[product.id]['incoming']}
       </td>
       % endfor
     </tr>
-    
+
     % for order in day['orders']:
     <tr>
       <td style="text-align: right; padding: 5px;">
