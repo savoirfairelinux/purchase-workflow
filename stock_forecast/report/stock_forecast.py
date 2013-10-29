@@ -11,6 +11,64 @@ from mako.template import Template
 
 REPORT_TEMPLATE = u"""
 <form string="Model" version="7.0">
+  <style type="text/css">
+    td.nom_produit {
+      font-weight: bold;
+      font-size: 12pt;
+      padding: 5px;
+    }
+
+    td.prevision {
+      font-size: 8pt;
+      font-weight: bold;
+      border: 2px black solid;
+      vertical-align: middle;
+      padding: 5px;
+    }
+  
+    td.datelabel {
+      text-align: right;
+      font-size: 11pt;
+      padding: 10px;
+    }
+    
+    td.alert {
+      color: red;
+    }
+
+    td.warning {
+      color: orange; 
+    }
+
+    td.normal {
+      color: black; 
+    }
+
+    td.stock {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    td.alivrer {
+      border: 1px black solid;
+      border-left: 2px black solid;
+      border-top: 2px black solid;
+    }
+
+    td.prevu {
+      border: 1px black solid;
+      border-top: 2px black solid; 
+    }
+
+    td.arecevoir {
+      border: 1px black solid;
+      border-right: 2px black solid; 
+      border-top: 2px black solid;
+      font-size: 8pt;
+    }
+    
+
+  </style>
   % if not display_table:
   <div>No activity for this period</div>
   % else:
@@ -19,7 +77,7 @@ REPORT_TEMPLATE = u"""
       <td style="text-align: center; vertical-align: middle; "></td>
       % for product in products:
       % if product_activity[product.id]:
-      <td colspan="3" style="font-weight: bold; border-bottom: 1px black solid; font-size: 12pt; padding: 5px;">${product.name}</td>
+      <td colspan="3" class="nom_produit" >${product.name}</td>
       % endif
       % endfor
     </tr>
@@ -27,27 +85,31 @@ REPORT_TEMPLATE = u"""
       <td></td>
       % for product in products:
         % if product_activity[product.id]: 
-      <td style="font-weight: bold; border-left: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Livrer</td>
-      <td style="font-weight: bold; border-left: 1px black solid; border-right: 1px black solid; border-bottom: 1px black solid; padding: 2px;">Prevu</td>
-      <td style="font-weight: bold; border-right: 1px black solid; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; padding: 2px; ">Recevoir</td>
-        % endif
+      <td class="prevision">A livrer</td>
+      <td class="prevision">Stock prevu</td>
+      <td class="prevision">A recevoir</td>
+      % endif
       % endfor
     </tr>
     % for day in days:
     <tr>
-      <td style="font-size: 12pt; padding: 5px;">
+      <td class="datelabel">
         ${day['date']}
       </td>
       % for product in products:
         % if product_activity[product.id]:
-      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-left: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
-          ${day[product.id]['outgoing']}
+      <td class="stock alivrer ${day[product.id]['situation']}">
+          % if day[product.id]['outgoing'] != 0:
+            ${day[product.id]['outgoing']}
+          % endif
       </td>
-      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td class="stock prevu ${day[product.id]['situation']}">
           ${day[product.id]['forecasted']}
       </td>
-      <td style="font-size: 12pt; color: ${day[product.id]['color']}; border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; ">
-          ${day[product.id]['incoming']}
+      <td class="stock arecevoir ${day[product.id]['situation']}">
+          % if day[product.id]['incoming'] != 0:
+            ${day[product.id]['incoming']}
+          % endif
       </td>
         %endif
       % endfor
@@ -60,11 +122,11 @@ REPORT_TEMPLATE = u"""
       </td>
       % for product in products:
         % if product_activity[product.id]:
-      <td style="border-bottom: 1px black solid; border-left: 1px black solid; text-align: center; vertical-align: middle; ">
+      <td style="border-bottom: 1px black solid; border-left: 2px black solid; text-align: center; vertical-align: middle; ">
         ${order[product.id]}
       </td>
       <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
-      <td style="border-right: 1px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
+      <td style="border-right: 2px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
         % endif
       % endfor
     </tr>
@@ -82,7 +144,14 @@ class stock_forecast_config(osv.osv_memory):
 
     _columns = {
         'product_category': fields.many2one('product.category', 'Product Category', required=False),
-        'show_no_activity': fields.boolean('Show products without activity', default=True)
+        'show_no_activity': fields.boolean('Show products without activity', default=True),
+        'start_date': fields.datetime('Start date'),
+        'end_date': fields.datetime('End date')
+    }
+
+    _defaults = {
+        'start_date': lambda *a: datetime.now().strftime('%Y-%m-%d'),
+        'end_date': lambda *a: (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
     }
 
     def analytic_account_chart_open_window(self, cr, uid, ids, context=None):                                          
@@ -98,6 +167,8 @@ class stock_forecast_config(osv.osv_memory):
 
         result_context.update({'product_category': data['product_category'][0]})
         result_context.update({'show_no_activity': data['show_no_activity']})
+        result_context.update({'start_date': data['start_date']})
+        result_context.update({'end_date': data['end_date']})
         result['context'] = result_context
         return result
 
@@ -110,8 +181,11 @@ class stock_forecast(osv.osv):
     _auto = False
     _columns = {
         'product_category': fields.many2one('product.category', 'Product Category', required=False),
-        'show_no_activity': fields.boolean('Hide products without activity')
+        'show_no_activity': fields.boolean('Hide products without activity'),
+        'start_date': fields.datetime('Start date'),
+        'end_date': fields.datetime('End date')
     }
+
 
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'stock_forecast')
@@ -239,7 +313,8 @@ class stock_forecast(osv.osv):
 
         day_before = exp_day + timedelta(days=-1)
         date_string = self.get_timestamp(cr, uid, day_before)
-
+      
+  
         today_string = self.get_timestamp(cr, uid, datetime.now(), context)
 
         on_hand = product.qty_available
@@ -280,14 +355,14 @@ class stock_forecast(osv.osv):
 
 
         
-    def get_color(self, day_product):
+    def get_situation(self, day_product):
       if day_product['outgoing'] > (day_product['forecasted'] + day_product['incoming']):
-          return "#FF0000"
+          return "alert"
 
       if day_product['outgoing'] > day_product['forecasted']:
-          return "#FF8000"
+          return "warning"
 
-      return "#000000"
+      return "normal"
     
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='tree', context=None, toolbar=False, submenu=False):
@@ -300,6 +375,9 @@ class stock_forecast(osv.osv):
 
         day_strings = []
 
+        start_date = datetime.strptime(context.get('start_date', datetime.now().strftime("%Y-%m-%d %H:%M:%S")), "%Y-%m-%d %H:%M:%S")
+        end_date = datetime.strptime(context.get('end_date', datetime.now().strftime("%Y-%m-%d %H:%M:%S")), '%Y-%m-%d %H:%M:%S')
+
         categ_id = context.get('product_category', 1)
         product_ids = self.pool.get('product.product').search(cr, uid, [('categ_id', '=', categ_id)])
         products = self.pool.get('product.product').browse(cr, uid, product_ids)
@@ -310,7 +388,7 @@ class stock_forecast(osv.osv):
 
 
         days = []
-        for day in range(14):
+        for day in range((end_date - start_date).days):
 
             product_strings = []
             exp_day = today + timedelta(days=day)
@@ -332,7 +410,7 @@ class stock_forecast(osv.osv):
                 day_product['forecasted'] = self.get_stock_forecast(cr, uid, exp_day, context=forecast_context)
                 day_product['outgoing'] = self.get_stock_outgoing(cr, uid, exp_day, context=forecast_context)
                 day_product['incoming'] = self.get_stock_incoming(cr, uid, exp_day, context=forecast_context)
-                day_product['color'] = self.get_color(day_product)
+                day_product['situation'] = self.get_situation(day_product)
     
                 if day_product['outgoing'] or day_product['incoming']:
                     product_activity[product_id] = True
