@@ -67,11 +67,6 @@ REPORT_TEMPLATE = u"""
       font-size: 8pt;
     }
   </style>
-  <div>own context: ${own_context}</div>
-  <div>start_date: ${start_date}</div>
-  <div>end_date: ${end_date}</div>
-  <div>categ_id: ${categ_id}</div>
-  <div>product_ids: ${product_ids}</div>
   % if not display_table:
   <div>No activity for this period</div>
   % else:
@@ -474,11 +469,6 @@ class stock_forecast(osv.osv):
             days=days,
             product_activity=product_activity,
             display_table=display_table,
-            own_context=context,
-            start_date=start_date,
-            end_date=end_date,
-            categ_id=categ_id,
-            product_ids=product_ids,
         )
 
         if view_type == 'form':
