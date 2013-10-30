@@ -321,7 +321,6 @@ class stock_forecast(osv.osv):
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
-        print((exp_day, product_id, date_string, result))
         return result
 
     def get_stock_forecast(self, cr, uid, exp_day, context=None):
@@ -382,6 +381,9 @@ class stock_forecast(osv.osv):
             toolbar=toolbar, submenu=submenu)
 
         today = datetime.now()
+
+        if context is None:
+            context = {}
 
         start_date = datetime.strptime(
             context.get(
