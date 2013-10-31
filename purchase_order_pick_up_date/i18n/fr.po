@@ -23,7 +23,7 @@ msgstr "Date prévue à laquelle l'achat arrivera à l'un de vos entrepôts"
 #. module: purchase_order_pick_up_date
 #: field:purchase.order,date_pick_up:0
 msgid "Pick Up Date"
-msgstr "Date de saisie"
+msgstr "Date de pick up"
 
 #. module: purchase_order_pick_up_date
 #: model:ir.model,name:purchase_order_pick_up_date.model_purchase_order
