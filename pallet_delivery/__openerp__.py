@@ -46,6 +46,7 @@ at various points.
         'landed_cost_per_pallet', 'purchase_lot_tracking',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'stock_workflow.xml',
         'pallet_delivery_data.xml',
         'pallet_delivery_view.xml',

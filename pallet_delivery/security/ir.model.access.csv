@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stock_truck_stock,stock.truck all,model_stock_truck,stock.group_stock_user,1,1,1,1
+access_stock_truck_purchase,stock.truck all,model_stock_truck,purchase.group_purchase_user,1,1,1,1
+access_stock_truck_line_stock,stock.truck.line all,model_stock_truck_line,stock.group_stock_user,1,1,1,1
+access_stock_truck_line_purchase,stock.truck.line all,model_stock_truck_line,purchase.group_purchase_user,1,1,1,1
