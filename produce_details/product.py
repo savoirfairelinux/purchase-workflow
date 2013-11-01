@@ -31,4 +31,6 @@ class product_product(orm.Model):
         'origin': fields.many2one('res.country', 'Origin'),
         'cond_weight': fields.float('Conditioning weight', digits_compute=dp.get_precision('Stock Weight'), help='Conditioning weight in kg.'),
         'size_category': fields.char('Size', size=16),
+        'plu1': fields.char('PLU', size=8),
+        'plu2': fields.char('PLU2', size=8),
     }

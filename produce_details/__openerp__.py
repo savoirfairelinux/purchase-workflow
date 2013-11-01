@@ -35,7 +35,8 @@ This module adds four descriptive fields for produce-related products, namely:
 * A variety (e.g. Haden)
 * An origin (Brazil)
 * Conditioning weight (10 kg)
-* And a size category (#12)
+* A size category (#12)
+* PLU code (4216)
 """,
     'depends': ['base', 'purchase'],
     'data': [

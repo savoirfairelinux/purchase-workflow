@@ -18,6 +18,15 @@
               <field name="size_category" />
             </group>
           </group>
+          <group>
+              <group>
+                <label for="plu1"/>
+                <field name="plu1" nolabel="1" />
+                <div />
+                <field name="plu2" nolabel="1" />
+              </group>
+              <group/>
+          </group>
         </field>
       </field>
     </record>
