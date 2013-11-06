@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_sale_pallet_crate_order_line" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree//field[@name='product_uom_qty']" position="before">
+                    <field name="nb_pallets"/>
+                    <field name="nb_crates_per_pallet"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_sale_pallet_crate_thing" model="ir.ui.view">
+            <field name="name">sale.order.landing.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_landed_costs.sale_order_landed_cost_view" />
+            <field name="arch" type="xml">
+                <field name="landed_cost_base_value" position="after">
+                    <field name="landed_cost_base_pallet" />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
