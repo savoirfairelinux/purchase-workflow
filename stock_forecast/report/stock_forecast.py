@@ -422,19 +422,6 @@ class stock_forecast(osv.osv):
 
         incoming_total = sum(i.product_qty for i in incoming)
 
-
-
-        outgoing_query = """
-        SELECT sum(product_qty) from stock_move
-        WHERE product_id = %s
-        AND date_expected >= '%s'
-        AND date_expected <= '%s'"""
-
-        outgoing_query = outgoing_query % (product_id, today_string, date_before_string)
-
-        cr.execute(outgoing_query)
-        outgoing_sum = cr.fetchone()[0] or 0
-
         outgoing_ids = self.pool.get('stock.move').search(
             cr, uid, [
                 ('product_id', '=', product_id),
