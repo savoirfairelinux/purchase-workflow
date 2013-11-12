@@ -398,9 +398,6 @@ class stock_forecast(osv.osv):
 
     def get_stock_forecast(self, cr, uid, exp_day, context=None):
 
-        print "---------------------"
-        print " STOCK FORECAST OF %s" %  exp_day.strftime('%Y-%m-%d')
-
         product_id = context['product_id']
         product = self.pool.get('product.product').browse(
             cr, uid, [product_id], context=context)[0]
@@ -438,16 +435,16 @@ class stock_forecast(osv.osv):
         cr.execute(outgoing_query)
         outgoing_sum = cr.fetchone()[0] or 0
 
-#        outgoing_ids = self.pool.get('stock.move').search(
-#            cr, uid, [
-#                ('product_id', '=', product_id),
-#                '!', ('sale_line_id', '=', None),
-#                ('date_expected', '>=', today_string),
-#                ('date_expected', '<', date_before_string)
-#            ]
-#        )
-#
-#        outgoing = self.pool.get('stock.move').browse(cr, uid, outgoing_ids)
+        outgoing_ids = self.pool.get('stock.move').search(
+            cr, uid, [
+                ('product_id', '=', product_id),
+                '!', ('sale_line_id', '=', None),
+                ('date_expected', '>=', today_string),
+                ('date_expected', '<=', date_before_string)
+            ]
+        )
+
+        outgoing = self.pool.get('stock.move').browse(cr, uid, outgoing_ids)
 #
 #        
         outgoing_orders = self.pool.get('sale.order').search(
@@ -470,14 +467,11 @@ class stock_forecast(osv.osv):
 
         order_lines = self.pool.get('sale.order.line').browse(cr, uid, outgoing_order_lines)
 
-        outgoing_total = outgoing_sum + sum(o.product_uos_qty for o in order_lines)
+        outgoing_total = sum(o.product_qty for o in outgoing) + sum(o.product_uos_qty for o in order_lines)
 
         forecasted = on_hand + incoming_total - outgoing_total
 
-        print "%s %s %s" % (date_before_string, [o.product_uos_qty for o in order_lines], forecasted)
 
-        print "%s %s %s" % (on_hand, incoming_total, outgoing_total)
-        print "---------------"
         return on_hand + incoming_total - outgoing_total
 
     def get_situation(self, day_product):
