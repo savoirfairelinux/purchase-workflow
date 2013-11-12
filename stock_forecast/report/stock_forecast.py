@@ -252,7 +252,7 @@ class stock_forecast(osv.osv):
     def get_picking_info(self, cr, uid, context=None):
 
         date_string = self.get_timestamp(cr, uid, context['datetime'])
-        print date_string
+
 
         date_string = self.get_timestamp(cr, uid, context['datetime'], context)
         product_ids = tuple_string(tuple(context['product_ids']))
@@ -260,7 +260,7 @@ class stock_forecast(osv.osv):
         stock_moves = """SELECT id
                          FROM stock_move
                          WHERE sale_line_id IS NOT NULL
-                         AND date_expected = '%s'::timestamp without time zone
+                         AND date_trunc('day', date_expected) = '%s'::timestamp without time zone
                          AND product_id IN %s"""
 
         stock_moves = stock_moves % (date_string, product_ids)
@@ -358,6 +358,7 @@ class stock_forecast(osv.osv):
 
     def get_stock_outgoing(self, cr, uid, exp_day, context=None):
         date_string = self.get_timestamp(cr, uid, exp_day)
+
         product_id = context['product_id']
 
         query_sales = """SELECT SUM(product_uos_qty)
@@ -376,7 +377,7 @@ class stock_forecast(osv.osv):
                           FROM stock_move
                           WHERE product_id = %s
                           AND sale_line_id IS NOT NULL
-                          AND date_expected = '%s';"""
+                          AND date_trunc('day', date_expected) = '%s'::timestamp without time zone"""
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
@@ -392,7 +393,8 @@ class stock_forecast(osv.osv):
                           WHERE sm.product_id = %s
                           AND sm.purchase_line_id IS NOT NULL
                           AND sm.picking_id = sp.id
-                          AND sp.min_date = '%s';"""
+                          AND date_trunc('day', sp.min_date) = '%s'
+                          AND sp.state = 'assigned';"""
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
@@ -411,12 +413,21 @@ class stock_forecast(osv.osv):
 
         on_hand = product.qty_available
         # purchase
+        incoming_pickings = self.pool.get('stock.picking').search(
+            cr, uid, [
+                ('min_date', '>=', today_string),
+                ('min_date', '<=', date_before_string),
+                ('state', '=', 'confirmed')
+            ]
+        )
+
         incoming_ids = self.pool.get('stock.move').search(
             cr, uid, [
                 ('product_id', '=', product_id),
                 '!', ('purchase_line_id', '=', None),
                 ('date_expected', '>=', today_string),
-                ('date_expected', '<=', date_before_string)
+                ('date_expected', '<=', date_before_string),
+                ('picking_id', 'in', incoming_pickings)
             ]
         )
 
@@ -548,7 +559,6 @@ class stock_forecast(osv.osv):
 
             if day_has_moves:
 
-                print "day has moves: %s" % exp_day
                 orders, order_quantities = self.get_order_info(cr, uid, {
                     'datetime': exp_day, 'product_ids': product_ids
                 })
