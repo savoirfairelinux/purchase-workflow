@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 import pytz
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -8,6 +9,9 @@ from openerp import tools, SUPERUSER_ID
 from openerp.osv import osv, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from mako.template import Template
+
+# Si le incoming shipment est prévu pour pour les dates AVANT lesquelles
+# on produit le rapport, il n'est pas tenu en compte
 
 REPORT_TEMPLATE = u"""
 <form string="Model" version="7.0">
@@ -116,7 +120,7 @@ REPORT_TEMPLATE = u"""
     % for order in day['orders']:
     <tr>
       <td style="text-align: right; padding: 5px;">
-        ${order['label']}
+         <a href="#id=4">${order['label']}</a>
       </td>
       % for product in products:
         % if product_activity[product.id]:
@@ -417,7 +421,7 @@ class stock_forecast(osv.osv):
             cr, uid, [
                 ('min_date', '>=', today_string),
                 ('min_date', '<=', date_before_string),
-                ('state', '=', 'confirmed')
+                ('state', '=', 'assigned')
             ]
         )
 
@@ -569,7 +573,7 @@ class stock_forecast(osv.osv):
                 })
 
 
-                def get_day_values(orders, quantities):
+                def get_day_values(orders, quantities, model="stock.picking"):
                     
                     day_values = []
                     for order in orders:
@@ -583,12 +587,18 @@ class stock_forecast(osv.osv):
                         customer_name = order.partner_id.name
                         order_label = "%s (%s)" % (order.name, customer_name)
                         order_values['label'] = order_label
+                        order_values['link'] = "#id=%(id)s&view_type=form&model=%(model)s" % {'id': order.id, 'model': model}
+                            
                         day_values.append(order_values)
                     return day_values
 
                 day_values['orders'] = []
-                day_values['orders'].extend(get_day_values(orders, order_quantities))
-                day_values['orders'].extend(get_day_values(order_lines, picking_quantities))
+                day_values['orders'].extend(get_day_values(orders,
+                                                           order_quantities,
+                                                           model='sale.order'))
+                day_values['orders'].extend(get_day_values(order_lines,
+                                                           picking_quantities,
+                                                           model="stock.picking.out"))
             days.append(day_values)
 
         display_table = True
