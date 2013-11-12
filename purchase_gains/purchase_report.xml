@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report auto="False" id="report_purchase_order_gains" model="purchase.order"
+                name="purchase.order.gains" rml="purchase_gains/report/order.rml"
+                usage="default" string="Purchase Order gains"/>
+
+    </data>
+</openerp>
