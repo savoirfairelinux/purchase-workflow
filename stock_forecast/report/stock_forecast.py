@@ -229,7 +229,7 @@ class stock_forecast(osv.osv):
 
     def get_order_info(self, cr, uid, context=None):
 
-        date_string = context['datetime'].strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, context['datetime'])
 
         order_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'draft'),
                                                                  ('date_order', '=', date_string)])
@@ -251,7 +251,9 @@ class stock_forecast(osv.osv):
 
     def get_picking_info(self, cr, uid, context=None):
 
-        date_string = context['datetime'].strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, context['datetime'])
+        print date_string
+
         date_string = self.get_timestamp(cr, uid, context['datetime'], context)
         product_ids = tuple_string(tuple(context['product_ids']))
 
@@ -355,7 +357,7 @@ class stock_forecast(osv.osv):
 
 
     def get_stock_outgoing(self, cr, uid, exp_day, context=None):
-        date_string = exp_day.strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, exp_day)
         product_id = context['product_id']
 
         query_sales = """SELECT SUM(product_uos_qty)
@@ -381,7 +383,7 @@ class stock_forecast(osv.osv):
         return result + sales_sum
 
     def get_stock_incoming(self, cr, uid, exp_day, context=None):
-        date_string = exp_day.strftime('%Y-%m-%d')
+        date_string = self.get_timestamp(cr, uid, exp_day)
         product_id = context['product_id']
 
         query = """SELECT SUM(sm.product_qty)
@@ -511,7 +513,7 @@ class stock_forecast(osv.osv):
             day_has_moves = False
 
             day_values = {}
-            day_values['date'] = exp_day.strftime('%Y-%m-%d')
+            day_values['date'] = self.get_timestamp(cr, uid, exp_day)
             day_values['orders'] = []
 
             for product_id in product_ids:
@@ -546,6 +548,7 @@ class stock_forecast(osv.osv):
 
             if day_has_moves:
 
+                print "day has moves: %s" % exp_day
                 orders, order_quantities = self.get_order_info(cr, uid, {
                     'datetime': exp_day, 'product_ids': product_ids
                 })
