@@ -226,7 +226,30 @@ class stock_forecast(osv.osv):
             return user_datetime.strftime('%Y-%m-%d')
         return user_date.strftime('%Y-%m-%d')
 
-    def get_submission_ids(self, cr, uid, context=None):
+
+    def get_order_info(self, cr, uid, context=None):
+
+        date_string = context['datetime'].strftime('%Y-%m-%d')
+
+        order_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'draft'),
+                                                                 ('date_order', '=', date_string)])
+
+        orders = self.pool.get('sale.order').browse(cr, uid, order_ids)
+        
+        quantities = {}
+
+        for order in orders:
+            quantity = {}
+            for order_line in order.order_line:
+                qty = quantity.get(order_line.product_id.id, 0)
+                quantity[order_line.product_id.id] = order_line.product_uos_qty + qty
+            # TODO: pas
+            quantities[order.id] = quantity
+        
+        return orders, quantities
+
+
+    def get_picking_info(self, cr, uid, context=None):
 
         date_string = context['datetime'].strftime('%Y-%m-%d')
         date_string = self.get_timestamp(cr, uid, context['datetime'], context)
@@ -240,61 +263,111 @@ class stock_forecast(osv.osv):
 
         stock_moves = stock_moves % (date_string, product_ids)
 
+
+        stock_pickings = """SELECT id
+                            FROM stock_picking
+                            WHERE id IN (
+                               SELECT picking_id FROM stock_move
+                               WHERE id IN (
+                                   %s
+                               )
+                            )
+                         """
+
         cr.execute(stock_moves)
         stock_moves_ids = list(sum(cr.fetchall(), ()))
 
-        sale_order_lines = """SELECT id FROM sale_order_line
-                                 WHERE id in (
-                                     SELECT sale_line_id FROM stock_move
-                                     WHERE id IN (
-                                         %s
-                                     )
-                                 )
-                           """
+        cr.execute(stock_pickings % stock_moves)
+        stock_picking_ids = list(sum(cr.fetchall(), ()))
 
-        sale_order_lines = sale_order_lines % stock_moves
-        cr.execute(sale_order_lines)
-        sale_order_line_ids = cr.fetchall()
+#        sale_order_lines = """SELECT id FROM sale_order_line
+#                                 WHERE id in (
+#                                     SELECT sale_line_id FROM stock_move
+#                                     WHERE id IN (
+#                                         %s
+#                                     )
+#                                 )
+#                           """
 
-        sale_orders = """SELECT id FROM sale_order
-                         WHERE id in (
-                             SELECT order_id FROM sale_order_line
-                             WHERE id IN (
-                                 %s
-                             )
-                         )
-                         """
+#        sale_order_lines = sale_order_lines % stock_moves
+#        cr.execute(sale_order_lines)
+#        sale_order_line_ids = cr.fetchall()
 
-        cr.execute(sale_orders % sale_order_lines)
-        sale_order_ids = list(sum(cr.fetchall(), ()))
+#        sale_orders = """SELECT id FROM sale_order
+#                         WHERE id in (
+#                             SELECT order_id FROM sale_order_line
+#                             WHERE id IN (
+#                                 %s
+#                             )
+#                         )
+#                         AND state = 'draft'
+#                         """
+#
+#        stock_moves = """
+#                      SELECT id FROM stock_move
+#                      WHERE date_expected = %s
+#                      AND product_id in (%s)
+#                      """
+#        stock_pickings = """
+#                         SELECT id FROM stock_picking
+#                         WHERE sale_id 
+#                         """
+
+
+#        cr.execute(stock_pickings % sale_order_lines)
+#        sale_order_ids = list(sum(cr.fetchall(), ()))
 
         stock_moves = self.pool.get('stock.move').browse(
             cr, uid, stock_moves_ids)
-        sale_orders = self.pool.get('sale.order').browse(
-            cr, uid, sale_order_ids)
+        stock_pickings = self.pool.get('stock.picking').browse(
+            cr, uid, stock_picking_ids)
 
         quantities = {}
 
-        for order in sale_orders:
+        # Calculates the quantity of each product in every stock picking
+        for picking in stock_pickings:
             quantity = {}
-            matching_ol_ids = [so.id for so in order.order_line]
-            for order_line in order.order_line:
-                matching_moves = filter(
-                    lambda x: x.product_id == order_line.product_id
-                    and x.sale_line_id.id in matching_ol_ids,
-                    stock_moves
-                )
 
-                qty = quantity.get(order_line.product_id, 0)
-                quantity[order_line.product_id.id] = (
-                    sum(m.product_qty for m in matching_moves) + qty)
+            for move_line in picking.move_lines:
+                qty = quantity.get(move_line.product_id.id, 0)
+                quantity[move_line.product_id.id] = move_line.product_qty + qty
 
-            quantities[order.id] = quantity
-        return sale_orders, quantities
+            quantities[picking.id] = quantity
+
+
+#        for order in sale_orders:
+#            quantity = {}
+#            matching_ol_ids = [so.id for so in order.order_line]
+#            for order_line in order.order_line:
+#                matching_moves = filter(
+#                    lambda x: x.product_id == order_line.product_id
+#                    and x.sale_line_id.id in matching_ol_ids,
+#                    stock_moves
+#                )
+#
+#                qty = quantity.get(order_line.product_id, 0)
+#                quantity[order_line.product_id.id] = (
+#                    sum(m.product_qty for m in matching_moves) + qty)
+#
+#            quantities[order.id] = quantity
+#        return sale_orders, quantities
+        return stock_pickings, quantities
+
 
     def get_stock_outgoing(self, cr, uid, exp_day, context=None):
         date_string = exp_day.strftime('%Y-%m-%d')
         product_id = context['product_id']
+
+        query_sales = """SELECT SUM(product_uos_qty)
+                                FROM sale_order_line sol,
+                                sale_order so
+                                WHERE product_id = %s
+                                AND sol.order_id = so.id
+                                AND so.state = 'draft'
+                                AND so.date_order = '%s'"""
+        cr.execute(query_sales % (product_id, date_string))
+        
+        sales_sum = cr.fetchone()[0] or 0
 
         # TODO check sales as well
         query = """SELECT SUM(product_qty)
@@ -305,7 +378,7 @@ class stock_forecast(osv.osv):
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
-        return result
+        return result + sales_sum
 
     def get_stock_incoming(self, cr, uid, exp_day, context=None):
         date_string = exp_day.strftime('%Y-%m-%d')
@@ -324,12 +397,16 @@ class stock_forecast(osv.osv):
         return result
 
     def get_stock_forecast(self, cr, uid, exp_day, context=None):
+
+        print "---------------------"
+        print " STOCK FORECAST OF %s" %  exp_day.strftime('%Y-%m-%d')
+
         product_id = context['product_id']
         product = self.pool.get('product.product').browse(
             cr, uid, [product_id], context=context)[0]
 
         day_before = exp_day + timedelta(days=-1)
-        date_string = self.get_timestamp(cr, uid, day_before)
+        date_before_string = self.get_timestamp(cr, uid, day_before)
 
         today_string = self.get_timestamp(cr, uid, datetime.now(), context)
 
@@ -340,7 +417,7 @@ class stock_forecast(osv.osv):
                 ('product_id', '=', product_id),
                 '!', ('purchase_line_id', '=', None),
                 ('date_expected', '>=', today_string),
-                ('date_expected', '<', date_string)
+                ('date_expected', '<=', date_before_string)
             ]
         )
 
@@ -348,19 +425,59 @@ class stock_forecast(osv.osv):
 
         incoming_total = sum(i.product_qty for i in incoming)
 
-        outgoing_ids = self.pool.get('stock.move').search(
+
+
+        outgoing_query = """
+        SELECT sum(product_qty) from stock_move
+        WHERE product_id = %s
+        AND date_expected >= '%s'
+        AND date_expected <= '%s'"""
+
+        outgoing_query = outgoing_query % (product_id, today_string, date_before_string)
+
+        cr.execute(outgoing_query)
+        outgoing_sum = cr.fetchone()[0] or 0
+
+#        outgoing_ids = self.pool.get('stock.move').search(
+#            cr, uid, [
+#                ('product_id', '=', product_id),
+#                '!', ('sale_line_id', '=', None),
+#                ('date_expected', '>=', today_string),
+#                ('date_expected', '<', date_before_string)
+#            ]
+#        )
+#
+#        outgoing = self.pool.get('stock.move').browse(cr, uid, outgoing_ids)
+#
+#        
+        outgoing_orders = self.pool.get('sale.order').search(
             cr, uid, [
-                ('product_id', '=', product_id),
-                '!', ('sale_line_id', '=', None),
-                ('date_expected', '>=', today_string),
-                ('date_expected', '<', date_string)
+                ('date_order', '>=', today_string),
+                ('date_order', '<=', date_before_string),
+                ('state', '=', 'draft')
             ]
         )
 
-        outgoing = self.pool.get('stock.move').browse(cr, uid, outgoing_ids)
+        outgoing_order_lines = self.pool.get('sale.order.line').search(
+            cr, uid, [
+                ('product_id', '=', product_id),
+                ('order_id', 'in', outgoing_orders),
+            ]
+        )
 
-        outgoing_total = sum(o.product_qty for o in outgoing)
+#        if date_before_string == '2013-11-14':
+#            import pdb; pdb.set_trace()
 
+        order_lines = self.pool.get('sale.order.line').browse(cr, uid, outgoing_order_lines)
+
+        outgoing_total = outgoing_sum + sum(o.product_uos_qty for o in order_lines)
+
+        forecasted = on_hand + incoming_total - outgoing_total
+
+        print "%s %s %s" % (date_before_string, [o.product_uos_qty for o in order_lines], forecasted)
+
+        print "%s %s %s" % (on_hand, incoming_total, outgoing_total)
+        print "---------------"
         return on_hand + incoming_total - outgoing_total
 
     def get_situation(self, day_product):
@@ -447,21 +564,37 @@ class stock_forecast(osv.osv):
                 day_values[product_id] = day_product
 
             if day_has_moves:
-                order_lines, quantities = self.get_submission_ids(cr, uid, {
+
+                orders, order_quantities = self.get_order_info(cr, uid, {
                     'datetime': exp_day, 'product_ids': product_ids
                 })
-                for order in order_lines:
 
-                    cells = []
-                    order_values = {}
-                    for product_id in product_ids:
-                        qty = quantities[order.id].get(product_id, 0)
-                        order_values[product_id] = qty
 
-                    customer_name = order.partner_id.name
-                    order_label = "%s (%s)" % (order.name, customer_name)
-                    order_values['label'] = order_label
-                    day_values['orders'].append(order_values)
+                order_lines, picking_quantities = self.get_picking_info(cr, uid, {
+                    'datetime': exp_day, 'product_ids': product_ids
+                })
+
+
+                def get_day_values(orders, quantities):
+                    
+                    day_values = []
+                    for order in orders:
+                        
+                        cells = []
+                        order_values = {}
+                        for product_id in product_ids:
+                            qty = quantities[order.id].get(product_id, 0)
+                            order_values[product_id] = qty
+
+                        customer_name = order.partner_id.name
+                        order_label = "%s (%s)" % (order.name, customer_name)
+                        order_values['label'] = order_label
+                        day_values.append(order_values)
+                    return day_values
+
+                day_values['orders'] = []
+                day_values['orders'].extend(get_day_values(orders, order_quantities))
+                day_values['orders'].extend(get_day_values(order_lines, picking_quantities))
             days.append(day_values)
 
         display_table = True
