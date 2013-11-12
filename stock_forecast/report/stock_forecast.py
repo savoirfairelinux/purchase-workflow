@@ -136,6 +136,11 @@ REPORT_TEMPLATE = u"""
 </form>
 """
 
+def tuple_string(my_tuple):
+    if len(my_tuple) == 1:
+        return str(my_tuple)[::-1].replace(',','',1)[::-1]
+    return str(my_tuple)
+
 
 class stock_forecast_config(osv.osv_memory):
 
@@ -219,13 +224,13 @@ class stock_forecast(osv.osv):
             local_timestamp = context_tz.localize(user_datetime, is_dst=False)
             user_datetime = local_timestamp.astimezone(utc)
             return user_datetime.strftime('%Y-%m-%d')
-        return user_date.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+        return user_date.strftime('%Y-%m-%d')
 
     def get_submission_ids(self, cr, uid, context=None):
 
         date_string = context['datetime'].strftime('%Y-%m-%d')
         date_string = self.get_timestamp(cr, uid, context['datetime'], context)
-        product_ids = tuple(context['product_ids'])
+        product_ids = tuple_string(tuple(context['product_ids']))
 
         stock_moves = """SELECT id
                          FROM stock_move
