@@ -120,7 +120,7 @@ REPORT_TEMPLATE = u"""
     % for order in day['orders']:
     <tr>
       <td style="text-align: right; padding: 5px;">
-         <a href="#id=4">${order['label']}</a>
+         ${order['label']}
       </td>
       % for product in products:
         % if product_activity[product.id]:
