@@ -70,6 +70,7 @@ class sale_order_line(orm.Model):
         'nb_pallets': fields.integer('Pallets', required=True),
         'nb_crates_per_pallet': fields.integer('Crates per pallet', required=True),
         'product_uom_qty': fields.function(_product_quantity,
+                                           digits_compute=dp.get_precision('Product Unit of Measure'),
                                            string="Quantity",
                                            type='float'),
         'landing_costs_order': fields.function(_landing_cost_order,
