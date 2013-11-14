@@ -236,7 +236,7 @@ class stock_forecast(osv.osv):
         date_string = self.get_timestamp(cr, uid, context['datetime'])
 
         order_ids = self.pool.get('sale.order').search(cr, uid, [('state', '=', 'draft'),
-                                                                 ('date_order', '=', date_string)])
+                                                                 ('requested_date', '=', date_string)])
 
         orders = self.pool.get('sale.order').browse(cr, uid, order_ids)
         
@@ -246,7 +246,7 @@ class stock_forecast(osv.osv):
             quantity = {}
             for order_line in order.order_line:
                 qty = quantity.get(order_line.product_id.id, 0)
-                quantity[order_line.product_id.id] = order_line.product_uos_qty + qty
+                quantity[order_line.product_id.id] = order_line.nb_pallets * order_line.nb_crates_per_pallet + qty
             # TODO: pas
             quantities[order.id] = quantity
         
@@ -365,13 +365,13 @@ class stock_forecast(osv.osv):
 
         product_id = context['product_id']
 
-        query_sales = """SELECT SUM(product_uos_qty)
+        query_sales = """SELECT SUM(sol.nb_pallets * sol.nb_crates_per_pallet)
                                 FROM sale_order_line sol,
                                 sale_order so
                                 WHERE product_id = %s
                                 AND sol.order_id = so.id
                                 AND so.state = 'draft'
-                                AND so.date_order = '%s'"""
+                                AND so.requested_date = '%s'"""
         cr.execute(query_sales % (product_id, date_string))
         
         sales_sum = cr.fetchone()[0] or 0
@@ -453,8 +453,8 @@ class stock_forecast(osv.osv):
 #        
         outgoing_orders = self.pool.get('sale.order').search(
             cr, uid, [
-                ('date_order', '>=', today_string),
-                ('date_order', '<=', date_before_string),
+                ('requested_date', '>=', today_string),
+                ('requested_date', '<=', date_before_string),
                 ('state', '=', 'draft')
             ]
         )
@@ -471,7 +471,7 @@ class stock_forecast(osv.osv):
 
         order_lines = self.pool.get('sale.order.line').browse(cr, uid, outgoing_order_lines)
 
-        outgoing_total = sum(o.product_qty for o in outgoing) + sum(o.product_uos_qty for o in order_lines)
+        outgoing_total = sum(o.product_qty for o in outgoing) + sum(o.nb_pallets * o.nb_crates_per_pallet for o in order_lines)
 
         forecasted = on_hand + incoming_total - outgoing_total
 

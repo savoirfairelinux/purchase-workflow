@@ -27,7 +27,7 @@
     'category': 'stock',
     'description': """
 """,
-    'depends': ['base', 'stock', 'sale', 'purchase'],
+    'depends': ['base', 'stock', 'sale', 'purchase', 'sale_landed_cost_per_pallet', 'sale_order_dates'],
     'data': [
         'report/stock_forecast_view.xml'
     ],
