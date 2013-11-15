@@ -27,7 +27,8 @@ class res_partner(orm.Model):
     """ Inherits partner and adds discount percentage """
     _inherit = 'res.partner'
     _columns = {
-        'discount': fields.float('Discount', help="For percent enter a ratio between 0-1."),
+        'discount': fields.float('Discount', digits=(1, 4),
+                                 help="For percent enter a ratio between 0-1."),
     }
     _defaults = {'discount': 0.0}
 
