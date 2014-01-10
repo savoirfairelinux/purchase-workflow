@@ -156,7 +156,7 @@ class purchase_order(orm.Model):
         stock_picking = self.pool.get('stock.picking.in').browse(cr, uid, stock_picking_id)[0]
         
         all_lines_tracked = True
-        total_pallets = 0
+        total_pallets = 0.0
         
         for po_line in order.order_line:
             if not po_line.product_id.track_production:

@@ -53,6 +53,7 @@ class sale(orm.Model):
             average = 0.0
             total_count = 0
 
+
             for lot in account.child_ids:
                 quantity = lot.total_in_qty
                 tcu = lot.estimated_tcu
@@ -61,7 +62,10 @@ class sale(orm.Model):
                     average += quantity * tcu
                     total_count += quantity
 
-            res[order_line.id] = average / total_count
+            if total_count == 0:
+                res[order_line.id] = 0
+            else:
+                res[order_line.id] = average / total_count
 
         return res
 

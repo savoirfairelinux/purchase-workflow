@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
+
     <!-- Formulaire -->
     <record id="stock_forecast_form2" model="ir.ui.view">
       <field eval="1" name="priority"/>
@@ -25,7 +26,7 @@
             <field name="start_date" />
             <field name="end_date" />
           </group>
-          <footer>                                                                                           
+          <footer>
             <button name="analytic_account_chart_open_window" string="Open Charts" type="object" class="oe_highlight"/>
             or
             <button string="Cancel" class="oe_link" special="cancel"/>
@@ -35,7 +36,7 @@
       </field>
     </record>
 
-    <record id="action_stock_forecast_form2" model="ir.actions.act_window">                              
+    <record id="action_stock_forecast_form2" model="ir.actions.act_window">
       <field name="name">Stock Forecast</field>
       <field name="res_model">stock.forecast</field>
       <field name="view_type">form</field>
