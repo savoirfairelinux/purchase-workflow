@@ -34,11 +34,12 @@ class sale(orm.Model):
             account = order_line.product_id.account_id
             minimum = 0.0
 
-            values = [lot.estimated_tcu for lot in account.child_ids
-                      if lot.total_in_qty != 0]
+            if account:
+                values = [lot.estimated_tcu for lot in account.child_ids
+                          if lot.total_in_qty != 0]
             
-            if values:
-                minimum = min(values)
+                if values:
+                    minimum = min(values)
 
             res[order_line.id] = minimum
 
@@ -49,19 +50,19 @@ class sale(orm.Model):
 
         for order_line in self.browse(cr, uid, ids, context):
             account = order_line.product_id.account_id
-
             average = 0.0
+            
             total_count = 0
 
+            if account:
+                for lot in account.child_ids:
+                    quantity = lot.total_in_qty
+                    tcu = lot.estimated_tcu
 
-            for lot in account.child_ids:
-                quantity = lot.total_in_qty
-                tcu = lot.estimated_tcu
-
-                if quantity != 0:
-                    average += quantity * tcu
-                    total_count += quantity
-
+                    if quantity != 0:
+                        average += quantity * tcu
+                        total_count += quantity
+        
             if total_count == 0:
                 res[order_line.id] = 0
             else:
@@ -76,11 +77,12 @@ class sale(orm.Model):
             account = order_line.product_id.account_id
             maximum = 0.0
 
-            values = [lot.estimated_tcu for lot in account.child_ids
-                      if lot.total_in_qty != 0]
+            if account:
+                values = [lot.estimated_tcu for lot in account.child_ids
+                          if lot.total_in_qty != 0]
 
-            if values:
-                maximum = max(values)
+                if values:
+                    maximum = max(values)
 
             res[order_line.id] = maximum
 

@@ -64,7 +64,7 @@ class stock_move(orm.Model):
         vals = {
             'name': new_lot_name,
             'code': new_lot_name,
-            'parent_id': stock_move_obj.product_id.id,
+            'parent_id': stock_move_obj.product_id.account_id.id,
             'state': product_account.state,
             'type': product_account.type,
             'company_id': product_account.company_id and product_account.company_id.id,

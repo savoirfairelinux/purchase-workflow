@@ -221,6 +221,7 @@ class purchase_order(orm.Model):
                         'account_id' : self._get_product_account_expense_id(order_cost.product_id),
                         'partner_id' : order_cost.partner_id.id,
                         'invoice_id' : inv_id,
+                        'origin': order.name,
                         'account_analytic_id': po_line.account_analytic_id.id,
                         'price_unit' : amount,
                         'invoice_line_tax_id': [(6, 0, [x.id for x in order_cost.product_id.supplier_taxes_id])],
