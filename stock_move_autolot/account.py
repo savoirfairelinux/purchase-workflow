@@ -32,11 +32,22 @@ class account_analytic_account(orm.Model):
         po_line_pool = self.pool.get('purchase.order.line')
 
         def transformed_tcu():
-            """Get parent_po_line and calculate price based on transformation"""
-            parent_po_id = po_line_pool.search(cr, uid, [('order_id', '=', line.purchase_order.id)], context=context)[0]
-            parent_po_line = po_line_pool.browse(cr, uid, parent_po_id, context=context)
+
+            # Get the stock move id of the transformed product
             stock_move_id = stock_move_pool.search(cr, uid, [('prodlot_id.name', '=', line.code)], context=context)[0]
             stock_move = stock_move_pool.browse(cr, uid, stock_move_id, context=context)
+
+            # Get the stock move id of the initial product
+            # We can safely assume there is only one
+            if not stock_move.production_id:
+                return 0
+            initial_stock_move = stock_move.production_id.move_lines2[0]
+            initial_analytic_id = initial_stock_move.prodlot_id.account_analytic_id.id
+
+            """Get parent_po_line and calculate price based on transformation"""
+            parent_po_line_id = po_line_pool.search(cr, uid, [('account_analytic_id', '=', initial_analytic_id)], context=context)[0]
+            parent_po_line = po_line_pool.browse(cr, uid, parent_po_line_id, context=context)
+
             # Calculate transformed price
             return parent_po_line.landed_costs / (parent_po_line.product_qty * stock_move.production_id.bom_id.product_qty)
 
