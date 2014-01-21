@@ -78,8 +78,6 @@ class stock_invoice_onshipping(osv.osv_memory):
         res = super(stock_invoice_onshipping, self)\
             .create_invoice(cr, uid, ids, context=context)
 
-        import pdb; pdb.set_trace()
-
         context['invoice_id'] = res.values()[0]
         
         # retrieve move lines of stock pickings

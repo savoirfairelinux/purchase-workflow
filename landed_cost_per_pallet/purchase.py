@@ -74,8 +74,9 @@ class purchase_order_line(orm.Model):
         # Pre-compute total number of pallets
         pallets_total = 0.0
         for line in lines:
-            if line.order_id.landed_cost_line_ids:
-                pallets_total += line.nb_pallets
+            for po_line in line.order_id.order_line:
+                if po_line.order_id.landed_cost_line_ids:
+                    pallets_total += po_line.nb_pallets
 
         # Landed costs line by line
         for line in lines:
