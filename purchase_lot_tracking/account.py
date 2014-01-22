@@ -45,8 +45,8 @@ class account_analytic_account(orm.Model):
                     # Add in purchases, remove sales
                     if move.type == 'in':
                         total_moves += move.product_qty
-                    else:
-                        total_moves -= move.product_qty
+                    #else:
+                    #    total_moves -= move.product_qty
 
             total_moves = max(total_moves, 0)
             res[account.id] = total_moves
