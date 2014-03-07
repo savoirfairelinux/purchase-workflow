@@ -34,6 +34,8 @@ class picking(report_sxw.rml_parse):
             'total_crates': self.total_crates,
             'total_weight': self.total_weight,
             'get_product_desc': self.get_product_desc,
+            'total_price': self.total_price,
+            'to_int': self.to_int,
         })
 
     def total_crates(self, picking):
@@ -45,11 +47,21 @@ class picking(report_sxw.rml_parse):
             for line in picking.move_lines
         )
 
+    def total_price(self, picking):
+        lst_sum = []
+        for no_line in range(len(picking.move_lines)):
+            line = picking.move_lines[no_line]
+            lst_sum.append(line.product_qty * line.sale_line_id.price_unit)
+        return sum(lst_sum)
+
     def get_product_desc(self, move_line):
         desc = move_line.product_id.name
         if move_line.product_id.default_code:
             desc = '[' + move_line.product_id.default_code + ']' + ' ' + desc
         return desc
+
+    def to_int(self, num_float):
+        return int(num_float)
 
 del Service._services['report.stock.picking.list']
 
