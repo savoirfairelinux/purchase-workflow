@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
+"Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-03 15:55+0000\n"
-"PO-Revision-Date: 2013-10-03 15:55+0000\n"
+"POT-Creation-Date: 2014-03-10 16:15+0000\n"
+"PO-Revision-Date: 2014-03-10 16:15+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,12 +16,182 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sale_improved_slip
-#: model:ir.model,name:sale_improved_slip.model_sale_order
-msgid "Sales Order"
+#: report:stock.picking.list:0
+msgid "CHEP"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Floor"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "CPC"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Schedule Date"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Unit weight"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total crates:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: model:ir.actions.report.xml,name:sale_improved_slip.report_picking_list_out
+msgid "Delivery Slip"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "We acknowledge that all marchandise received is in good condition. No claims after 24 hours."
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Temperature:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Description"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Internal Shipment:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Journal"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Invoice Address:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Owner:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Delivery Order:"
 msgstr ""
 
 #. module: sale_improved_slip
 #: field:sale.order,client_purchase_order:0
 msgid "Client Purchase Order"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Received"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Driver:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Comment:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Client Purchase Order:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Incoming Shipment:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Shipped"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Delivery Address:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Command"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Truck:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Signature:_____________________________________________"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total weight:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Register Identification Number:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Seller:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total price:"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "#Lot"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Unit price"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Order(Origin)"
+msgstr ""
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "NIR"
+msgstr ""
+
+#. module: sale_improved_slip
+#: model:ir.model,name:sale_improved_slip.model_sale_order
+msgid "Sales Order"
 msgstr ""
 

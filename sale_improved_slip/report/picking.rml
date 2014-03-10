@@ -120,13 +120,13 @@
       <blockTable colWidths="269.0,269.0" style="Table_Address_detail">
         <tr>
           <td>
-            <para style="terp_default_Bold_9">Delivery Address : [[ (picking.type == 'out' or removeParentNode('para')) and '' ]]</para>
+            <para style="terp_default_Bold_9">Delivery Address: [[ (picking.type == 'out' or removeParentNode('para')) and '' ]]</para>
             <para style="terp_default_9">[[ (picking.partner_id and picking.partner_id.id and picking.partner_id.title.name) or '' ]] [[ picking.partner_id and picking.partner_id.id and picking.partner_id.name ]]</para>
             <para style="terp_default_9">[[ picking.partner_id and display_address(picking.partner_id) ]]</para>
             <para style="terp_default_9">[[ picking.partner_id.phone or picking.partner_id.email or removeParentNode('para')]]</para>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Invoice Address :</para>
+            <para style="terp_default_Bold_9">Invoice Address:</para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.title.name or '' ]] [[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.name or '' ]]</para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and display_address(picking.move_lines[0].sale_line_id.order_id.partner_invoice_id) ]] </para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.phone or picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.email or removeParentNode('para')]]</para>
@@ -135,12 +135,12 @@
 
         <tr>
           <td>
-            <para style="terp_default_Bold_9">Register Identification Number : [[ (picking.partner_id.rin or removeParentNode('para')) and '' ]]</para>
+            <para style="terp_default_Bold_9">Register Identification Number: [[ (picking.partner_id.rin or removeParentNode('para')) and '' ]]</para>
             <para style="terp_default_9">[[ picking.partner_id.rin or removeParentNode('para') ]]</para>
           </td>
 
           <td>
-            <para style="terp_default_Bold_9">Client Purchase Order : [[ (picking.sale_id.client_purchase_order or removeParentNode('para')) and '']]</para>
+            <para style="terp_default_Bold_9">Client Purchase Order: [[ (picking.sale_id.client_purchase_order or removeParentNode('para')) and '']]</para>
             <para style="terp_default_9">[[ picking.sale_id.client_purchase_order or removeParentNode('para') ]]</para>
           </td>
         </tr>
@@ -148,9 +148,9 @@
       <blockTable colWidths="538.0" style="Table_Title_String">
         <tr>
           <td>
-            <para style="terp_header">Delivery Order : [[ (picking.type == 'out' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
-            <para style="terp_header">Incoming Shipment : [[ (picking.type == 'in' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
-            <para style="terp_header">Internal Shipment : [[ (picking.type == 'internal' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
+            <para style="terp_header">Delivery Order: [[ (picking.type == 'out' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
+            <para style="terp_header">Incoming Shipment: [[ (picking.type == 'in' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
+            <para style="terp_header">Internal Shipment: [[ (picking.type == 'internal' or removeParentNode('para')) and '' ]] [[ picking.name ]]</para>
           </td>
         </tr>
       </blockTable>
@@ -190,35 +190,35 @@
       <para style="terp_default_5cm_Above_Space">
         <font color="white"> </font>
       </para>
-      <blockTable colWidths="80.0,50.0,50.0,150.0,60.0,79.0,60.0" repeatRows="1" style="Move_Line_Header">
+      <blockTable colWidths="50.0,50.0,50.0,200.0,60.0,60.0,60.0" repeatRows="1" style="Move_Line_Header">
         <tr>
           <td>
-            <para style="terp_tblheader_Details">Commande</para>
+            <para style="terp_tblheader_Details_Centre">Command</para>
           </td>
           <td>
-            <para style="terp_tblheader_Details">Livré</para>
+            <para style="terp_tblheader_Details_Centre">Shipped</para>
           </td>
           <td>
-            <para style="terp_tblheader_Details">Reçu</para>
+            <para style="terp_tblheader_Details_Centre">Received</para>
           </td>
           <td>
             <para style="terp_tblheader_Details">Description</para>
           </td>
           <td>
-            <para style="terp_tblheader_Details">Prix unit.</para>
+            <para style="terp_tblheader_Details_Right">Unit price</para>
           </td>
           <td>
-            <para style="terp_tblheader_Details">Poid unit.</para>
+            <para style="terp_tblheader_Details_Right">Unit weight</para>
           </td>
           <td>
-            <para style="terp_tblheader_Details">#Lot</para>
+            <para style="terp_tblheader_Details_Right">#Lot</para>
           </td>
         </tr>
       </blockTable>
       <section>
         <para style="terp_default_2">[[ repeatIn([line for line in picking.move_lines if (not line.scrapped)],'move_line') ]]</para>
         <para style="terp_default_2">[[ (picking.move_lines!=[] and removeParentNode('para')) or removeParentNode('section')]]</para>
-        <blockTable colWidths="50.0,50.0,50.0,150.0,60.0,79.0,60.0" style="Move_Line_Contact_Assign_State">
+        <blockTable colWidths="50.0,50.0,50.0,200.0,60.0,60.0,60.0" style="Move_Line_Contact_Assign_State">
           <tr>
             <td>
               <para style="terp_default_9"><font face="Helvetica" size="9.0">[[ to_int(move_line.product_qty) ]]</font></para>
@@ -247,16 +247,16 @@
           <td>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Au Sol</para>
+            <para style="terp_default_Bold_9">Floor</para>
           </td>
           <td>
             <para style="terp_default_Bold_9">Total</para>
           </td>
           <td>
-            <para style="terp_default_9">Température:</para>
+            <para style="terp_default_9">Temperature:</para>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Nb total de caisses: [[ to_int(total_crates(picking)) or "0" ]]</para>
+            <para style="terp_default_Bold_9">Total crates: [[ to_int(total_crates(picking)) or "0" ]]</para>
           </td>
         </tr>
         <tr>
@@ -268,10 +268,10 @@
           <td>
           </td>
           <td>
-            <para style="terp_default_9">Exploitant:</para>
+            <para style="terp_default_9">Owner:</para>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Poid total: [[ total_weight(picking) or "0.0" ]]</para>
+            <para style="terp_default_Bold_9">Total weight: [[ total_weight(picking) or "0.0" ]]</para>
           </td>
         </tr>
         <tr>
@@ -283,10 +283,10 @@
           <td>
           </td>
           <td>
-            <para style="terp_default_9">Chauffeur:</para>
+            <para style="terp_default_9">Driver:</para>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Vendeur: [[ picking.move_lines[0].sale_line_id.salesman_id.name ]]</para>
+            <para style="terp_default_Bold_9">Seller: [[ picking.move_lines[0].sale_line_id.salesman_id.name ]]</para>
           </td>
         </tr>
         <tr>
@@ -297,7 +297,7 @@
           <td>
           </td>
           <td>
-            <para style="terp_default_9">Camion:</para>
+            <para style="terp_default_9">Truck:</para>
           </td>
           <td>
           </td>
@@ -317,7 +317,7 @@
           </td>
         </tr>
       </blockTable>
-      <para style="terp_default_Bold_9">Prix Total: [[ formatLang(total_price(picking), digits=2, currency_obj=picking.move_lines[0].sale_line_id.order_id.currency_id) ]]</para>
+      <para style="terp_default_Bold_9">Total price: [[ formatLang(total_price(picking), digits=2, currency_obj=picking.move_lines[0].sale_line_id.order_id.currency_id) ]]</para>
       <blockTable>
         <tr>
           <td>
@@ -363,7 +363,7 @@
           </td>
         </tr>
       </blockTable>
-      <para style="terp_default_Bold_9">Commentaire:</para>
+      <para style="terp_default_Bold_9">Comment:</para>
     </pto>
   </story>
 </document>

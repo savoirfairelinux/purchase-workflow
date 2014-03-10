@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <report
-      id="stock.report_picking_list_out"
+      id="report_picking_list_out"
       model="stock.picking.out"
       name="stock.picking.list"
       string="Delivery Slip"
