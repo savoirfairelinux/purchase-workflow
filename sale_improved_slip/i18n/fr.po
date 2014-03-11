@@ -1,27 +1,271 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-#	* sale_improved_slip
+# 	* sale_improved_slip
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-03 15:55+0000\n"
-"PO-Revision-Date: 2013-10-03 15:55+0000\n"
-"Last-Translator: Alexandre Boily <alexandre.boily@savoirfairelinux.com>\n"
-"Language-Team: Savoir-faire Linux\n"
+"POT-Creation-Date: 2014-03-11 13:50+0000\n"
+"PO-Revision-Date: 2014-03-11 11:33-0500\n"
+"Last-Translator: Pierre Lamarche <pierre.lamarche@savoirfairelinux.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
+"X-Generator: Poedit 1.6.4\n"
 
 #. module: sale_improved_slip
-#: model:ir.model,name:sale_improved_slip.model_sale_order
-msgid "Sales Order"
-msgstr "Commande de ventes"
+#: report:stock.picking.list:0
+msgid "CHEP"
+msgstr "CHEP"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Floor"
+msgstr "Au Sol"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "CPC"
+msgstr "CPC"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Schedule Date"
+msgstr "Date Prévue"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Unit weight"
+msgstr "Poids Unitaire"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total crates:"
+msgstr "Total Caisses:"
+
+#. module: sale_improved_slip
+#: model:ir.actions.report.xml,name:sale_improved_slip.report_picking_list_out
+msgid "Delivery Slip"
+msgstr "Bon de Livraison"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid ""
+"We acknowledge that all marchandise received is in good condition. No claims "
+"after 24 hours."
+msgstr ""
+"Nous reconnaissons que toute la marchandise reçue est en bonne condition. "
+"Aucune réclamation ne sera accepté après 24 heures."
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Temperature:"
+msgstr "Température:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Description"
+msgstr "Description"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Internal Shipment:"
+msgstr "Livraison Interne:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Journal"
+msgstr "Journal"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Invoice Address:"
+msgstr "Adresse de Facturation:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Owner:"
+msgstr "Exploitant:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Delivery Order:"
+msgstr "Bon de Livraison:"
 
 #. module: sale_improved_slip
 #: field:sale.order,client_purchase_order:0
 msgid "Client Purchase Order"
-msgstr "Bon de commande client"
+msgstr "Bon de Commande d'Achat du Client"
 
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Received"
+msgstr "Reçu"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Driver:"
+msgstr "Chauffeur:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Comment:"
+msgstr "Commentaire:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Client Purchase Order:"
+msgstr "Bon de Commande d'Achat du Client:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Incoming Shipment:"
+msgstr "Camion en Réception:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Shipped"
+msgstr "Livré"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Delivery Address:"
+msgstr "Adresse de Livraison:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Command"
+msgstr "Commande"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Truck:"
+msgstr "Camion:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Signature:_____________________________________________"
+msgstr "Signature:_____________________________________________"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total weight:"
+msgstr "Poids total:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total"
+msgstr "Total"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Register Identification Number:"
+msgstr "NIR:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Seller:"
+msgstr "Vendeur:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Total price:"
+msgstr "Prix total:"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "#Lot"
+msgstr "#Lot"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Unit price"
+msgstr "Prix unitaire"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "Order(Origin)"
+msgstr "Bon de commande (Origine)"
+
+#. module: sale_improved_slip
+#: report:stock.picking.list:0
+msgid "NIR"
+msgstr "NIR"
+
+#. module: sale_improved_slip
+#: model:ir.model,name:sale_improved_slip.model_sale_order
+msgid "Sales Order"
+msgstr "Bon de Commande"
+
+#~ msgid "Purchase Order Line"
+#~ msgstr "Ligne de Bon de Commande d'Achat"
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmer"
+
+#~ msgid "Crates"
+#~ msgstr "Caisses"
+
+#~ msgid "Pallet"
+#~ msgstr "Palette"
+
+#~ msgid "State"
+#~ msgstr "État"
+
+#~ msgid "Draft"
+#~ msgstr "Brouillon"
+
+#~ msgid "Details"
+#~ msgstr "Détails"
+
+#~ msgid "Front Temperature"
+#~ msgstr "Température Avant"
+
+#~ msgid "Supplier"
+#~ msgstr "Fournisseurs"
+
+#~ msgid "Truck Composition"
+#~ msgstr "Composition du Camion"
+
+#~ msgid "Serial Number"
+#~ msgstr "Numéro de série"
+
+#~ msgid "Left Pallets"
+#~ msgstr "Palettes de gauche"
+
+#~ msgid "Pallets"
+#~ msgstr "Palettes"
+
+#~ msgid "Truck S/N"
+#~ msgstr "Numéro du Camion"
+
+#~ msgid "Name"
+#~ msgstr "Nom"
+
+#~ msgid "Trucks"
+#~ msgstr "Camions"
+
+#~ msgid "Search Truck"
+#~ msgstr "Rechercher un Camion"
+
+#~ msgid "Date of Arrival"
+#~ msgstr "Date d'Arrivée"
+
+#~ msgid "Right Pallets"
+#~ msgstr "Palettes de droite"
+
+#~ msgid "On Draft Truck"
+#~ msgstr "Camion en Brouillon"
+
+#~ msgid "Incoming Truck"
+#~ msgstr "Camion en Réception"
+
+#~ msgid "Done"
+#~ msgstr "Terminé"
+
+#~ msgid "Purchase Orders"
+#~ msgstr "Bon de Commande d'Achat"
