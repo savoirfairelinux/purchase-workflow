@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-11 13:50+0000\n"
-"PO-Revision-Date: 2014-03-11 11:33-0500\n"
+"PO-Revision-Date: 2014-03-11 14:58-0500\n"
 "Last-Translator: Pierre Lamarche <pierre.lamarche@savoirfairelinux.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -40,12 +40,12 @@ msgstr "Date Prévue"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Unit weight"
-msgstr "Poids Unitaire"
+msgstr "Poids unitaire"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Total crates:"
-msgstr "Total Caisses:"
+msgstr "Total Caisses :"
 
 #. module: sale_improved_slip
 #: model:ir.actions.report.xml,name:sale_improved_slip.report_picking_list_out
@@ -64,7 +64,7 @@ msgstr ""
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Temperature:"
-msgstr "Température:"
+msgstr "Température :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -74,7 +74,7 @@ msgstr "Description"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Internal Shipment:"
-msgstr "Livraison Interne:"
+msgstr "Livraison Interne :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -84,17 +84,17 @@ msgstr "Journal"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Invoice Address:"
-msgstr "Adresse de Facturation:"
+msgstr "Adresse de Facturation :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Owner:"
-msgstr "Exploitant:"
+msgstr "Exploitant :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Delivery Order:"
-msgstr "Bon de Livraison:"
+msgstr "Bon de Livraison :"
 
 #. module: sale_improved_slip
 #: field:sale.order,client_purchase_order:0
@@ -109,22 +109,22 @@ msgstr "Reçu"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Driver:"
-msgstr "Chauffeur:"
+msgstr "Chauffeur :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Comment:"
-msgstr "Commentaire:"
+msgstr "Commentaire :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Client Purchase Order:"
-msgstr "Bon de Commande d'Achat du Client:"
+msgstr "Bon de Commande d'Achat du Client :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Incoming Shipment:"
-msgstr "Camion en Réception:"
+msgstr "Camion en Réception :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -134,7 +134,7 @@ msgstr "Livré"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Delivery Address:"
-msgstr "Adresse de Livraison:"
+msgstr "Adresse de Livraison :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -144,17 +144,17 @@ msgstr "Commande"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Truck:"
-msgstr "Camion:"
+msgstr "Camion :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Signature:_____________________________________________"
-msgstr "Signature:_____________________________________________"
+msgstr "Signature : _____________________________________________"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Total weight:"
-msgstr "Poids total:"
+msgstr "Poids total :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -164,17 +164,17 @@ msgstr "Total"
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Register Identification Number:"
-msgstr "NIR:"
+msgstr "NIR :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Seller:"
-msgstr "Vendeur:"
+msgstr "Vendeur :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
 msgid "Total price:"
-msgstr "Prix total:"
+msgstr "Prix total :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
