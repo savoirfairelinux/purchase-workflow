@@ -83,7 +83,7 @@ msgstr "Journal"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Invoice Address:"
+msgid "Billing Address:"
 msgstr "Adresse de Facturation :"
 
 #. module: sale_improved_slip
@@ -118,8 +118,8 @@ msgstr "Commentaire :"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Client Purchase Order:"
-msgstr "Bon de Commande d'Achat du Client :"
+msgid "Client Purchase Order"
+msgstr "Bon de Commande d'Achat du Client"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
@@ -163,11 +163,6 @@ msgstr "Total"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Register Identification Number:"
-msgstr "NIR :"
-
-#. module: sale_improved_slip
-#: report:stock.picking.list:0
 msgid "Seller:"
 msgstr "Vendeur :"
 
@@ -193,8 +188,8 @@ msgstr "Bon de commande (Origine)"
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "NIR"
-msgstr "NIR"
+msgid "NIR:"
+msgstr "NIR :"
 
 #. module: sale_improved_slip
 #: model:ir.model,name:sale_improved_slip.model_sale_order

@@ -77,7 +77,7 @@ msgstr ""
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Invoice Address:"
+msgid "Billing Address:"
 msgstr ""
 
 #. module: sale_improved_slip
@@ -112,7 +112,7 @@ msgstr ""
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Client Purchase Order:"
+msgid "Client Purchase Order"
 msgstr ""
 
 #. module: sale_improved_slip
@@ -157,11 +157,6 @@ msgstr ""
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "Register Identification Number:"
-msgstr ""
-
-#. module: sale_improved_slip
-#: report:stock.picking.list:0
 msgid "Seller:"
 msgstr ""
 
@@ -187,7 +182,7 @@ msgstr ""
 
 #. module: sale_improved_slip
 #: report:stock.picking.list:0
-msgid "NIR"
+msgid "NIR:"
 msgstr ""
 
 #. module: sale_improved_slip

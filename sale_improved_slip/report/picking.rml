@@ -52,7 +52,7 @@
 
     <blockTableStyle id="Move_Line_Contact_Assign_State">
       <blockAlignment value="LEFT"/>
-      <blockValign value="TOP"/>
+      <blockValign value="MIDDLE"/>
       <lineStyle kind="LINEBELOW" colorName="#e6e6e6" start="0,-1" stop="8,-1"/>
     </blockTableStyle>
 
@@ -113,7 +113,7 @@
   <story>
     <pto>
       <para style="terp_default_8">[[ repeatIn(objects,'picking') ]] </para>
-      <para style="terp_default_8">[[ setLang(o.partner_id.lang) ]]</para>
+      <para style="terp_default_8">[[ setLang(objects.partner_id.lang) ]]</para>
       <para style="terp_default_8">[[ picking.type == 'out' and picking.partner_id and setLang(picking.partner_id.lang) or '' ]]</para>
       <para style="terp_default_9">
         <font color="white"> </font>
@@ -127,22 +127,10 @@
             <para style="terp_default_9">[[ picking.partner_id.phone or picking.partner_id.email or removeParentNode('para')]]</para>
           </td>
           <td>
-            <para style="terp_default_Bold_9">Invoice Address:</para>
+            <para style="terp_default_Bold_9">Billing Address:</para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.title.name or '' ]] [[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.name or '' ]]</para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id and display_address(picking.move_lines[0].sale_line_id.order_id.partner_invoice_id) ]] </para>
             <para style="terp_default_9">[[ picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.phone or picking.move_lines[0].sale_line_id.order_id.partner_invoice_id.email or removeParentNode('para')]]</para>
-          </td>
-        </tr>
-
-        <tr>
-          <td>
-            <para style="terp_default_Bold_9">Register Identification Number: [[ (picking.partner_id.rin or removeParentNode('para')) and '' ]]</para>
-            <para style="terp_default_9">[[ picking.partner_id.rin or removeParentNode('para') ]]</para>
-          </td>
-
-          <td>
-            <para style="terp_default_Bold_9">Client Purchase Order: [[ (picking.sale_id.client_purchase_order or removeParentNode('para')) and '']]</para>
-            <para style="terp_default_9">[[ picking.sale_id.client_purchase_order or removeParentNode('para') ]]</para>
           </td>
         </tr>
       </blockTable>
@@ -158,7 +146,7 @@
       <para style="terp_default_5cm_Above_Space">
         <font color="white"> </font>
       </para>
-      <blockTable colWidths="104.8,104.8,104.8,104.8" style="Header_Order_Reference_Tbl">
+      <blockTable colWidths="104.8,104.8,115.0,104.8" style="Header_Order_Reference_Tbl">
         <tr>
           <td>
             <para style="terp_tblheader_General_Centre">Journal</para>
@@ -170,7 +158,7 @@
             <para style="terp_tblheader_General_Centre">Schedule Date</para>
           </td>
           <td>
-            <para style="terp_tblheader_General_Centre">NIR</para>
+            <para style="terp_tblheader_General_Centre">Client Purchase Order</para>
           </td>
         </tr>
         <tr>
@@ -184,7 +172,7 @@
             <para style="terp_default_Centre_8">[[ formatLang(picking.min_date,date_time = True) ]]</para>
           </td>
           <td>
-            <para style="terp_default_Centre_8"></para>
+            <para style="terp_default_Centre_8">[[ picking.sale_id.client_purchase_order or '' ]]</para>
           </td>
         </tr>
       </blockTable>
@@ -243,6 +231,13 @@
           </tr>
         </blockTable>
       </section>
+      <blockTable>
+        <tr>
+          <td>
+            <para style="terp_default_Bold_9"></para>
+          </td>
+        </tr>
+      </blockTable>
       <blockTable colWidths="1.6cm,1.6cm,1.6cm,7cm,6cm" rowHeights="0.5cm,0.5cm,0.5cm,0.5cm" style="General_Tbl">
         <tr>
           <td>
@@ -301,6 +296,7 @@
             <para style="terp_default_9">Truck:</para>
           </td>
           <td>
+            <para style="terp_default_Bold_9">NIR: [[ picking.partner_id.rin or '' ]]</para>
           </td>
         </tr>
       </blockTable>
