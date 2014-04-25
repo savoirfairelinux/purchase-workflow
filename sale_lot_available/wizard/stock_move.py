@@ -32,7 +32,7 @@ class stock_production_lot(orm.Model):
             context = {}
 
         # Only override regular behaviour if on stock split wizard
-        view_id = self.fields_view_get(cr, uid, context=context)['view_id']
+        view_id = self.fields_view_get(cr, uid)['view_id']
         view = self.pool.get('ir.ui.view').browse(cr, uid, view_id, context=context)
         if view.model != 'stock.production.lot':
             return super(stock_production_lot, self).name_get(cr, uid, ids, context=context)
