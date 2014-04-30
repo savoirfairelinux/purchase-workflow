@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
 class stock_production_lot(orm.Model):
@@ -31,7 +31,7 @@ class stock_production_lot(orm.Model):
     }
 
 
-class stock_invoice_onshipping(osv.osv_memory):
+class stock_invoice_onshipping(orm.TransientModel):
 
     _inherit = 'stock.invoice.onshipping'
 
@@ -65,7 +65,9 @@ class stock_invoice_onshipping(osv.osv_memory):
                                line.product_qty == invoice_line.quantity and
                                line.product_id.id == invoice_line.product_id.id]
 
-        return matching_move_lines[0]
+        if matching_move_lines:
+            return matching_move_lines[0]
+        return None
 
     def create_invoice(self, cr, uid, ids, context=None):
         """
@@ -74,6 +76,7 @@ class stock_invoice_onshipping(osv.osv_memory):
         Iterates through all the lines of the invoice to specify
         the proper analytic_account
         """
+        prod_lot_pool = self.pool.get('stock.production.lot')
         # creates the invoice properly
         res = super(stock_invoice_onshipping, self)\
             .create_invoice(cr, uid, ids, context=context)
@@ -87,18 +90,30 @@ class stock_invoice_onshipping(osv.osv_memory):
         invoice_lines = self._retrieve_invoice_lines(cr, uid, ids,
                                                     context=context)
 
+        # first iteration, check if matching
+        lst_match = []
         for invoice_line in invoice_lines:
             matching_move_line = self._find_matching_move_line(invoice_line,
                                                                move_lines)
+            name = invoice_line.name
+            if not matching_move_line:
+                msg = _("The item %s is not in stock picking." % name)
+                raise orm.except_orm(_("Missed line!"), msg)
 
-            
-            prodlot_id = matching_move_line.prodlot_id
+            # search account analytic
+            prod_lot_id = matching_move_line.prodlot_id
+            if not prod_lot_id:
+                msg = _("The item '%s' missed 'prodlot_id' on associated move \
+                item, origin %s." % (name, matching_move_line.origin))
+                raise orm.except_orm(_("Missed Serial Number!"), msg)
 
-            matching_prodlot = self.pool.get('stock.production.lot')\
-                                        .browse(cr, uid, [prodlot_id])[0]
+            matching_prod_lot = prod_lot_pool.browse(cr, uid, prod_lot_id.id)
+            matching_account = matching_prod_lot.account_analytic_id.id
 
-            matching_account = matching_prodlot.id.account_analytic_id.id
+            lst_match.append((invoice_line, matching_account))
 
+        # transaction
+        for invoice_line, matching_account in lst_match:
             invoice_line.write({'account_analytic_id': matching_account})
         
         return res
