@@ -30,6 +30,7 @@
 """,
     'depends': ['base', 'sale', 'purchase_lot_tracking'],
     'data': [
+        'security/ir.model.access.csv',
         'wizard/sale_wizard.xml',
         'sale_warn_under_view.xml',
     ],
