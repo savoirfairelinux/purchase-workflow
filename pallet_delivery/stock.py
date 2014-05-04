@@ -20,7 +20,7 @@
 ##############################################################################
 
 from collections import defaultdict
-
+from openerp.tools.translate import _
 from openerp.osv import orm, fields
 
 def group(lst):
@@ -262,6 +262,17 @@ class stock_truck(orm.Model):
 
         return True
 
+    @staticmethod
+    def validate_temperature(cr, uid, ids, temperature, field_name,
+                             context=None):
+        try:
+            float(temperature)
+        except ValueError:
+            warning = {'title': _('Input Error !'),
+                       'message': _('Please enter real numbers.')}
+            return {'value': {field_name: ""}, 'warning': warning}
+        return True
+
     _columns = {
         # Overhead
         'name': fields.char('Name', size=64),
@@ -271,8 +282,8 @@ class stock_truck(orm.Model):
             ], 'State', readonly=True, select=True, track_visibility='onchange'),
 
         # Display
-        'front_temperature': fields.float('Front Temperature', required=True),
-        'back_temperature': fields.float('Back Temperature', required=True),
+        'front_temperature': fields.char('Front Temperature', required=True),
+        'back_temperature': fields.char('Back Temperature', required=True),
         'truck_sn': fields.char('Truck S/N', size=64),
         'supplier': fields.many2one('res.partner', 'Supplier', required=True),
         'arrival': fields.datetime('Date of Arrival', required=True),
@@ -285,4 +296,5 @@ class stock_truck(orm.Model):
     _defaults = {
         'name': lambda self, cr, uid, ctx={}: self.pool.get('ir.sequence').get(cr, uid, 'stock.truck'),
         'state': 'draft',
-    }
+        'front_temperature': None,
+        }
