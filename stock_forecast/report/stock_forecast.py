@@ -3,10 +3,10 @@ import pytz
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
-
+import cgi
 
 from openerp import tools, SUPERUSER_ID
-from openerp.osv import osv, fields
+from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from mako.template import Template
 
@@ -15,130 +15,131 @@ from mako.template import Template
 
 REPORT_TEMPLATE = u"""
 <form string="Model" version="7.0">
-  <style type="text/css">
-    td.nom_produit {
-      font-weight: bold;
-      font-size: 12pt;
-      padding: 5px;
-    }
+    <style type="text/css">
+        td.nom_produit {
+        font-weight: bold;
+        font-size: 12pt;
+        padding: 5px;
+        }
 
-    td.prevision {
-      font-size: 8pt;
-      font-weight: bold;
-      border: 2px black solid;
-      vertical-align: middle;
-      padding: 5px;
-    }
+        td.prevision {
+        font-size: 8pt;
+        font-weight: bold;
+        border: 2px black solid;
+        vertical-align: middle;
+        padding: 5px;
+        }
 
-    td.datelabel {
-      text-align: right;
-      font-size: 11pt;
-      padding: 10px;
-    }
+        td.datelabel {
+        text-align: right;
+        font-size: 11pt;
+        padding: 10px;
+        }
 
-    td.alert {
-      color: red;
-    }
+        td.alert {
+        color: red;
+        }
 
-    td.warning {
-      color: orange;
-    }
+        td.warning {
+        color: orange;
+        }
 
-    td.normal {
-      color: black;
-    }
+        td.normal {
+        color: black;
+        }
 
-    td.stock {
-      text-align: center;
-      vertical-align: middle;
-    }
+        td.stock {
+        text-align: center;
+        vertical-align: middle;
+        }
 
-    td.alivrer {
-      border: 1px black solid;
-      border-left: 2px black solid;
-      border-top: 2px black solid;
-    }
+        td.alivrer {
+        border: 1px black solid;
+        border-left: 2px black solid;
+        border-top: 2px black solid;
+        }
 
-    td.prevu {
-      border: 1px black solid;
-      border-top: 2px black solid;
-    }
+        td.prevu {
+        border: 1px black solid;
+        border-top: 2px black solid;
+        }
 
-    td.arecevoir {
-      border: 1px black solid;
-      border-right: 2px black solid;
-      border-top: 2px black solid;
-      font-size: 8pt;
-    }
-  </style>
-  % if not display_table:
-  <div>No activity for this period</div>
-  % else:
-  <table>
-    <tr>
-      <td style="text-align: center; vertical-align: middle; "></td>
-      % for product in products:
-      % if product_activity[product.id]:
-      <td colspan="3" class="nom_produit" >${product.name}</td>
-      % endif
-      % endfor
-    </tr>
-    <tr>
-      <td></td>
-      % for product in products:
-        % if product_activity[product.id]:
-      <td class="prevision">A livrer</td>
-      <td class="prevision">Stock prevu</td>
-      <td class="prevision">A recevoir</td>
-      % endif
-      % endfor
-    </tr>
-    % for day in days:
-    <tr>
-      <td class="datelabel">
-        ${day['date']}
-      </td>
-      % for product in products:
-        % if product_activity[product.id]:
-      <td class="stock alivrer ${day[product.id]['situation']}">
-          % if day[product.id]['outgoing'] != 0:
-            ${day[product.id]['outgoing']}
-          % endif
-      </td>
-      <td class="stock prevu ${day[product.id]['situation']}">
-          ${day[product.id]['forecasted']}
-      </td>
-      <td class="stock arecevoir ${day[product.id]['situation']}">
-          % if day[product.id]['incoming'] != 0:
-            ${day[product.id]['incoming']}
-          % endif
-      </td>
-        %endif
-      % endfor
-    </tr>
+        td.arecevoir {
+        border: 1px black solid;
+        border-right: 2px black solid;
+        border-top: 2px black solid;
+        font-size: 8pt;
+        }
+    </style>
+    % if not display_table:
+    <div>No activity for this period</div>
+    % else:
+    <table>
+        <tr>
+            <td style="text-align: center; vertical-align: middle; "></td>
+            % for product in products:
+            % if product_activity[product.id]:
+            <td colspan="3" class="nom_produit">${product.name}</td>
+            % endif
+            % endfor
+        </tr>
+        <tr>
+            <td></td>
+            % for product in products:
+            % if product_activity[product.id]:
+            <td class="prevision">A livrer</td>
+            <td class="prevision">Stock prevu</td>
+            <td class="prevision">A recevoir</td>
+            % endif
+            % endfor
+        </tr>
+        % for day in days:
+        <tr>
+            <td class="datelabel">
+                ${day['date']}
+            </td>
+            % for product in products:
+            % if product_activity[product.id]:
+            <td class="stock alivrer ${day[product.id]['situation']}">
+                % if day[product.id]['outgoing'] != 0:
+                ${day[product.id]['outgoing']}
+                % endif
+            </td>
+            <td class="stock prevu ${day[product.id]['situation']}">
+                ${day[product.id]['forecasted']}
+            </td>
+            <td class="stock arecevoir ${day[product.id]['situation']}">
+                % if day[product.id]['incoming'] != 0:
+                ${day[product.id]['incoming']}
+                % endif
+            </td>
+            %endif
+            % endfor
+        </tr>
 
-    % for order in day['orders']:
-    <tr>
-      <td style="text-align: right; padding: 5px;">
-         ${order['label']}
-      </td>
-      % for product in products:
-        % if product_activity[product.id]:
-      <td style="border-bottom: 1px black solid; border-left: 2px black solid; text-align: center; vertical-align: middle; ">
-        ${order[product.id]}
-      </td>
-      <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
-      <td style="border-right: 2px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
-        % endif
-      % endfor
-    </tr>
-    % endfor
+        % for order in day['orders']:
+        <tr>
+            <td style="text-align: right; padding: 5px;">
+                ${order['label']}
+            </td>
+            % for product in products:
+            % if product_activity[product.id]:
+            <td style="border-bottom: 1px black solid; border-left: 2px black solid; text-align: center; vertical-align: middle; ">
+                ${order[product.id]}
+            </td>
+            <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
+            <td style="border-right: 2px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
+            % endif
+            % endfor
+        </tr>
+        % endfor
 
-    % endfor
-  </table>
-  % endif
+        % endfor
+    </table>
+    % endif
 </form>
 """
+
 
 def tuple_string(my_tuple):
     if len(my_tuple) == 1:
@@ -146,7 +147,7 @@ def tuple_string(my_tuple):
     return str(my_tuple)
 
 
-class stock_forecast_config(osv.osv_memory):
+class stock_forecast_config(orm.TransientModel):
 
     _name = "stock.forecast.config"
     _description = "Stock Forecast"
@@ -192,7 +193,7 @@ class stock_forecast_config(osv.osv_memory):
         return result
 
 
-class stock_forecast(osv.osv):
+class stock_forecast(orm.Model):
 
     _name = "stock.forecast"
     _description = "Stock forecast"
@@ -614,6 +615,6 @@ class stock_forecast(osv.osv):
         )
 
         if view_type == 'form':
-            result['arch'] = report
+            result['arch'] = report.replace("&","")
 
         return result
