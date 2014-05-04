@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenERP Server 7.0-20130811-231021\n"
+"Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-05 14:56+0000\n"
-"PO-Revision-Date: 2013-09-05 14:56+0000\n"
+"POT-Creation-Date: 2014-05-04 15:54+0000\n"
+"PO-Revision-Date: 2014-05-04 15:54+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -36,8 +36,13 @@ msgid "Purchase Order Line"
 msgstr ""
 
 #. module: pallet_delivery
-#: view:stock.truck:0
-msgid "Confirm"
+#: field:stock.truck,back_temperature:0
+msgid "Back Temperature"
+msgstr ""
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_stock_picking_in
+msgid "Incoming Shipments"
 msgstr ""
 
 #. module: pallet_delivery
@@ -87,13 +92,23 @@ msgid "Supplier"
 msgstr ""
 
 #. module: pallet_delivery
+#: field:purchase.order,hidden:0
+msgid "Hidden"
+msgstr ""
+
+#. module: pallet_delivery
 #: view:stock.truck:0
 msgid "Truck Composition"
 msgstr ""
 
 #. module: pallet_delivery
-#: field:stock.truck,back_temperature:0
-msgid "Back Temperature"
+#: field:purchase.order,assigned:0
+msgid "unknown"
+msgstr ""
+
+#. module: pallet_delivery
+#: view:stock.truck:0
+msgid "Confirm"
 msgstr ""
 
 #. module: pallet_delivery
@@ -103,7 +118,7 @@ msgstr ""
 
 #. module: pallet_delivery
 #: view:stock.truck:0
-msgid "Left Pallets"
+msgid "Right Pallets"
 msgstr ""
 
 #. module: pallet_delivery
@@ -115,6 +130,12 @@ msgstr ""
 #. module: pallet_delivery
 #: field:stock.truck,truck_sn:0
 msgid "Truck S/N"
+msgstr ""
+
+#. module: pallet_delivery
+#: code:addons/pallet_delivery/stock.py:293
+#, python-format
+msgid "Input Error !"
 msgstr ""
 
 #. module: pallet_delivery
@@ -152,7 +173,20 @@ msgstr ""
 
 #. module: pallet_delivery
 #: view:stock.truck:0
-msgid "Right Pallets"
+msgid "Left Pallets"
+msgstr ""
+
+#. module: pallet_delivery
+#: model:ir.actions.act_window,help:pallet_delivery.purchase_order_hidden
+msgid "<p class=\"oe_view_nocontent_create\">\n"
+"          Click to create a quotation that will be converted into a purchase order. \n"
+"        </p><p>\n"
+"          Use this menu to search within your purchase orders by\n"
+"          references, supplier, products, etc. For each purchase order,\n"
+"          you can track the related discussion with the supplier, control\n"
+"          the products received and control the supplier invoices.\n"
+"        </p>\n"
+"      "
 msgstr ""
 
 #. module: pallet_delivery
@@ -161,7 +195,19 @@ msgid "On Draft Truck"
 msgstr ""
 
 #. module: pallet_delivery
-#: model:ir.ui.menu,name:pallet_delivery.menu_truck
+#: code:addons/pallet_delivery/stock.py:294
+#, python-format
+msgid "Please enter real numbers."
+msgstr ""
+
+#. module: pallet_delivery
+#: model:ir.model,name:pallet_delivery.model_stock_move
+msgid "Stock Move"
+msgstr ""
+
+#. module: pallet_delivery
+#: model:ir.ui.menu,name:pallet_delivery.menu_truck_purchase
+#: model:ir.ui.menu,name:pallet_delivery.menu_truck_stock
 msgid "Incoming Truck"
 msgstr ""
 
@@ -171,6 +217,7 @@ msgid "Done"
 msgstr ""
 
 #. module: pallet_delivery
+#: model:ir.actions.act_window,name:pallet_delivery.purchase_order_hidden
 #: view:stock.truck:0
 #: field:stock.truck,purchase_order_ids:0
 msgid "Purchase Orders"
