@@ -5,7 +5,7 @@
       <field name="partner_id">1</field>
       <field name="location_id">8</field>
       <field name="state">cancel</field>
-      <field name="pricelist_id">4</field>
+      <field name="pricelist_id">2</field>
       <field name="hidden">1</field>
     </record>
 
