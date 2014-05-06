@@ -29,6 +29,7 @@
 """,
     'depends': ['base', 'stock', 'sale', 'purchase', 'sale_landed_cost_per_pallet', 'sale_order_dates'],
     'data': [
+        'security/ir.model.access.csv',
         'report/stock_forecast_view.xml'
     ],
     'demo': [],
