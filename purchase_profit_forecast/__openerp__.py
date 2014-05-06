@@ -29,6 +29,7 @@
     'website': 'http://www.savoirfairelinux.com/',
     'depends': ['account', 'purchase'],
     'data': [
+        'security/ir.model.access.csv',
         'report/purchase_profit_view.xml',
     ],
     'test': [
