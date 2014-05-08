@@ -275,7 +275,7 @@ class stock_truck(orm.Model):
                     'product_id': move_line.product_id.id,
                     'product_qty': count,
                     'product_uom': 1,
-                    'prodlot_id': move_line.id,
+                    'prodlot_id': move_line.prodlot_id.id,
                 }
 
             picking_pool.do_partial(cr, uid, [pi], partial_data, context=context)
