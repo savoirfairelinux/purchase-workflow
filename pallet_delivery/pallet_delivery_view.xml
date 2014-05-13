@@ -73,8 +73,8 @@
                 </group>
 
                 <group>
-                  <field name="front_temperature" />
-                  <field name="back_temperature" />
+                  <field name="front_temperature" on_change="validate_temperature(front_temperature, 'front_temperature')" />
+                  <field name="back_temperature" on_change="validate_temperature(back_temperature, 'back_temperature')" />
                 </group>
               </group>
 
