@@ -41,7 +41,7 @@ class account_voucher(orm.Model):
         '''
 
         currency_obj = self.pool.get('res.currency')
-        move_line = {}
+        move_lines = []
 
         voucher = self.pool.get('account.voucher').browse(cr,uid,voucher_id,context)
         current_currency_obj = voucher.currency_id or voucher.journal_id.company_id.currency_id
@@ -65,8 +65,6 @@ class account_voucher(orm.Model):
                                  if l.reconcile])
 
             invoice_obj = self.pool.get('account.invoice')
-
-            move_lines = []
 
             for voucher_line in voucher.line_ids:
 
