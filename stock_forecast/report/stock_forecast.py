@@ -44,6 +44,10 @@ REPORT_TEMPLATE = u"""
         color: orange;
         }
 
+        font.draft {
+        color: green;
+        }
+
         td.normal {
         color: black;
         }
@@ -101,7 +105,7 @@ REPORT_TEMPLATE = u"""
             % for product in products:
             % if product_activity[product.id]:
             <td class="stock alivrer ${day[product.id]['situation']}">
-                % if day[product.id]['outgoing'] != 0:
+                % if day[product.id]['outgoing']:
                 ${day[product.id]['outgoing']}
                 % endif
             </td>
@@ -109,8 +113,14 @@ REPORT_TEMPLATE = u"""
                 ${day[product.id]['forecasted']}
             </td>
             <td class="stock arecevoir ${day[product.id]['situation']}">
-                % if day[product.id]['incoming'] != 0:
+                % if day[product.id]['incoming']:
                 ${day[product.id]['incoming']}
+                  % if day[product.id]['incoming_draft']:
+                    <font class="draft"> | </font>
+                  % endif
+                % endif
+                % if day[product.id]['incoming_draft']:
+                    <font class="draft">${day[product.id]['incoming_draft']}</font>
                 % endif
             </td>
             %endif
@@ -125,7 +135,9 @@ REPORT_TEMPLATE = u"""
             % for product in products:
             % if product_activity[product.id]:
             <td style="border-bottom: 1px black solid; border-left: 2px black solid; text-align: center; vertical-align: middle; ">
-                ${order[product.id]}
+                % if order[product.id]:
+                    ${order[product.id]}
+                % endif
             </td>
             <td style="border-bottom: 1px black solid; vertical-align: middle; "></td>
             <td style="border-right: 2px black solid; border-bottom: 1px black solid; text-align: center; vertical-align: middle; "></td>
@@ -386,7 +398,7 @@ class stock_forecast(orm.Model):
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
-        return result + sales_sum
+        return int(result + sales_sum)
 
     def get_stock_incoming(self, cr, uid, exp_day, context=None):
         date_string = self.get_timestamp(cr, uid, exp_day)
@@ -403,10 +415,23 @@ class stock_forecast(orm.Model):
 
         cr.execute(query % (product_id, date_string))
         result = cr.fetchone()[0] or 0
+        return int(result)
+
+    def get_stock_incoming_draft(self, cr, uid, exp_day, context=None):
+        date_string = self.get_timestamp(cr, uid, exp_day)
+        product_id = context['product_id']
+        po_line_obj = self.pool.get("purchase.order.line")
+
+        po_line_ids = po_line_obj.search(cr, uid, [
+            ('state', 'in', ['draft', 'sent']),
+            ('product_id', '=', product_id),
+            ('date_planned', '=', date_string)], context=context)
+        po_lines = po_line_obj.browse(cr, uid, po_line_ids, context=context)
+        result = sum([line.product_qty for line in po_lines])
         return result
 
     def get_stock_forecast(self, cr, uid, exp_day, context=None):
-
+        po_line_obj = self.pool.get("purchase.order.line")
         product_id = context['product_id']
         product = self.pool.get('product.product').browse(
             cr, uid, [product_id], context=context)[0]
@@ -439,6 +464,16 @@ class stock_forecast(orm.Model):
         incoming = self.pool.get('stock.move').browse(cr, uid, incoming_ids)
 
         incoming_total = sum(i.product_qty for i in incoming)
+
+        # add draft purchase
+        po_line_ids = po_line_obj.search(cr, uid, [
+            ('state', 'in', ['draft', 'sent']),
+            ('product_id', '=', product_id),
+            ('date_planned', '>=', today_string),
+            ('date_planned', '<=', date_before_string),
+        ], context=context)
+        po_lines = po_line_obj.browse(cr, uid, po_line_ids, context=context)
+        incoming_draft_total = sum([line.product_qty for line in po_lines])
 
         outgoing_ids = self.pool.get('stock.move').search(
             cr, uid, [
@@ -474,13 +509,12 @@ class stock_forecast(orm.Model):
 
         outgoing_total = sum(o.product_qty for o in outgoing) + sum(o.nb_pallets * o.nb_crates_per_pallet for o in order_lines)
 
-        forecasted = on_hand + incoming_total - outgoing_total
+        forecasted = on_hand + incoming_total + incoming_draft_total - outgoing_total
 
-
-        return on_hand + incoming_total - outgoing_total
+        return int(forecasted)
 
     def get_situation(self, day_product):
-        there = day_product['forecasted'] + day_product['incoming']
+        there = day_product['forecasted'] + day_product['incoming'] + day_product['incoming_draft']
 
         if day_product['outgoing'] > there:
             return 'alert'
@@ -552,9 +586,11 @@ class stock_forecast(orm.Model):
                     cr, uid, exp_day, context=glob_context)
                 day_product['incoming'] = self.get_stock_incoming(
                     cr, uid, exp_day, context=glob_context)
+                day_product['incoming_draft'] = self.get_stock_incoming_draft(
+                    cr, uid, exp_day, context=glob_context)
                 day_product['situation'] = self.get_situation(day_product)
 
-                if day_product['outgoing'] or day_product['incoming']:
+                if day_product['outgoing'] or day_product['incoming'] or day_product['incoming_draft']:
                     product_activity[product_id] = True
 
                 if day_product['outgoing'] > 0:
@@ -583,7 +619,7 @@ class stock_forecast(orm.Model):
                         order_values = {}
                         for product_id in product_ids:
                             qty = quantities[order.id].get(product_id, 0)
-                            order_values[product_id] = qty
+                            order_values[product_id] = int(qty)
 
                         customer_name = order.partner_id.name
                         order_label = "%s (%s)" % (order.name, customer_name)
