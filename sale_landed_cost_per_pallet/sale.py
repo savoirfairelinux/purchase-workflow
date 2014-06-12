@@ -67,7 +67,7 @@ class sale_order_line(orm.Model):
         return ret
 
     _columns = {
-        'nb_pallets': fields.integer('Pallets', required=True),
+        'nb_pallets': fields.float('Pallets', required=True),
         'nb_crates_per_pallet': fields.integer('Crates per pallet', required=True),
         'product_uom_qty': fields.function(_product_quantity,
                                            digits_compute=dp.get_precision('Product Unit of Measure'),
