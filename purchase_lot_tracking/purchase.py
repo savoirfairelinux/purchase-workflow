@@ -163,18 +163,14 @@ class purchase_order(orm.Model):
                 all_lines_tracked = False
             else:
                 lot_number, account_id = po_line.assign_lot_number()
+                matching_lines = [line for line in stock_picking.move_lines
+                                 if line.product_qty == po_line.product_qty
+                                 and line.product_id.id == po_line.product_id.id
+                                 and not line.prodlot_id]
+                if matching_lines:
+                    matching_lines[0].write({'prodlot_id': lot_number})
 
-                matching_line = [
-                    line
-                    for line in stock_picking.move_lines
-                    if line.product_qty == po_line.product_qty
-                    and line.product_id.id == po_line.product_id.id
-                    and not line.prodlot_id
-                ][0]
-
-                matching_line.write({'prodlot_id': lot_number})            
-
-                po_line.write({ 'account_analytic_id' : account_id })
+                po_line.write({'account_analytic_id': account_id})
                 po_line.refresh()
                 stock_picking.refresh()
 
