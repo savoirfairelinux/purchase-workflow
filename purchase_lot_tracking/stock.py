@@ -93,6 +93,9 @@ class stock_invoice_onshipping(orm.TransientModel):
         # first iteration, check if matching
         lst_match = []
         for invoice_line in invoice_lines:
+            # don't add service to analytic account
+            if invoice_line.product_id.type == u'service':
+                continue
             matching_move_line = self._find_matching_move_line(invoice_line,
                                                                move_lines)
             name = invoice_line.name
