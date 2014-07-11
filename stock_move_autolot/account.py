@@ -45,8 +45,10 @@ class account_analytic_account(orm.Model):
             initial_analytic_id = initial_stock_move.prodlot_id.account_analytic_id.id
 
             """Get parent_po_line and calculate price based on transformation"""
-            parent_po_line_id = po_line_pool.search(cr, uid, [('account_analytic_id', '=', initial_analytic_id)], context=context)[0]
-            parent_po_line = po_line_pool.browse(cr, uid, parent_po_line_id, context=context)
+            parent_po_line_ids = po_line_pool.search(cr, uid, [('account_analytic_id', '=', initial_analytic_id)], context=context)
+            if not parent_po_line_ids:
+                return 0
+            parent_po_line = po_line_pool.browse(cr, uid, parent_po_line_ids[0], context=context)
 
             # Calculate transformed price
             return parent_po_line.landed_costs / (parent_po_line.product_qty * stock_move.production_id.bom_id.product_qty)
