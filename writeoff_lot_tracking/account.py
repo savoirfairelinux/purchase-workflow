@@ -44,6 +44,8 @@ class account_voucher(orm.Model):
         move_lines = []
 
         voucher = self.pool.get('account.voucher').browse(cr,uid,voucher_id,context)
+        if voucher.type == u'payment':
+            return super(account_voucher, self).writeoff_move_line_get(cr, uid, voucher_id, line_total, move_id, name, company_currency, current_currency, context=context)
         current_currency_obj = voucher.currency_id or voucher.journal_id.company_id.currency_id
 
         if not currency_obj.is_zero(cr, uid, current_currency_obj, line_total):
@@ -126,6 +128,9 @@ class account_voucher(orm.Model):
         move_line_pool = self.pool.get('account.move.line')
         for voucher in self.browse(cr, uid, ids, context=context):
             if voucher.move_id:
+                continue
+            if voucher.type == u'payment':
+                super(account_voucher, self).action_move_line_create(cr, uid, ids, context=context)
                 continue
             company_currency = self._get_company_currency(cr, uid, voucher.id, context)
             current_currency = self._get_current_currency(cr, uid, voucher.id, context)
