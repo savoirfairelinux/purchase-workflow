@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+  <data>
+
+    <record model="ir.ui.view" id="view_move_picking_btn_new_lot_tree">
+      <field name="name">view_move_picking_btn_new_lot_tree</field>
+      <field name="model">stock.move</field>
+      <field name="inherit_id" ref="stock.view_move_picking_tree"/>
+      <field name="arch" type="xml">
+        <field name="prodlot_id" position="after">
+          <button name="btn_new_lot" string="Create new lot"
+                  groups="stock.group_production_lot" type="object"
+                  icon="gtk-new"
+                  states="draft,waiting,confirmed,assigned"
+                  attrs="{'invisible': [('prodlot_id', '&lt;&gt;', False)]}"
+              />
+        </field>
+      </field>
+    </record>
+
+  </data>
+</openerp>
