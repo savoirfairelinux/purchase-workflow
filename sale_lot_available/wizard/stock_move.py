@@ -56,39 +56,3 @@ class stock_production_lot(orm.Model):
             res.append((lot.id, '%s / %.2f' % (lot.name, net_available)))
 
         return res
-
-if 0:
-    class stock_move_split_lines(orm.TransientModel):
-
-        _inherit = 'stock.move.split.lines'
-
-        def _prodlot_id(self, cr, uid, ids, name, arg, context=None):
-            import ipdb; ipdb.set_trace()
-            if context is None:
-                context = {}
-
-            res = {}
-
-            for thing in self.browse(cr, uid, ids, context=context):
-                res[thing.id] = 'thing %d' % (thing.id, )
-
-            return res
-
-        def _prodlot_id_inv(self, cr, uid, ids, name, value, arg, context=None):
-            import ipdb; ipdb.set_trace()
-            return True
-
-        def _prodlot_id_search(self, cr, uid, obj, name, arg, context=None):
-            import ipdb; ipdb.set_trace()
-            return [('id', 'in', [1])]
-
-        _columns = {
-            'prodlot_id': fields.function(
-                _prodlot_id,
-                fnct_inv=_prodlot_id_inv,
-                type='many2one',
-                fnct_search=_prodlot_id_search,
-                method=True,
-                store=True,
-                string='Serial Number'),
-        }

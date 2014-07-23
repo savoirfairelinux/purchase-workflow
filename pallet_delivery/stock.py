@@ -24,11 +24,11 @@ from openerp.tools.translate import _
 from openerp.osv import orm, fields
 
 def group(lst):
-    '''Saner group function than the one found in itertools
+    """Saner group function than the one found in itertools
 
     This one mimics Haskell's group from Data.List:
         group :: Eq a => [a] -> [[a]]
-    '''
+    """
 
     if not lst:
         return []
@@ -66,31 +66,22 @@ class stock_move(orm.Model):
         return [ x for x in seq if x not in seen and not seen_add(x)]
 
     @staticmethod
-    def _get_analytic_code(line):
-        po_line = line.purchase_line_id
-        code = None
-        if po_line:
-            analytic = po_line.account_analytic_id
-            if analytic:
-                code = analytic.code
-        return code
-
-    def _get_line_name(self, line, crates):
+    def _get_line_name(line, crates=None, force_total_qty=False):
         available = None
         nice = '%s' % line.product_id.name
+        incoming_crates = line.product_qty
         if crates:
             # Incoming crates
-            incoming_crates = line.product_qty
             available = max(0, incoming_crates - crates[line.id])
+        elif force_total_qty:
+            available = incoming_crates
 
-        code = self._get_analytic_code(line)
-        if code:
-            nice += " / %s" % code
+        nice += " / %s" % line.prodlot_id.name
 
         if available is not None:
             nice += " (%d)" % available
 
-        return nice
+        return nice, available
 
     def name_get(self, cr, uid, ids, context=None):
         if context is None:
@@ -107,7 +98,7 @@ class stock_move(orm.Model):
         res = []
         if not context.has_key('nice'):
             for line in self.browse(cr, uid, ids, context=context):
-                name = self._get_line_name(line, None)
+                name, available = self._get_line_name(line)
                 res.append((line.id, name))
 
             # Add special 'not ours' line
@@ -136,7 +127,7 @@ class stock_move(orm.Model):
                 crates[st_line.pallet.id] += st_line.crates
             else:
                 fields = pallet_struct[2]
-                if 'pallet' in fields:
+                if fields and 'pallet' in fields:
                     crates[fields['pallet']] += fields['crates']
 
         spi_lines = spi_pool.browse(cr, uid, spi_ids, context=context)
@@ -146,8 +137,11 @@ class stock_move(orm.Model):
 
         # Prettify data to be displayed
         for line in move_line:
-            name = self._get_line_name(line, crates)
-            res.append((line.id, name))
+            force_total_qty = not crates
+            name, available = self._get_line_name(line, crates=crates,
+                                                  force_total_qty=force_total_qty)
+            if available:
+                res.append((line.id, name))
 
         return res
 
@@ -215,26 +209,20 @@ class stock_truck(orm.Model):
         #     - value: tuple of
         #       - Purchase Order Line
         #       - Crate count
-        products = {}
+        products = defaultdict(dict)
 
         def _process_pallets(column):
             for line in column:
-                pi = line.pallet.picking_id
-                po = line.pallet.purchase_line_id.order_id
-                pol = line.pallet.purchase_line_id
-                if pol.account_analytic_id:
-                    lot = pol.account_analytic_id.code
-                else:
-                    lot = None
+                pallet = line.pallet
+                pi = pallet.picking_id
+                po = pallet.purchase_line_id.order_id
+                lot = pallet.prodlot_id if pallet.prodlot_id else None
                 # Skip over fake 'not ours' line
                 if po and po.hidden:
                     continue
 
-                if not products.has_key(pi.id):
-                    products[pi.id] = {}
-
                 if not products[pi.id].has_key(lot):
-                    products[pi.id][lot] = (line.pallet, 0)
+                    products[pi.id][lot] = (pallet, 0)
 
                 lot_product = products[pi.id][lot]
                 count = lot_product[1]
