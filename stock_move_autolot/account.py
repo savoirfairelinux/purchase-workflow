@@ -34,8 +34,10 @@ class account_analytic_account(orm.Model):
         def transformed_tcu():
 
             # Get the stock move id of the transformed product
-            stock_move_id = stock_move_pool.search(cr, uid, [('prodlot_id.name', '=', line.code)], context=context)[0]
-            stock_move = stock_move_pool.browse(cr, uid, stock_move_id, context=context)
+            stock_move_ids = stock_move_pool.search(cr, uid, [('prodlot_id.name', '=', line.code)], context=context)
+            if not stock_move_ids:
+                return 0
+            stock_move = stock_move_pool.browse(cr, uid, stock_move_ids[0], context=context)
 
             # Get the stock move id of the initial product
             # We can safely assume there is only one
