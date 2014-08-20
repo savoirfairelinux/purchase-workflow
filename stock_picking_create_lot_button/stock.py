@@ -33,6 +33,9 @@ class stock_move_create_lot_button(orm.Model):
             return
         i_id = ids[0]
         actual_move = self.browse(cr, uid, i_id, context=context)
+        # only generate for stock move in
+        if actual_move.type != u'in':
+            raise orm.except_orm('Error', 'Cannot create a lot in other situation of stock.move.in')
         if actual_move.prodlot_id:
             name = actual_move.prodlot_id.name
             msg = _("This move line has already an prodlot_id, ") + name
