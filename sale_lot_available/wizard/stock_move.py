@@ -59,8 +59,13 @@ class stock_production_lot(orm.Model):
         res = []
         limit = 10
         count_limit = 0
+        move_lines_obj = self.pool.get('stock.move')
         for lot in self.browse(cr, uid, ids, context=context):
-            net_available = lot.stock_available - entered[lot.id]
+            # remove other draft stock.move prodlot
+            move_lines_ids = move_lines_obj.search(cr, uid, [('prodlot_id', '=', lot.id)], context=context)
+            move_lines = move_lines_obj.browse(cr, uid, move_lines_ids, context=context)
+            other_qty = sum([move.product_qty for move in move_lines if move.state != 'done'])
+            net_available = lot.stock_available - entered[lot.id] - other_qty
             if count_limit >= limit:
                 break
             if net_available > 0:
