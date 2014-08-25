@@ -44,6 +44,7 @@ class stock_production_lot(orm.Model):
             return super(stock_production_lot, self).name_get(cr, uid, ids, context=context)
 
         entered = defaultdict(lambda: 0.0)
+        """
         if not ids:
             return []
 
@@ -55,6 +56,7 @@ class stock_production_lot(orm.Model):
         for line in context['lines']:
             values = line[2]
             entered[values['prodlot_id']] += values['quantity']
+        """
 
         res = []
         limit = 10
@@ -68,8 +70,11 @@ class stock_production_lot(orm.Model):
             net_available = lot.stock_available - entered[lot.id] - other_qty
             if count_limit >= limit:
                 break
+            """
             if net_available > 0:
                 count_limit += 1
                 res.append((lot.id, '%s / %.2f' % (lot.name, net_available)))
+            """
+            res.append((lot.id, '%s / %.2f' % (lot.name, net_available)))
 
         return res
