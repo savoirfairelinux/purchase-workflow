@@ -66,7 +66,7 @@ class stock_production_lot(orm.Model):
             # remove other draft stock.move prodlot
             move_lines_ids = move_lines_obj.search(cr, uid, [('prodlot_id', '=', lot.id)], context=context)
             move_lines = move_lines_obj.browse(cr, uid, move_lines_ids, context=context)
-            other_qty = sum([move.product_qty for move in move_lines if move.state != 'done'])
+            other_qty = sum([move.product_qty for move in move_lines if move.state in ['draft', 'waiting', 'confirmed', 'assigned']])
             net_available = lot.stock_available - entered[lot.id] - other_qty
             if count_limit >= limit:
                 break
