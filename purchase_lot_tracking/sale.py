@@ -22,74 +22,110 @@
 from openerp.osv import orm, fields
 import logging
 
+_logger = logging.getLogger(__name__)
+
+
 class sale(orm.Model):
 
     _inherit = 'sale.order.line'
-    _logger = logging.Logger(__name__)
 
-    def _minimum(self, cr, uid, ids, name, arg, context=None):
+    def _get_min_max_avg(self, cr, uid, ids, fields, args, context=None):
+        context = context or {}
+
         res = {}
 
-        for order_line in self.browse(cr, uid, ids, context):
-            account = order_line.product_id.account_id
-            minimum = 0.0
+        analytic_account_pool = self.pool.get('account.analytic.account')
 
-            if account:
-                values = [lot.estimated_tcu for lot in account.child_ids
-                          if lot.total_in_qty != 0]
-            
-                if values:
-                    minimum = min(values)
+        for line in self.browse(cr, uid, ids, context=context):
+            account_id = line.product_id.account_id.id
+            res[line.id] = {
+                'minimum': 0.0,
+                'average': 0.0,
+                'maximum': 0.0
+            }
 
-            res[order_line.id] = minimum
+            if account_id:
+                query = [('parent_id', '=', account_id)]
+                child_ids = analytic_account_pool.search(
+                    cr, uid, query, context=context)
+
+                if child_ids:
+                    values = analytic_account_pool.read(
+                        cr, uid, child_ids,
+                        ['estimated_tcu', 'total_in_qty'], context=context)
+
+                    res[line.id]['minimum'] = min(
+                        [v['estimated_tcu'] for v in values
+                         if v['total_in_qty'] != 0])
+                    res[line.id]['maximum'] = max(
+                        [v['estimated_tcu'] for v in values
+                         if v['total_in_qty'] != 0])
+
+                    average = sum(
+                        [v['estimated_tcu'] * v['total_in_qty']
+                         for v in values if v['total_in_qty'] != 0])
+                    res[line.id]['average'] = average / sum(
+                        [v['total_in_qty'] for v in values])
 
         return res
 
-    def _average(self, cr, uid, ids, name, arg, context=None):
-        res = {}
+    def _get_purchase_order_line_ids(self, cr, uid, ids, context=None):
+        context = context or {}
 
-        for order_line in self.browse(cr, uid, ids, context):
-            account = order_line.product_id.account_id
-            average = 0.0
-            
-            total_count = 0
+        res = []
 
-            if account:
-                for lot in account.child_ids:
-                    quantity = lot.total_in_qty
-                    tcu = lot.estimated_tcu
+        so_line_pool = self.pool.get('sale.order.line')
 
-                    if quantity != 0:
-                        average += quantity * tcu
-                        total_count += quantity
-        
-            if total_count == 0:
-                res[order_line.id] = 0
-            else:
-                res[order_line.id] = average / total_count
-
-        return res
-
-    def _maximum(self, cr, uid, ids, name, arg, context=None):
-        res = {}
-
-        for order_line in self.browse(cr, uid, ids, context):
-            account = order_line.product_id.account_id
-            maximum = 0.0
-
-            if account:
-                values = [lot.estimated_tcu for lot in account.child_ids
-                          if lot.total_in_qty != 0]
-
-                if values:
-                    maximum = max(values)
-
-            res[order_line.id] = maximum
+        for line in self.pool.get('purchase.order.line').browse(
+                cr, uid, ids, context=context):
+            if line.account_analytic_id:
+                query = [
+                    ('product_id.account_id.id', '=',
+                     line.account_analytic_id.parent_id.id),
+                    ('state', 'not in', ['done', 'cancel'])
+                ]
+                res += so_line_pool.search(cr, uid, query, context=context)
 
         return res
 
     _columns = {
-        'minimum': fields.function(_minimum, string='Min.', type='float'),
-        'average': fields.function(_average, string='Avg.', type='float'),
-        'maximum': fields.function(_maximum, string='Max.', type='float')
+        'minimum': fields.function(
+            _get_min_max_avg,
+            string='Min.',
+            type='float',
+            multi=True,
+            store={
+                'sale.order.line': (lambda self, cr, uid, ids, context: ids,
+                                    ['product_id', 'price_unit'],
+                                    10),
+                'purchase.order.line': (_get_purchase_order_line_ids,
+                                        ['account_analytic_id'],
+                                        10)
+            }),
+        'average': fields.function(
+            _get_min_max_avg,
+            string='Avg.',
+            type='float',
+            multi=True,
+            store={
+                'sale.order.line': (lambda self, cr, uid, ids, context: ids,
+                                    ['product_id', 'price_unit'],
+                                    10),
+                'purchase.order.line': (_get_purchase_order_line_ids,
+                                        ['account_analytic_id'],
+                                        10)
+            }),
+        'maximum': fields.function(
+            _get_min_max_avg,
+            string='Max.',
+            type='float',
+            multi=True,
+            store={
+                'sale.order.line': (lambda self, cr, uid, ids, context: ids,
+                                    ['product_id', 'price_unit'],
+                                    10),
+                'purchase.order.line': (_get_purchase_order_line_ids,
+                                        ['account_analytic_id'],
+                                        10)
+            })
     }
