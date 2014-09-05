@@ -37,7 +37,7 @@ class sale(orm.Model):
         analytic_account_pool = self.pool.get('account.analytic.account')
 
         for line in self.browse(cr, uid, ids, context=context):
-            account_id = line.product_id.account_id.id
+            account_id = line.product_id.account_id
             res[line.id] = {
                 'minimum': 0.0,
                 'average': 0.0,
@@ -45,7 +45,10 @@ class sale(orm.Model):
             }
 
             if account_id:
-                query = [('parent_id', '=', account_id)]
+                query = [
+                    ('parent_id', '=', account_id.id),
+                    ('total_in_qty', '!=', 0)
+                ]
                 child_ids = analytic_account_pool.search(
                     cr, uid, query, context=context)
 
@@ -53,19 +56,20 @@ class sale(orm.Model):
                     values = analytic_account_pool.read(
                         cr, uid, child_ids,
                         ['estimated_tcu', 'total_in_qty'], context=context)
-
                     res[line.id]['minimum'] = min(
-                        [v['estimated_tcu'] for v in values
-                         if v['total_in_qty'] != 0])
+                        [v['estimated_tcu'] for v in values])
+
                     res[line.id]['maximum'] = max(
-                        [v['estimated_tcu'] for v in values
-                         if v['total_in_qty'] != 0])
+                        [v['estimated_tcu'] for v in values])
 
                     average = sum(
                         [v['estimated_tcu'] * v['total_in_qty']
-                         for v in values if v['total_in_qty'] != 0])
-                    res[line.id]['average'] = average / sum(
-                        [v['total_in_qty'] for v in values])
+                         for v in values])
+                    if average:
+                        res[line.id]['average'] = average / sum(
+                            [v['total_in_qty'] for v in values])
+                    else:
+                        res[line.id]['average'] = 0
 
         return res
 
@@ -88,6 +92,44 @@ class sale(orm.Model):
 
         return res
 
+    def _get_account_analytic_account_ids(self, cr, uid, ids, context=None):
+        context = context or {}
+
+        res = []
+
+        so_line_pool = self.pool.get('sale.order.line')
+
+        for line in self.pool.get('account.analytic.account').browse(
+                cr, uid, ids, context=context):
+            query = [
+                ('product_id.account_id.id', '=',
+                 line.parent_id.id),
+                ('state', 'not in', ['done', 'cancel'])
+            ]
+            res += so_line_pool.search(cr, uid, query, context=context)
+
+        return res
+
+    def _get_stock_production_lot_ids(self, cr, uid, ids, context=None):
+        context = context or {}
+
+        res = []
+
+        so_line_pool = self.pool.get('sale.order.line')
+
+        for lot in self.pool.get('stock.production.lot').browse(
+                cr, uid, ids, context=context):
+            query = [
+                ('product_id.account_id.id', '=',
+                 lot.account_analytic_id.parent_id.id),
+                ('state', 'not in', ['done', 'cancel'])
+            ]
+
+            res += so_line_pool.search(
+                cr, uid, query, context=context)
+
+        return res
+
     _columns = {
         'minimum': fields.function(
             _get_min_max_avg,
@@ -100,7 +142,10 @@ class sale(orm.Model):
                                     10),
                 'purchase.order.line': (_get_purchase_order_line_ids,
                                         ['account_analytic_id'],
-                                        10)
+                                        10),
+                'stock.production.lot': (_get_stock_production_lot_ids,
+                                         ['account_analytic_id'],
+                                         10)
             }),
         'average': fields.function(
             _get_min_max_avg,
@@ -113,7 +158,10 @@ class sale(orm.Model):
                                     10),
                 'purchase.order.line': (_get_purchase_order_line_ids,
                                         ['account_analytic_id'],
-                                        10)
+                                        10),
+                'stock.production.lot': (_get_stock_production_lot_ids,
+                                         ['account_analytic_id'],
+                                         10)
             }),
         'maximum': fields.function(
             _get_min_max_avg,
@@ -126,6 +174,10 @@ class sale(orm.Model):
                                     10),
                 'purchase.order.line': (_get_purchase_order_line_ids,
                                         ['account_analytic_id'],
-                                        10)
+                                        10),
+                'stock.production.lot': (_get_stock_production_lot_ids,
+                                         ['account_analytic_id'],
+                                         10)
+
             })
     }
