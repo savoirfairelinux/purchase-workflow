@@ -22,6 +22,7 @@
 from openerp.osv import orm, fields
 import openerp.addons.decimal_precision as dp
 
+
 class account_analytic_account(orm.Model):
 
     _inherit = 'account.analytic.account'
@@ -53,6 +54,22 @@ class account_analytic_account(orm.Model):
 
         return res
 
+    def _get_stock_production_lot_ids(self, cr, uid, ids, context=None):
+        context = context or {}
+
+        res = []
+
+        analytic_account_pool = self.pool.get('account.analytic.account')
+
+        for lot in self.pool.get('stock.production.lot').browse(
+                cr, uid, ids, context=context):
+            query = [('name', '=', lot.name)]
+
+            res += analytic_account_pool.search(
+                cr, uid, query, context=context)
+
+        return res
+
     def _calculate_tcu(self, cr, uid, ids, name, arg, context=None):
         res = {}
         for account in self.browse(cr, uid, ids):
@@ -81,8 +98,26 @@ class account_analytic_account(orm.Model):
         return res
 
     _columns = {
-        'purchase_order': fields.many2one('purchase.order', 'Purchase Order', help='Issuing Purchase Order'),
-        'total_cost_unit': fields.function(_calculate_tcu, string='Total Cost Unit', type='float'),
-        'estimated_tcu': fields.function(_estimated_tcu, string='Estimated Total Cost per Unit', type='float'),
-        'total_in_qty': fields.function(_calculate_total_in, string='Total Received Quantity', type='float'),
+        'purchase_order': fields.many2one(
+            'purchase.order',
+            'Purchase Order',
+            help='Issuing Purchase Order'),
+        'total_cost_unit': fields.function(
+            _calculate_tcu,
+            string='Total Cost Unit',
+            type='float'),
+        'total_in_qty': fields.function(
+            _calculate_total_in,
+            string='Total Received Quantity',
+            type='float',
+            store={
+                'stock.production.lot': (_get_stock_production_lot_ids,
+                                         ['name'],
+                                         10)
+            }),
+        'estimated_tcu': fields.function(
+            _estimated_tcu,
+            string='Estimated Total Cost per Unit',
+            type='float'),
+
     }
