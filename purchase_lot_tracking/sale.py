@@ -73,62 +73,12 @@ class sale(orm.Model):
 
         return res
 
-    def _get_purchase_order_line_ids(self, cr, uid, ids, context=None):
+    def _get_sale_order_ids(self, cr, uid, ids, context=None):
         context = context or {}
 
-        res = []
+        query = [('order_id', 'in', ids)]
 
-        so_line_pool = self.pool.get('sale.order.line')
-
-        for line in self.pool.get('purchase.order.line').browse(
-                cr, uid, ids, context=context):
-            if line.account_analytic_id:
-                query = [
-                    ('product_id.account_id.id', '=',
-                     line.account_analytic_id.parent_id.id),
-                    ('state', 'not in', ['done', 'cancel'])
-                ]
-                res += so_line_pool.search(cr, uid, query, context=context)
-
-        return res
-
-    def _get_account_analytic_account_ids(self, cr, uid, ids, context=None):
-        context = context or {}
-
-        res = []
-
-        so_line_pool = self.pool.get('sale.order.line')
-
-        for line in self.pool.get('account.analytic.account').browse(
-                cr, uid, ids, context=context):
-            query = [
-                ('product_id.account_id.id', '=',
-                 line.parent_id.id),
-                ('state', 'not in', ['done', 'cancel'])
-            ]
-            res += so_line_pool.search(cr, uid, query, context=context)
-
-        return res
-
-    def _get_stock_production_lot_ids(self, cr, uid, ids, context=None):
-        context = context or {}
-
-        res = []
-
-        so_line_pool = self.pool.get('sale.order.line')
-
-        for lot in self.pool.get('stock.production.lot').browse(
-                cr, uid, ids, context=context):
-            query = [
-                ('product_id.account_id.id', '=',
-                 lot.account_analytic_id.parent_id.id),
-                ('state', 'not in', ['done', 'cancel'])
-            ]
-
-            res += so_line_pool.search(
-                cr, uid, query, context=context)
-
-        return res
+        return self.pool.get('sale.order.line').search(cr, uid, query, context)
 
     _columns = {
         'minimum': fields.function(
@@ -140,12 +90,9 @@ class sale(orm.Model):
                 'sale.order.line': (lambda self, cr, uid, ids, context: ids,
                                     ['product_id', 'price_unit'],
                                     10),
-                'purchase.order.line': (_get_purchase_order_line_ids,
-                                        ['account_analytic_id'],
-                                        10),
-                'stock.production.lot': (_get_stock_production_lot_ids,
-                                         ['account_analytic_id'],
-                                         10)
+                'sale.order': (_get_sale_order_ids,
+                               ['amount_untaxed'],
+                               10)
             }),
         'average': fields.function(
             _get_min_max_avg,
@@ -156,12 +103,9 @@ class sale(orm.Model):
                 'sale.order.line': (lambda self, cr, uid, ids, context: ids,
                                     ['product_id', 'price_unit'],
                                     10),
-                'purchase.order.line': (_get_purchase_order_line_ids,
-                                        ['account_analytic_id'],
-                                        10),
-                'stock.production.lot': (_get_stock_production_lot_ids,
-                                         ['account_analytic_id'],
-                                         10)
+                'sale.order': (_get_sale_order_ids,
+                               ['amount_untaxed'],
+                               10)
             }),
         'maximum': fields.function(
             _get_min_max_avg,
@@ -172,12 +116,8 @@ class sale(orm.Model):
                 'sale.order.line': (lambda self, cr, uid, ids, context: ids,
                                     ['product_id', 'price_unit'],
                                     10),
-                'purchase.order.line': (_get_purchase_order_line_ids,
-                                        ['account_analytic_id'],
-                                        10),
-                'stock.production.lot': (_get_stock_production_lot_ids,
-                                         ['account_analytic_id'],
-                                         10)
-
+                'sale.order': (_get_sale_order_ids,
+                               ['amount_untaxed'],
+                               10)
             })
     }
