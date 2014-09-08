@@ -54,19 +54,20 @@ class account_analytic_account(orm.Model):
 
         return res
 
-    def _get_stock_production_lot_ids(self, cr, uid, ids, context=None):
+    def _get_stock_move_ids(self, cr, uid, ids, context=None):
         context = context or {}
 
         res = []
 
         analytic_account_pool = self.pool.get('account.analytic.account')
 
-        for lot in self.pool.get('stock.production.lot').browse(
+        for move in self.pool.get('stock.move').browse(
                 cr, uid, ids, context=context):
-            query = [('name', '=', lot.name)]
+            if move.prodlot_id:
+                query = [('code', '=', move.prodlot_id.name)]
 
-            res += analytic_account_pool.search(
-                cr, uid, query, context=context)
+                res += analytic_account_pool.search(
+                    cr, uid, query, context=context)
 
         return res
 
@@ -111,13 +112,12 @@ class account_analytic_account(orm.Model):
             string='Total Received Quantity',
             type='float',
             store={
-                'stock.production.lot': (_get_stock_production_lot_ids,
-                                         ['name'],
-                                         10)
+                'stock.move': (_get_stock_move_ids,
+                               ['product_qty'],
+                               10)
             }),
         'estimated_tcu': fields.function(
             _estimated_tcu,
             string='Estimated Total Cost per Unit',
             type='float'),
-
     }
