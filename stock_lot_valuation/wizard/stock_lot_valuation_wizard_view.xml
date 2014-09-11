@@ -1,0 +1,20 @@
+<openerp>
+  <data>
+    <record id="view_stock_lot_valuation_wizard_form" model="ir.ui.view">
+      <field name="name">Stock Valuation by Lot</field>
+      <field name="model">stock.lot.valuation.wizard</field>
+      <field name="arch" type="xml">
+        <form string="Stock Valuation by Lot" version="7.0">
+          <group>
+            <field name="date_start" />
+            <field name="date_end" />
+          </group>
+          <footer>
+            <button class="oe_highlight" name="done" string="Done" type="object" />
+            <button class="oe_link" special="cancel" string="Cancel" />
+          </footer>
+        </form>
+      </field>
+    </record>
+  </data>
+</openerp>

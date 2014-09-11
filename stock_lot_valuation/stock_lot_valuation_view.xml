@@ -1,0 +1,45 @@
+<openerp>
+  <data>
+    <record id="view_stock_lot_valuation_tree" model="ir.ui.view">
+      <field name="name">Stock Lot Valuation</field>
+      <field name="model">stock.lot.valuation</field>
+      <field name="arch" type="xml">
+        <tree string="Stock Lot Valuation" create="false">
+          <field name="product_id" />
+          <field name="prodlot_id" />
+          <field name="move_id" />
+          <field name="product_qty" sum="product_qty"/>
+          <field name="valuation" sum="valuation"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_stock_lot_valuation_search" model="ir.ui.view">
+      <field name="name">Stock Lot Valuation</field>
+      <field name="model">stock.lot.valuation</field>
+      <field name="arch" type="xml">
+        <search>
+          <group expand="0" string="Group By...">
+            <filter string="Product" name="by_product" icon="terp-accessories-archiver" domain="[]" context="{'group_by':'product_id'}"/>
+            <filter string="Serial  Number" name="groupby_prodlot_id" icon="terp-accessories-archiver" domain="[]" context="{'group_by':'prodlot_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id="action_stock_lot_valuation_wizard" model="ir.actions.act_window">
+      <field name="name">Stock Valuation by Lot</field>
+      <field name="res_model">stock.lot.valuation.wizard</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_stock_lot_valuation"
+              name="Stock Valuation by Lot"
+              action="action_stock_lot_valuation_wizard"
+              parent="stock.next_id_61"/>
+
+  </data>
+</openerp>
+

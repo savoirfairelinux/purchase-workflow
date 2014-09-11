@@ -1,0 +1,131 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+# 	* stock_lot_valuation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-11 12:29+0000\n"
+"PO-Revision-Date: 2014-09-11 11:38-0500\n"
+"Last-Translator: Pierre Lamarche <pierre.lamarche@savoirfairelinux.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 1.5.4\n"
+
+#. module: stock_lot_valuation
+#: model:ir.model,name:stock_lot_valuation.model_stock_lot_valuation
+msgid "Stock Lot Valuation Report"
+msgstr "Rapport sur la Valeur des Lots du Stock"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation:0
+msgid "Group By..."
+msgstr "Regroupé par"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation:0
+msgid "product_qty"
+msgstr "Qté de Produit"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation.wizard,date_start:0
+msgid "Start date"
+msgstr "Date de début"
+
+#. module: stock_lot_valuation
+#: model:ir.actions.act_window,name:stock_lot_valuation.action_stock_lot_valuation_wizard
+#: model:ir.ui.menu,name:stock_lot_valuation.menu_stock_lot_valuation
+#: view:stock.lot.valuation.wizard:0
+msgid "Stock Valuation by Lot"
+msgstr "Valeur du Stock par Lot"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,product_qty:0
+msgid "Quantity on hand"
+msgstr "Qté en stock"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation:0 field:stock.lot.valuation,product_id:0
+msgid "Product"
+msgstr "Produit"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation:0
+msgid "Serial  Number"
+msgstr "Numéro de série"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,company_id:0
+msgid "Company"
+msgstr "Compagnie"
+
+#. module: stock_lot_valuation
+#: code:addons/stock_lot_valuation/wizard/stock_lot_valuation_wizard.py:48
+#: view:stock.lot.valuation:0
+#, python-format
+msgid "Stock Lot Valuation"
+msgstr "Valeur du Stock par Lot"
+
+#. module: stock_lot_valuation
+#: model:ir.model,name:stock_lot_valuation.model_stock_lot_valuation_wizard
+msgid "Stock Lot Valuation Wizard"
+msgstr "Assistant pour la valeur du Stock par Lot"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,valuation:0
+msgid "Valuation"
+msgstr "Valeur"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,name:0
+msgid "Name"
+msgstr "Nom"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation:0
+msgid "valuation"
+msgstr "Valeur"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation.wizard,date_end:0
+msgid "End date"
+msgstr "Date de fin"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,location_dest_id:0
+msgid "Dest Location"
+msgstr "Emplacement de destination"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,location_id:0
+msgid "Source Location"
+msgstr "Emplacement d'origine"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,date:0
+msgid "Move date"
+msgstr "Date du mouvement"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,move_id:0
+msgid "Stock Move"
+msgstr "Mouvement de stock"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation.wizard:0
+msgid "Done"
+msgstr "Terminé"
+
+#. module: stock_lot_valuation
+#: view:stock.lot.valuation.wizard:0
+msgid "Cancel"
+msgstr "Annule"
+
+#. module: stock_lot_valuation
+#: field:stock.lot.valuation,prodlot_id:0
+msgid "Lot #"
+msgstr "Lot #"
