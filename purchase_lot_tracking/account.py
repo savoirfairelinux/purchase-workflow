@@ -78,6 +78,17 @@ class account_analytic_account(orm.Model):
 
         return res
 
+    def _get_analytic_account_line_ids(self, cr, uid, ids, context=None):
+        context = context or {}
+
+        res = []
+
+        for line in self.pool.get('account.analytic.line').browse(
+                cr, uid, ids, context=context):
+            res.append(line.account_id.id)
+
+        return list(set(res))
+
     def _calculate_tcu(self, cr, uid, ids, name, arg, context=None):
         res = {}
         for account in self.browse(cr, uid, ids):
@@ -113,13 +124,27 @@ class account_analytic_account(orm.Model):
         'total_cost_unit': fields.function(
             _calculate_tcu,
             string='Total Cost Unit',
-            type='float'),
+            type='float',
+            store={
+                'account.analytic.account': (lambda self, cr, uid, ids, context: ids,
+                                             ['name', 'code', 'line_ids'],
+                                             10),
+                'account.analytic.line': (_get_analytic_account_line_ids,
+                                          ['amount', 'unit_amount'],
+                                          10),
+                'stock.move': (_get_stock_move_ids,
+                               ['product_qty'],
+                               10)
+            }),
         'total_in_qty': fields.function(
             _calculate_total_in_out,
             string='Total Received Quantity',
             type='float',
             multi=True,
             store={
+                'account.analytic.account': (lambda self, cr, uid, ids, context: ids,
+                                             ['name', 'code', 'line_ids'],
+                                             10),
                 'stock.move': (_get_stock_move_ids,
                                ['product_qty'],
                                10)
@@ -130,6 +155,9 @@ class account_analytic_account(orm.Model):
             type='float',
             multi=True,
             store={
+                'account.analytic.account': (lambda self, cr, uid, ids, context: ids,
+                                             ['name', 'code', 'line_ids'],
+                                             10),
                 'stock.move': (_get_stock_move_ids,
                                ['product_qty'],
                                10)
