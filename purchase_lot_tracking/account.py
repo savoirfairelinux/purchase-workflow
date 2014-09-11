@@ -27,16 +27,21 @@ class account_analytic_account(orm.Model):
 
     _inherit = 'account.analytic.account'
 
-    def _calculate_total_in(self, cr, uid, ids, name, arg, context=None):
+    def _calculate_total_in_out(self, cr, uid, ids, name, arg, context=None):
         res = {}
 
         move_pool = self.pool.get('stock.move')
 
         for account in self.browse(cr, uid, ids):
-            res[account.id] = 0.0
-            total_moves = 0
+            res[account.id] = {
+                'total_in_qty': 0.0,
+                'total_out_qty': 0.0
+            }
+            total_moves_in = 0.0
+            total_moves_out = 0.0
             production_pool = self.pool.get('stock.production.lot')
-            lot_ids = production_pool.search(cr, uid, [('name', '=', account.name)])
+            lot_ids = production_pool.search(
+                cr, uid, [('name', '=', account.name)])
 
             for lot in production_pool.browse(cr, uid, lot_ids):
                 move_ids = move_pool.search(
@@ -45,12 +50,14 @@ class account_analytic_account(orm.Model):
 
                     # Add in purchases, remove sales
                     if move.type == 'in':
-                        total_moves += move.product_qty
-                    #else:
-                    #    total_moves -= move.product_qty
+                        total_moves_in += move.product_qty
+                    elif move.type == 'out':
+                        total_moves_out += move.product_qty
 
-            total_moves = max(total_moves, 0)
-            res[account.id] = total_moves
+            res[account.id] = {
+                'total_in_qty': max(total_moves_in, 0),
+                'total_out_qty': max(total_moves_out, 0)
+            }
 
         return res
 
@@ -108,9 +115,20 @@ class account_analytic_account(orm.Model):
             string='Total Cost Unit',
             type='float'),
         'total_in_qty': fields.function(
-            _calculate_total_in,
+            _calculate_total_in_out,
             string='Total Received Quantity',
             type='float',
+            multi=True,
+            store={
+                'stock.move': (_get_stock_move_ids,
+                               ['product_qty'],
+                               10)
+            }),
+        'total_out_qty': fields.function(
+            _calculate_total_in_out,
+            string='Total Delivered Quantity',
+            type='float',
+            multi=True,
             store={
                 'stock.move': (_get_stock_move_ids,
                                ['product_qty'],
