@@ -59,11 +59,13 @@ class stock_invoice_onshipping(orm.TransientModel):
             cr, uid, context['invoice_id'])
         return invoice.invoice_line
 
-    def _find_matching_move_line(self, invoice_line, move_lines):
-        """Finds the matching invoice line in the move lines list
+    def _find_matching_move_lines(self, invoice_line, move_lines):
+        """Finds the matching invoice lines in the move lines list
 
-           It is considered matching if they have the same product quantity
-           and the same product id.
+           It is considered matching if they have the same product quantity,
+           the same product id and the same production lot.
+
+           :return: list of matching moving lines
         """
         cr = invoice_line._cr
         uid = invoice_line._uid
@@ -75,19 +77,66 @@ class stock_invoice_onshipping(orm.TransientModel):
             line.product_id.id == invoice_line.product_id.id
         ]
 
+        duplicates = []
         if len(matching_move_lines) == 1:
-            return matching_move_lines[0]
+            return [matching_move_lines[0]]
         elif len(matching_move_lines) > 1:
             for l in matching_move_lines:
                 query = [
                     ('id', '!=', invoice_line.id),
                     ('invoice_id', '=', invoice_line.invoice_id.id),
-                    ('account_analytic_id', '=', l.prodlot_id.account_analytic_id.id)
+                    ('product_id', '=', invoice_line.product_id.id),
+                    ('quantity', '=', invoice_line.quantity),
+                    ('account_analytic_id', '=',
+                     l.prodlot_id.account_analytic_id.id)
                 ]
                 if not inv_line_pool.search(cr, uid, query, context=context):
-                    return l
+                    return [l]
+                else:
+                    duplicates.append(l)
 
-        return None
+        return duplicates
+
+    def merge_duplicate_invoice_lines(
+            self, cr, uid, duplicate_ids, context=None):
+        """Merge duplicate invoice lines: same product id, quantity
+        and account analytic.
+
+        Search for the main invoice line (the one which is duplicated).
+        Modify its quantity (sum of all the same invoice lines) and
+        delete duplicates.
+
+        Sum quantities by multiplying since quantities are the same.
+
+        :param list invoice_line_ids: duplicate invoice lines
+        """
+        invoice_line_pool = self.pool["account.invoice.line"]
+
+        first_duplicate = invoice_line_pool.browse(cr, uid,
+                                                   duplicate_ids[0],
+                                                   context=context)
+        invoice_id = first_duplicate.invoice_id.id
+        product_id = first_duplicate.product_id.id
+        quantity = first_duplicate.quantity
+        account_analytic_id = first_duplicate.account_analytic_id.id
+
+        query = [
+            ('id', 'not in', duplicate_ids),
+            ('invoice_id', '=', invoice_id),
+            ('product_id', '=', product_id),
+            ('quantity', '=', quantity),
+            ('account_analytic_id', '=', account_analytic_id)
+        ]
+
+        main_obj_id = invoice_line_pool.search(cr, uid, query,
+                                               context=context)[0]
+        main_obj = invoice_line_pool.browse(cr, uid, main_obj_id,
+                                            context=context)
+
+        new_quantity = (len(duplicate_ids) + 1) * quantity
+        main_obj.write({"quantity": new_quantity})
+
+        invoice_line_pool.unlink(cr, uid, duplicate_ids, context=context)
 
     def create_invoice(self, cr, uid, ids, context=None):
         """
@@ -112,16 +161,24 @@ class stock_invoice_onshipping(orm.TransientModel):
 
         # first iteration, check if matching
         lst_match = []
+        to_merge = {}
         for invoice_line in invoice_lines:
             # don't add service to analytic account
             if invoice_line.product_id.type == u'service':
                 continue
-            matching_move_line = self._find_matching_move_line(invoice_line,
-                                                               move_lines)
+            matching_move_lines = self._find_matching_move_lines(invoice_line,
+                                                                 move_lines)
             name = invoice_line.name
-            if not matching_move_line:
+            if len(matching_move_lines) == 0:
                 msg = _("The item %s is not in stock picking." % name)
                 raise orm.except_orm(_("Missed line!"), msg)
+            elif len(matching_move_lines) == 1:
+                matching_move_line = matching_move_lines[0]
+            else:
+                if tuple(matching_move_lines) not in to_merge:
+                    to_merge[tuple(matching_move_lines)] = []
+                to_merge[tuple(matching_move_lines)].append(invoice_line.id)
+                matching_move_line = matching_move_lines[0]
 
             # search account analytic
             prod_lot_id = matching_move_line.prodlot_id
@@ -132,6 +189,13 @@ class stock_invoice_onshipping(orm.TransientModel):
 
             invoice_line.write(
                 {'account_analytic_id': prod_lot_id.account_analytic_id.id})
+
+        # merge duplicate invoice lines
+        for duplicate_move_lines in to_merge:
+            duplicate_invoice_lines = to_merge[duplicate_move_lines]
+            self.merge_duplicate_invoice_lines(cr, uid,
+                                               duplicate_invoice_lines,
+                                               context=context)
 
         return res
 
