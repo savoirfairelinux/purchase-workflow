@@ -21,6 +21,7 @@
 
 from openerp.osv import orm, fields
 from openerp import netsvc
+from openerp.tools import float_compare
 
 
 def assign_lot_number(pool, cr, uid, line_orders, context=None):
@@ -178,15 +179,25 @@ class purchase_order(orm.Model):
         all_lines_tracked = True
         total_pallets = 0.0
 
+        dp_obj = self.pool.get('decimal.precision')
+
         for po_line in order.order_line:
             if not po_line.product_id.track_production:
                 all_lines_tracked = False
             else:
                 lot_number, account_id = assign_lot_number(self.pool, cr, uid, [po_line], context=context)
-                matching_lines = [line for line in stock_picking.move_lines
-                                  if line.product_qty == po_line.product_qty
-                                  and line.product_id.id == po_line.product_id.id
-                                  and not line.prodlot_id]
+                # Search matching lines by comparing product_id and
+                # product_qty. The comparison on quantity takes account of
+                # the decimal precision.
+                matching_lines = [
+                    line for line in stock_picking.move_lines
+                    if float_compare(
+                        line.product_qty,
+                        po_line.product_qty,
+                        dp_obj.precision_get(
+                            cr, uid, 'Product Unit of Measure')) == 0
+                    and line.product_id.id == po_line.product_id.id
+                    and not line.prodlot_id]
                 if matching_lines:
                     matching_lines[0].write({'prodlot_id': lot_number})
 
