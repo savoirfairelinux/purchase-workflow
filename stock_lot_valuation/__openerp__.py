@@ -34,7 +34,7 @@ period.
 
 Contribuitors:
 Joao Alfredo Gama Batista <joao.gama@savoirfairelinux.com>
-
+David Dufresne <david.dufresne@savoirfairelinux.com>
 """,
     'depends': ['purchase_lot_tracking'],
     'data': [
