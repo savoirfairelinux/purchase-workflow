@@ -96,8 +96,14 @@ class stock_lot_valuation(orm.Model):
             BEGIN
                 EXECUTE 'SELECT
                             CASE
-                               WHEN location_id = get_company_stock_location(company_id) THEN product_qty * -1
-                               WHEN location_dest_id = get_company_stock_location(company_id) THEN product_qty
+                              WHEN
+                                location_id = get_company_stock_location(company_id) AND
+                                location_dest_id != get_company_stock_location(company_id)
+                              THEN product_qty * -1
+                              WHEN
+                                location_dest_id = get_company_stock_location(company_id) AND
+                                location_id != get_company_stock_location(company_id)
+                              THEN product_qty
                             END AS product_qty
                          FROM stock_move
                          WHERE id = $1'
@@ -144,8 +150,14 @@ class stock_lot_valuation(orm.Model):
                    a.location_dest_id,
                    12 AS stock_location_id,
                    CASE
-                      WHEN a.location_id = get_company_stock_location(a.company_id) THEN a.product_qty * -1
-                      WHEN a.location_dest_id = get_company_stock_location(a.company_id) THEN a.product_qty
+                      WHEN
+                        a.location_id = get_company_stock_location(a.company_id) AND
+                        a.location_dest_id != get_company_stock_location(a.company_id)
+                      THEN product_qty * -1
+                      WHEN
+                        a.location_dest_id = get_company_stock_location(a.company_id) AND
+                        a.location_id != get_company_stock_location(a.company_id)
+                      THEN product_qty
                    END AS product_qty,
                    a.date,
                    valuation_by_move(a.id, c.id) as valuation,
