@@ -22,6 +22,7 @@
 from openerp.osv import orm, fields
 import openerp.addons.decimal_precision as dp
 
+
 class purchase_order(orm.Model):
 
     _inherit = 'purchase.order'
@@ -84,27 +85,36 @@ class purchase_order_line(orm.Model):
             # distribution of landed costs of PO
             if line.order_id.landed_cost_line_ids:
                 # Base value (Absolute Value)
-                landed_costs += line.order_id.landed_cost_base_value / line.order_id.amount_total * line.price_subtotal
+                try:
+                    landed_costs += line.order_id.landed_cost_base_value \
+                        / line.order_id.amount_total * line.price_subtotal
+                except ZeroDivisionError:
+                    landed_costs = 0.0
 
                 # Base quantity (Per Quantity)
-                landed_costs += line.order_id.landed_cost_base_quantity / line.order_id.quantity_total * line.product_qty
+                landed_costs += line.order_id.landed_cost_base_quantity \
+                    / line.order_id.quantity_total * line.product_qty
 
                 # Base pallet (Per Pallet)
-                landed_costs += line.order_id.landed_cost_base_pallet / pallets_total * line.nb_pallets
+                landed_costs += line.order_id.landed_cost_base_pallet \
+                    / pallets_total * line.nb_pallets
             result[line.id] = landed_costs
 
         return result
 
     _columns = {
         'nb_pallets': fields.float('Pallets', required=True),
-        'nb_crates_per_pallet': fields.integer('Crates per pallet', required=True),
-        'product_qty': fields.function(_product_quantity,
-                                       digits_compute=dp.get_precision('Product Unit of Measure'),
-                                       string="Quantity",
-                                       type='float'),
-        'landing_costs_order': fields.function(_landing_cost_order,
-                                               digits_compute=dp.get_precision('Account'),
-                                               string='Landing Costs from Order'),
+        'nb_crates_per_pallet': fields.integer('Crates per pallet',
+                                               required=True),
+        'product_qty': fields.function(
+            _product_quantity,
+            digits_compute=dp.get_precision('Product Unit of Measure'),
+            string="Quantity",
+            type='float'),
+        'landing_costs_order': fields.function(
+            _landing_cost_order,
+            digits_compute=dp.get_precision('Account'),
+            string='Landing Costs from Order'),
     }
 
 
@@ -114,10 +124,13 @@ class landed_cost_position(orm.Model):
 
     _columns = {
         'price_type': fields.selection(
-            [('per_pallet', 'Per Pallet'), ('per_unit','Per Quantity'), ('value','Absolute Value')],
+            [('per_pallet', 'Per Pallet'),
+             ('per_unit', 'Per Quantity'),
+             ('value', 'Absolute Value')],
             'Amount Type',
             required=True,
-            help="Defines if the amount is to be calculated for each quantity or an absolute value"),
+            help="Defines if the amount is to be calculated for each quantity "
+                 "or an absolute value"),
     }
 
     _defaults = {
