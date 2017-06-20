@@ -34,10 +34,12 @@ class account_analytic_account(orm.Model):
         def transformed_tcu():
 
             # Get the stock move id of the transformed product
-            stock_move_ids = stock_move_pool.search(cr, uid, [('prodlot_id.name', '=', line.code)], context=context)
+            stock_move_ids = stock_move_pool.search(
+                cr, uid, [('prodlot_id.name', '=', line.code)], context=context)
             if not stock_move_ids:
                 return 0
-            stock_move = stock_move_pool.browse(cr, uid, stock_move_ids[0], context=context)
+            stock_move = stock_move_pool.browse(
+                cr, uid, stock_move_ids[0], context=context)
 
             # Get the stock move id of the initial product
             # We can safely assume there is only one
@@ -47,19 +49,24 @@ class account_analytic_account(orm.Model):
             initial_analytic_id = initial_stock_move.prodlot_id.account_analytic_id.id
 
             """Get parent_po_line and calculate price based on transformation"""
-            parent_po_line_ids = po_line_pool.search(cr, uid, [('account_analytic_id', '=', initial_analytic_id)], context=context)
+            parent_po_line_ids = po_line_pool.search(
+                cr, uid, [('account_analytic_id', '=', initial_analytic_id)], context=context)
             if not parent_po_line_ids:
                 return 0
-            parent_po_line = po_line_pool.browse(cr, uid, parent_po_line_ids[0], context=context)
+            parent_po_line = po_line_pool.browse(
+                cr, uid, parent_po_line_ids[0], context=context)
 
             # Calculate transformed price
-            return parent_po_line.landed_costs / (parent_po_line.product_qty * stock_move.production_id.bom_id.product_qty)
-
+            if stock_move.production_id.bom_id.product_qty:
+                return parent_po_line.landed_costs / (parent_po_line.product_qty * stock_move.production_id.bom_id.product_qty)
+            else:
+                return 0
         # Call super
-        res = super(account_analytic_account, self)._estimated_tcu(cr, uid, ids, name, arg, context)
+        res = super(account_analytic_account, self)._estimated_tcu(
+            cr, uid, ids, name, arg, context)
         for line in self.browse(cr, uid, ids):
-            if line.code.startswith('LOT') and not po_line_pool.search(cr, uid, [('account_analytic_id', '=', line.id)]):
-                res[line.id] = transformed_tcu()
+            if line.code and line.code.startswith('LOT') and not po_line_pool.search(cr, uid, [('account_analytic_id', '=', line.id)]):
+                    res[line.id] = transformed_tcu()
 
         return res
 

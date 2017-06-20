@@ -101,15 +101,18 @@ class account_analytic_account(orm.Model):
         res = {}
         po_line_pool = self.pool.get('purchase.order.line')
         for line in self.browse(cr, uid, ids):
-            if line.code.startswith('LOT'):
-                po_line_ids = po_line_pool.search(cr, uid, [('account_analytic_id', '=', line.id)])
+            if line.code  and line.code.startswith('LOT'):
+                po_line_ids = po_line_pool.search(
+                    cr, uid, [('account_analytic_id', '=', line.id)])
                 if po_line_ids:
                     po_line_id = po_line_ids[0]
-                    po_line = po_line_pool.browse(cr, uid, po_line_id, context)
+                    po_line = po_line_pool.browse(
+                        cr, uid, po_line_id, context)
                     if po_line.product_qty == 0:
                         res[line.id] = 0
                     else:
-                        res[line.id] = po_line.landed_costs / po_line.product_qty
+                        res[line.id] = po_line.landed_costs / \
+                            po_line.product_qty
                 else:
                     res[line.id] = 0.0
             else:
